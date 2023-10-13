@@ -1,0 +1,30 @@
+// app global css in SCSS form
+
+
+.hp-banner{
+  background: url("static/hpBanner.jpg") center/cover;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 50vh;
+
+}
+
+.banner-text{
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  text-align: center;
+  transform: translate(-50%, -50%)
+}
+
+.nav-bar-items:hover {
+  cursor: pointer;
+  border: 2px solid white;
+  border-radius: 0.5rem;
+  padding: 0.7rem;
+}
+
+.q-field--standout .q-field__control {
+  padding: 0 0 0 12px;
+  margin: 0 12px 0 0;
+}
