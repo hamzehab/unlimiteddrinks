@@ -1,8 +1,14 @@
 <script setup>
 import NavBar from "components/NavBar.vue";
 import FooterComponent from "src/components/FooterComponent.vue";
+import ProductCard from "src/components/ProductCard.vue";
 import { ref, onMounted, onUnmounted } from "vue";
+
 const windowWidth = ref(window.innerWidth);
+
+const roulette = () => {
+
+};
 
 const handleResize = () => {
   windowWidth.value = window.innerWidth;
@@ -52,32 +58,12 @@ const slide = ref(1);
     <img src="static/logos/snapple.png" alt="Snapple Logo" />
     <img src="static/logos/pellegrino.png" alt="Pellegrino Logo" />
   </div>
-
-  <div class="oswald q-mx-xl row justify-evenly">
-    <q-card
-      v-for="n in 4"
-      :key="n"
-      class="q-my-lg"
-      style="width: 100%; max-width: 400px; height: inherit"
-    >
-      <img src="static/pepsi.jpg" />
-
-      <q-card-section>
-        <div class="text-h6">Product Name</div>
-
-      </q-card-section>
-
-      <q-card-section class="q-pt-none">
-        <div>Description</div>
-      </q-card-section>
-      <q-card-section class="row justify-end items-center">
-        <div class="ys `text-subtitle1 q-mr-lg">$0.00</div>
-        <q-btn color="deep-purple-14" rounded>
-          Add to Cart
-        </q-btn>
-      </q-card-section>
-    </q-card>
+ <q-separator inset/>
+  <div class="ys text-center text-bold text-h4 text-weight-light q-my-xl">
+    Try out Drink Roulette!
+    <q-icon class="cursor-pointer" name="replay" size="40px" @click="roulette"/>
   </div>
+  <ProductCard/>
 
   <FooterComponent />
 </template>
