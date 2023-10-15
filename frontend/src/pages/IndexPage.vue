@@ -1,14 +1,83 @@
 <script setup>
 import NavBar from "components/NavBar.vue";
+import FooterComponent from "src/components/FooterComponent.vue";
+import { ref, onMounted, onUnmounted } from "vue";
+const windowWidth = ref(window.innerWidth);
+
+const handleResize = () => {
+  windowWidth.value = window.innerWidth;
+};
+
+onMounted(() => {
+  window.addEventListener("resize", handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", handleResize);
+});
+
+const slide = ref(1);
 </script>
 
 <template>
   <NavBar />
 
-  <div class="hp-banner">
-    <div class="banner-text text-white text-h2 text-weight-medium full-width">
-      <div>Unlimited Drinks</div>
-    </div>
+  <q-carousel
+    v-model="slide"
+    control-color="dark"
+    height="50vh"
+    animated
+    arrows
+    infinite
+    autoplay
+  >
+    <q-carousel-slide :name="1" img-src="static/warehouse.jpg" />
+    <q-carousel-slide :name="2" img-src="static/vending.jpg" />
+    <q-carousel-slide :name="3" img-src="static/shelfDrinks.jpg" />
+    <q-carousel-slide :name="4" img-src="static/pepsi.jpg" />
+    <q-carousel-slide :name="5" img-src="static/shelfDrinks2.jpg" />
+  </q-carousel>
+  <div class="ys text-center text-bold text-h4 text-weight-light q-mt-xl">
+    Available Products
+  </div>
+  <div class="q-ma-xl row justify-evenly">
+    <img src="static/logos/coca-cola.png" alt="Coca Cola Logo" />
+    <img src="static/logos/monster.png" alt="Monster Logo" />
+    <img src="static/logos/sprite.png" alt="Sprite Logo" />
+    <img src="static/logos/vitamin-water.png" alt="Vitamin Water Logo" />
+    <img src="static/logos/redbull.png" alt="Red Bull Logo" />
+    <img src="static/logos/lacroix.png" alt="Lacroix Logo" />
+    <img src="static/logos/gatorade.png" alt="Gatorade Logo" />
+    <img src="static/logos/celcius.png" alt="Celcius Logo" />
+    <img src="static/logos/snapple.png" alt="Snapple Logo" />
+    <img src="static/logos/pellegrino.png" alt="Pellegrino Logo" />
   </div>
 
+  <div class="oswald q-mx-xl row justify-evenly">
+    <q-card
+      v-for="n in 4"
+      :key="n"
+      class="q-my-lg"
+      style="width: 100%; max-width: 400px; height: inherit"
+    >
+      <img src="static/pepsi.jpg" />
+
+      <q-card-section>
+        <div class="text-h6">Product Name</div>
+
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        <div>Description</div>
+      </q-card-section>
+      <q-card-section class="row justify-end items-center">
+        <div class="ys `text-subtitle1 q-mr-lg">$0.00</div>
+        <q-btn color="deep-purple-14" rounded>
+          Add to Cart
+        </q-btn>
+      </q-card-section>
+    </q-card>
+  </div>
+
+  <FooterComponent />
 </template>
