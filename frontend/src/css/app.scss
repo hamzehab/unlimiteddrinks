@@ -35,3 +35,12 @@
 .contact-form .q-field__control, .search-form .q-field__control {
   color: $deep-purple-14;
 }
+
+.error .q-field__control{
+  color: red;
+}
+
+.back-btn:hover{
+  text-decoration: underline;
+  text-decoration-color: $deep-purple-14;
+}
