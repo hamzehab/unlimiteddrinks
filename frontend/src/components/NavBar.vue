@@ -4,9 +4,11 @@ import { useCartStore } from "src/stores/cart-store";
 
 const cartStore = useCartStore();
 const cartItemCount = ref(cartStore.totalQuantity);
+const selected = ref(0);
 
 const searchInput = ref("");
 const windowWidth = ref(window.innerWidth);
+const addressModal = ref(false);
 
 const search = () => {
   console.log("Hello");
@@ -43,7 +45,7 @@ watchEffect(() => {
             @click="$router.push('/')"
           />
         </q-btn>
-        <q-btn no-caps push flat>
+        <q-btn no-caps push flat @click="addressModal = true">
           <div class="row items-center no-wrap">
             <q-icon left name="mdi-map-marker-outline" />
             <div class="text-center">
@@ -51,6 +53,33 @@ watchEffect(() => {
               <div class="text-bold text-subtitle1">Ridgewood 07450</div>
             </div>
           </div>
+          <q-dialog v-model="addressModal">
+            <q-card>
+              <q-card-section class="bg-dark text-white text-bold ys">
+                Choose your location
+              </q-card-section>
+              <q-card-section class="oswald text-body2 text-grey-6 q-pb-none">
+                Delivery options and delivery speeds may vary for different
+                locations
+              </q-card-section>
+              <q-card-section class="oswald text-bold q-py-none">
+                <div
+                  class="cursor-pointer q-my-md q-pa-lg"
+                  :class="n === selected ? 'selected-address' : 'address'"
+                  v-for="n in 3"
+                  :key="n"
+                  @click="selected = n"
+                >
+                  <div>Address {{ n }}</div>
+                </div>
+              </q-card-section>
+              <q-separator inset />
+              <q-card-actions class="oswald" align="right">
+                <q-btn label="Close" color="dark" v-close-popup />
+                <q-btn label="Done" color="deep-purple-14" />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
         </q-btn>
       </div>
 
@@ -89,7 +118,7 @@ watchEffect(() => {
           >
             <q-list>
               <div v-for="n in 4" :key="n">
-                <q-item clickable @click="$router.push('/category/1')">
+                <q-item clickable @click="$router.push(`/${category}`)">
                   <q-item-section>Category {{ n }}</q-item-section>
                 </q-item>
                 <q-separator dark />
@@ -174,7 +203,7 @@ watchEffect(() => {
                 >
                   <q-list>
                     <div v-for="n in 4" :key="n">
-                      <q-item clickable @click="$router.push('/category/1')">
+                      <q-item clickable @click="$router.push(`/${category}`)">
                         <q-item-section>Category {{ n }}</q-item-section>
                       </q-item>
                       <q-separator dark />

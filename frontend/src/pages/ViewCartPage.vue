@@ -89,7 +89,7 @@ const removeItem = (product_id) => {
                 class="rounded-borders q-mr-lg"
                 src="/static/pepsi.jpg"
                 alt=""
-                style="width: 200px; height: 200px"
+                style="width: 150px; height: 150px"
               />
               <div class="q-ml-lg">
                 <div class="text-h6">{{ item.name }}</div>
@@ -194,51 +194,72 @@ const removeItem = (product_id) => {
           />
         </div>
       </q-card>
-      <q-card class="oswald" bordered style="width: 25%; height: fit-content">
-        <q-card-section class="q-mx-sm">
-          <div class="row justify-between">
-            <div>
-              <div class="text-body1">Subtotal:</div>
-              <div class="text-caption">Before Taxes and Fees</div>
+      <div style="width: 25%">
+        <q-card class="oswald" bordered>
+          <q-card-section class="q-mx-sm">
+            <div class="row justify-between">
+              <div>
+                <div class="text-body1">Subtotal:</div>
+                <div class="text-caption">Before Taxes and Fees</div>
+              </div>
+              <div class="text-subtitle1">
+                <span class="text-bold">$</span>
+                {{ cartStore.totalCostBeforeTax }}
+              </div>
             </div>
-            <div class="text-subtitle1">
-              <span class="text-bold">$</span>
-              {{ cartStore.totalCostBeforeTax }}
+          </q-card-section>
+          <q-card-section class="q-mx-sm">
+            <div class="row justify-between">
+              <div class="text-body1">Taxes and Fees:</div>
+              <div class="text-subtitle1">
+                <span class="text-bold">$</span>
+                {{ cartStore.taxesAndFees }}
+              </div>
             </div>
-          </div>
-        </q-card-section>
-        <q-card-section class="q-mx-sm">
-          <div class="row justify-between">
-            <div class="text-body1">Taxes and Fees:</div>
-            <div class="text-subtitle1">
-              <span class="text-bold">$</span>
-              {{ cartStore.taxesAndFees }}
+          </q-card-section>
+          <q-separator inset />
+          <q-card-section class="q-mx-sm">
+            <div class="row justify-between text-h6">
+              <div>Total:</div>
+              <div>
+                <span class="text-bold">$</span>
+                {{
+                  (
+                    parseFloat(cartStore.totalCostBeforeTax) +
+                    parseFloat(cartStore.taxesAndFees)
+                  ).toFixed(2)
+                }}
+              </div>
             </div>
-          </div>
-        </q-card-section>
-        <q-separator inset />
-        <q-card-section class="q-mx-sm">
-          <div class="row justify-between text-h6">
-            <div>Total:</div>
-            <div>
-              <span class="text-bold">$</span>
-              {{
-                (
-                  parseFloat(cartStore.totalCostBeforeTax) +
-                  parseFloat(cartStore.taxesAndFees)
-                ).toFixed(2)
-              }}
-            </div>
-          </div>
-        </q-card-section>
-      </q-card>
+          </q-card-section>
+        </q-card>
+        <div class="row justify-center q-mt-xl">
+          <q-btn
+            class="rounded-borders q-mb-md"
+            style="width: 400px"
+            label="Continue Shopping"
+            color="dark"
+            push
+          />
+          <q-btn
+            class="rounded-borders"
+            style="width: 400px"
+            label="Proceed to Checkout"
+            icon="lock_outline"
+            color="deep-purple-14"
+            push
+          />
+        </div>
+      </div>
     </div>
     <div
-      class="text-deep-purple-14 cursor-pointer row items-center"
+      class="text-deep-purple-14 cursor-pointer row items-center q-mt-lg"
       @click="$router.push('/')"
     >
       <q-icon name="arrow_back" size="20px" />
-      <div class="on-right underline oswald text-body1">Continue Shopping</div>
+      <div class="on-right underline oswald text-body1">
+        Return to Previous Page
+      </div>
     </div>
     <!-- <div class="ys text-h6 q-mt-xl">Payment</div>
     <q-select

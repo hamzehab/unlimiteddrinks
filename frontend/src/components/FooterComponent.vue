@@ -1,10 +1,58 @@
 <script setup>
 import { ref } from "vue";
+import emailjs from "@emailjs/browser";
 
 const name = ref(null);
 const email = ref(null);
 const subject = ref(null);
 const message = ref(null);
+
+const isLoading = ref(false);
+const submitted = ref(null);
+
+const error = ref("");
+
+const submitForm = async () => {
+  if (
+    !name.value.trim() ||
+    !email.value.trim() ||
+    !subject.value.trim() ||
+    !message.value.trim()
+  ) {
+    error.value = "Please fill in all the fields";
+    submitted.value = false;
+    return;
+  }
+  isLoading.value = true;
+  try {
+    const form = {
+      from_name: name.value.trim(),
+      message: message.value.trim(),
+      subject: subject.value.trim(),
+      email: email.value.trim(),
+    };
+
+    const response = await emailjs.send(
+      "service_t1v57jf",
+      "template_r5gh23z",
+      form,
+      "LONOwLZJYS63ujYp5"
+    );
+
+    submitted.value = response.status === 200 ? true : false;
+  } catch (err) {
+    submitted.value = false;
+    error.value = "Something went wrong! Please try again later";
+    console.error(err);
+  }
+
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 1000);
+  setTimeout(() => {
+    submitted.value = null;
+  }, 2000);
+};
 </script>
 
 <template>
@@ -78,12 +126,27 @@ const message = ref(null);
               dense
             />
             <q-btn
+              :loading="isLoading"
               class="full-width"
               label="Contact Us"
               color="deep-purple-14"
               rounded
               push
+              @click="submitForm"
             />
+          </div>
+          <div
+            v-if="submitted"
+            class="oswald text-center text-positive q-mt-sm"
+          >
+            Thank you for contacting us! We will get back to you shortly
+            <span class="text-h6">&#128077;&#128513;</span>
+          </div>
+          <div
+            v-if="submitted === false"
+            class="oswald text-center text-negative q-mt-sm"
+          >
+            {{ error }}
           </div>
         </div>
       </div>

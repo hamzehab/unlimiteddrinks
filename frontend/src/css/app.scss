@@ -44,3 +44,22 @@
 .main {
   min-height: 50vh;
 }
+
+.selected-address {
+  border: 3px solid $deep-purple-14;
+  border-radius: 1rem;
+  background-color: $deep-purple-1;
+}
+
+.selected-address:hover {
+  background: $grey-3;
+}
+
+.address {
+  border: 2px solid black;
+  border-radius: 1rem;
+}
+
+.address:hover {
+  background: $grey-3;
+}
