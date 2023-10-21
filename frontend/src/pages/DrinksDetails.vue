@@ -3,15 +3,35 @@ import NavBar from "src/components/NavBar.vue";
 import FooterComponent from "src/components/FooterComponent.vue";
 import ProductCard from "src/components/ProductCard.vue";
 
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useCartStore } from "src/stores/cart-store";
+
+const cartStore = useCartStore();
 
 const slide = ref(1);
 const rating = ref(3.2);
 const quantity = ref(1);
 
+const product_id = parseInt(window.location.href.split("/").at(-1));
+
+const isLoading = ref(false);
+const addedToCart = ref(null);
+
 const addToCart = (event) => {
   event.stopPropagation();
-  console.log(quantity.value);
+  isLoading.value = true;
+
+  cartStore.addItem(
+    { id: product_id, name: "test", price: 20, category: "category" },
+    quantity.value
+  );
+  addedToCart.value = true;
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 1000);
+  setTimeout(() => {
+    addedToCart.value = null;
+  }, 3000);
 };
 
 const decreaseQuantity = () => {
@@ -21,23 +41,44 @@ const decreaseQuantity = () => {
 };
 
 const increaseQuantity = () => {
-  if (quantity.value < 99) {
+  if (quantity.value < 25) {
     quantity.value = parseInt(quantity.value) + 1;
   }
 };
+
+onMounted(() => {
+  const fadeIn = document.querySelectorAll(".fade");
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        entry.target.classList.toggle("animated", entry.isIntersecting);
+        entry.target.classList.toggle("fadeIn", entry.isIntersecting);
+        entry.target.classList.toggle("slower", entry.isIntersecting);
+        if (entry.isIntersecting) observer.unobserve(entry.target);
+      });
+    },
+    { threshold: 0.2 }
+  );
+
+  fadeIn.forEach((entry) => {
+    observer.observe(entry);
+  });
+});
 </script>
 
 <template>
   <NavBar />
   <div class="q-mx-xl">
-    <div class="q-ma-xl cursor-pointer row items-center text-deep-purple-14">
+    <div
+      class="fade q-ma-xl cursor-pointer row items-center text-deep-purple-14"
+    >
       <q-icon name="keyboard_arrow_left" size="30px" />
-      <div class="text-h6 back-btn ys" @click="$router.back()">Back</div>
+      <div class="text-h6 underline ys" @click="$router.back()">Back</div>
     </div>
 
     <div class="row justify-evenly" style="width: 100%">
       <q-carousel
-        class="rounded-borders"
+        class="rounded-borders fade"
         v-model="slide"
         control-color="dark"
         style="width: 100%; max-width: 800px"
@@ -54,9 +95,9 @@ const increaseQuantity = () => {
         <q-carousel-slide :name="5" img-src="/static/shelfDrinks2.jpg" />
       </q-carousel>
 
-      <div class="oswald q-mt-xl" style="width: 100%; max-width: 800px">
-        <div class="text-caption">Category</div>
-        <div class="text-h4 ys">Product Name</div>
+      <div class="fade oswald q-mt-xl" style="width: 100%; max-width: 800px">
+        <div class="text-caption fade">Category</div>
+        <div class="text-h4 ys fade">Product Name</div>
         <div class="cursor-pointer row items-center">
           <div class="text-overline q-mr-xs">{{ rating }}</div>
           <q-rating
@@ -76,7 +117,7 @@ const increaseQuantity = () => {
         <div class="text-h3 ys q-mb-xl">$ 0.00</div>
         <div class="text-body1 q-mb-xl">Description</div>
 
-        <div class="row justify-end items-center q-mr-md q-mb-md" style="flex-wrap: nowrap;">
+        <div class="row justify-end items-center q-mr-md q-mb-md no-wrap">
           <q-icon
             class="cursor-pointer on-left"
             name="remove"
@@ -102,7 +143,8 @@ const increaseQuantity = () => {
           />
           <q-btn
             class="q-ml-xl"
-            style="width: 80%;"
+            style="width: 80%"
+            :loading="isLoading"
             color="deep-purple-14"
             label="Add to Cart"
             rounded
@@ -111,6 +153,59 @@ const increaseQuantity = () => {
           >
             <q-icon name="mdi-cart-outline on-right" />
           </q-btn>
+        </div>
+
+        <div class="row justify-end items-center q-mr-md text-body1">
+          <div v-if="cartStore.items.find((item) => item.id === product_id)">
+            <div
+              v-if="
+                cartStore.items.find((item) => item.id === product_id)
+                  .quantity +
+                  quantity <=
+                25
+              "
+            >
+              <transition
+                appear
+                enter-active-class="animated zoomIn"
+                leave-active-class="animated zoomOut"
+              >
+                <div v-if="addedToCart" class="text-positive animated zoomIn">
+                  Product Name successfully added to cart!
+                </div>
+              </transition>
+              <transition
+                appear
+                enter-active-class="animated zoomIn"
+                leave-active-class="animated zoomOut"
+              >
+                <div
+                  v-if="addedToCart == false"
+                  class="text-negative animated zoomIn slow"
+                >
+                  Something went wrong adding item to cart!
+                </div>
+              </transition>
+            </div>
+            <!-- assuming Animate.css is included on the page -->
+            <transition
+              appear
+              enter-active-class="animated zoomIn"
+              leave-active-class="animated zoomOut"
+            >
+              <div
+                v-if="
+                  cartStore.items.find((item) => item.id === product_id)
+                    .quantity +
+                    quantity >
+                  25
+                "
+                class="text-amber-8"
+              >
+                Quantity exceeds limit
+              </div>
+            </transition>
+          </div>
         </div>
       </div>
     </div>

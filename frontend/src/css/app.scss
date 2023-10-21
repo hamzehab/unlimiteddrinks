@@ -8,39 +8,39 @@
   src: url(./fonts/oswald.ttf);
 }
 
-.ys{
+.ys {
   font-family: young-serif;
 }
 
-.oswald{
+.oswald {
   font-family: oswald;
 }
 
 .q-field--standout .q-field__control {
   padding: 0 0 0 12px;
-  margin: 0 12px 0 0;
-  border-radius: 1rem;
 }
 
-.q-field--labeled .q-field__native, .q-field--labeled .q-field__prefix, .q-field--labeled .q-field__suffix{
+.q-field--labeled .q-field__native,
+.q-field--labeled .q-field__prefix,
+.q-field--labeled .q-field__suffix {
   line-height: 20px;
 }
 
-.search-btn{
+.search-btn {
   cursor: pointer;
   border-top-right-radius: 1rem;
   border-bottom-right-radius: 1rem;
 }
 
-.contact-form .q-field__control, .search-form .q-field__control {
-  color: $deep-purple-14;
-}
-
-.error .q-field__control{
+.error .q-field__control {
   color: red;
 }
 
-.back-btn:hover{
+.underline:hover {
   text-decoration: underline;
   text-decoration-color: $deep-purple-14;
+}
+
+.main {
+  min-height: 50vh;
 }

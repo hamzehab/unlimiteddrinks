@@ -1,7 +1,9 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { useCartStore } from "src/stores/cart-store";
 
+const cartStore = useCartStore();
 const $router = useRouter();
 
 const props = defineProps({
@@ -28,7 +30,8 @@ const props = defineProps({
 });
 
 const quantity = ref(1);
-const addFailed = ref(false);
+const isLoading = ref(false);
+const addedToCart = ref(null);
 
 const category = "TBD";
 
@@ -38,7 +41,19 @@ const viewFullItem = () => {
 
 const addToCart = (event) => {
   event.stopPropagation();
-  console.log(quantity.value);
+  isLoading.value = true;
+
+  cartStore.addItem(
+    { id: props.product_id, price: 20, name: "test", category: "category" },
+    quantity.value
+  );
+  addedToCart.value = true;
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 1000);
+  setTimeout(() => {
+    addedToCart.value = null;
+  }, 3000);
 };
 
 const decreaseQuantity = () => {
@@ -48,7 +63,7 @@ const decreaseQuantity = () => {
 };
 
 const increaseQuantity = () => {
-  if (quantity.value < 99) {
+  if (quantity.value < 25) {
     quantity.value = parseInt(quantity.value) + 1;
   }
 };
@@ -59,9 +74,9 @@ const increaseQuantity = () => {
     <img class="cursor-pointer" :src="image" @click="viewFullItem" />
 
     <q-card-section class="q-pb-none" @click="viewFullItem">
-      <span class="text-h6 cursor-pointer" @click="viewFullItem">{{
-        name
-      }}</span>
+      <span class="text-h6 cursor-pointer" @click="viewFullItem">
+        {{ name }}
+      </span>
     </q-card-section>
 
     <q-card-section class="q-py-none">
@@ -96,13 +111,68 @@ const increaseQuantity = () => {
     <q-card-section class="q-pt-none">
       <div class="text-caption row justify-end">Max limit 25</div>
     </q-card-section>
+    <q-card-section
+      class="q-py-none"
+      v-if="cartStore.items.find((item) => item.id === product_id)"
+    >
+      <div
+        class="row justify-end"
+        v-if="cartStore.items.find((item) => item.id === product_id)"
+      >
+        <div
+          v-if="
+            cartStore.items.find((item) => item.id === product_id).quantity +
+              quantity <=
+            25
+          "
+        >
+          <transition
+            appear
+            enter-active-class="animated zoomIn"
+            leave-active-class="animated zoomOut"
+          >
+            <div v-if="addedToCart" class="text-positive animated zoomIn">
+              Product Name successfully added to cart!
+            </div>
+          </transition>
+          <transition
+            appear
+            enter-active-class="animated zoomIn"
+            leave-active-class="animated zoomOut"
+          >
+            <div
+              v-if="addedToCart == false"
+              class="text-negative animated zoomIn slow"
+            >
+              Something went wrong adding item to cart!
+            </div>
+          </transition>
+        </div>
+        <!-- assuming Animate.css is included on the page -->
+        <transition
+          appear
+          enter-active-class="animated zoomIn"
+          leave-active-class="animated zoomOut"
+        >
+          <div
+            v-if="
+              cartStore.items.find((item) => item.id === product_id).quantity +
+                quantity >
+              25
+            "
+            class="text-amber-8"
+          >
+            Quantity exceeds limit
+          </div>
+        </transition>
+      </div>
+    </q-card-section>
     <q-card-section class="row justify-between items-center">
       <div class="ys text-h6 cursor-pointer" @click="viewFullItem">
         $ {{ parseFloat(price).toFixed(2) }}
       </div>
-
       <q-btn
-        :class="addFailed ? 'animated shakeX slower' : ''"
+        :loading="isLoading"
         color="deep-purple-14"
         rounded
         push

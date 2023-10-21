@@ -1,5 +1,9 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, watchEffect } from "vue";
+import { useCartStore } from "src/stores/cart-store";
+
+const cartStore = useCartStore();
+const cartItemCount = ref(cartStore.totalQuantity);
 
 const searchInput = ref("");
 const windowWidth = ref(window.innerWidth);
@@ -19,36 +23,44 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener("resize", handleResize);
 });
+
+watchEffect(() => {
+  cartItemCount.value = cartStore.totalQuantity;
+});
 </script>
 
 <template>
   <div class="oswald bg-dark text-white fixed full-width" style="z-index: 9999">
     <div class="row justify-between items-center q-mx-xl">
-      <div class="row q-gutter-x-lg">
-        <img
-          class="cursor-pointer"
-          src="/static/logo.png"
-          alt="Logo"
-          width="80"
-          height="80"
-          @click="$router.push('/')"
-        />
-        <div class="row items-center text-center">
-          <q-icon size="24px" name="mdi-map-marker-outline" />
-          <div>
-            <div class="text-caption">Deliver to name</div>
-            <div class="text-bold text-subtitle1">Ridgewood 07450</div>
+      <div class="row items-center q-gutter-x-lg">
+        <q-btn flat class="q-pa-none">
+          <img
+            class="cursor-pointer row"
+            src="/static/logo.png"
+            alt="Logo"
+            width="80"
+            height="80"
+            @click="$router.push('/')"
+          />
+        </q-btn>
+        <q-btn no-caps push flat>
+          <div class="row items-center no-wrap">
+            <q-icon left name="mdi-map-marker-outline" />
+            <div class="text-center">
+              <div class="text-caption">Deliver to Name</div>
+              <div class="text-bold text-subtitle1">Ridgewood 07450</div>
+            </div>
           </div>
-        </div>
+        </q-btn>
       </div>
 
       <div style="width: 55%">
         <q-input
-          class="search-form"
           type="search"
           dense
           dark
-          standout
+          rounded
+          standout="text-deep-purple-14"
           v-model="searchInput"
           label="Search"
           @keydown.enter.prevent="search"
@@ -66,7 +78,7 @@ onUnmounted(() => {
         v-if="windowWidth >= 1310"
         class="row justify-end q-gutter-x-lg items-center"
       >
-        <q-btn label="Products" padding="md" push>
+        <q-btn label="Products" padding="md" push flat>
           <q-icon name="keyboard_arrow_down" class="on-right" />
           <q-menu
             fit
@@ -86,7 +98,7 @@ onUnmounted(() => {
           </q-menu>
         </q-btn>
 
-        <q-btn no-caps>
+        <q-btn no-caps flat>
           <div class="row items-center">
             <q-icon size="30px" name="mdi-account-circle-outline" />
             <div class="on-right">
@@ -118,7 +130,7 @@ onUnmounted(() => {
             </q-list>
           </q-menu>
         </q-btn>
-        <q-btn padding="md" no-caps @click="$router.push('/cart')">
+        <q-btn padding="md" no-caps flat @click="$router.push('/cart')">
           <div>
             <q-icon size="30px" name="mdi-cart-outline">
               <q-badge
@@ -127,7 +139,7 @@ onUnmounted(() => {
                 floating
                 rounded
               >
-                1
+                {{ cartItemCount }}
               </q-badge>
             </q-icon>
             <span class="text-caption text-bold vertical-bottom">Cart</span>
@@ -136,7 +148,7 @@ onUnmounted(() => {
       </div>
 
       <div v-else>
-        <q-btn>
+        <q-btn flat>
           <q-icon name="menu" size="30px" class="cursor-pointer" />
           <q-menu
             style="width: 200px"
@@ -150,7 +162,9 @@ onUnmounted(() => {
                 <q-item-section side>
                   <q-icon name="keyboard_arrow_left" />
                 </q-item-section>
-                <q-item-section class="q-py-md"> Products </q-item-section>
+                <q-item-section class="q-py-md q-ml-lg">
+                  Products
+                </q-item-section>
                 <q-menu
                   fit
                   class="bg-dark text-white oswald text-center"
@@ -215,7 +229,7 @@ onUnmounted(() => {
                         floating
                         rounded
                       >
-                        1
+                        {{ cartItemCount }}
                       </q-badge>
                     </q-icon>
                     <span class="text-caption text-bold vertical-bottom">

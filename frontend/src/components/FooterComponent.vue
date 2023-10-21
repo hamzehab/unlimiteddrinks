@@ -36,15 +36,16 @@ const message = ref(null);
         </div>
         <div style="width: 35%">
           <div class="ys text-h6">Contact Us</div>
-          <div class="oswald contact-form">
+          <div class="oswald">
             <q-input
               class="q-my-lg"
               type="text"
               label="Preferred Name"
               v-model="name"
               dense
-              standout
+              standout="text-deep-purple-14"
               dark
+              rounded
             />
             <q-input
               class="q-my-lg"
@@ -53,7 +54,8 @@ const message = ref(null);
               v-model="email"
               dense
               dark
-              standout
+              rounded
+              standout="text-deep-purple-14"
             />
             <q-input
               class="q-my-lg"
@@ -62,18 +64,26 @@ const message = ref(null);
               v-model="subject"
               dense
               dark
-              standout
+              rounded
+              standout="text-deep-purple-14"
             />
             <q-input
               class="q-my-lg"
               label="Your Message"
               v-model="message"
               autogrow
-              standout
+              standout="text-deep-purple-14"
               dark
+              rounded
               dense
             />
-            <q-btn class="full-width" label="Contact Us" color="deep-purple-14" rounded push/>
+            <q-btn
+              class="full-width"
+              label="Contact Us"
+              color="deep-purple-14"
+              rounded
+              push
+            />
           </div>
         </div>
       </div>
