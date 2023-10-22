@@ -149,7 +149,7 @@ watchEffect(() => {
               <q-item clickable>
                 <q-item-section>Orders</q-item-section>
               </q-item>
-              <q-item clickable>
+              <q-item clickable @click="$router.push('/account')">
                 <q-item-section>Account Settings</q-item-section>
               </q-item>
               <q-item clickable>
@@ -238,7 +238,7 @@ watchEffect(() => {
                     <q-item clickable>
                       <q-item-section>Orders</q-item-section>
                     </q-item>
-                    <q-item clickable>
+                    <q-item clickable @click="$router.push('/account')">
                       <q-item-section>Account Settings</q-item-section>
                     </q-item>
                     <q-item clickable>

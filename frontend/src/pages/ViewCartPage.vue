@@ -306,4 +306,3 @@ const removeItem = (product_id) => {
 
   <FooterComponent />
 </template>
-``
