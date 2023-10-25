@@ -1,3 +1,17 @@
+import { api } from "boot/axios";
+
+const checkIfCategoryExists = async (category) => {
+  // try {
+  //   const response = await api.get("/categories", category);
+  //   if (response.status === 200) {
+  //     return true;
+  //   }
+  // } catch (error) {
+  //   return false;
+  // }
+  return true;
+};
+
 const routes = [
   {
     path: "/",
@@ -5,7 +19,20 @@ const routes = [
     meta: { title: "Unlimited Drinks" },
   },
   {
-    path: "/:drinks/:drinkId",
+    path: "/:category",
+    component: () => import("pages/CategoryDrinks.vue"),
+    meta: { title: "Unlimited Drinks" },
+    beforeEnter: async (to, from, next) => {
+      const categoryExists = await checkIfCategoryExists(to.params.category);
+      if (categoryExists) {
+        next();
+      } else {
+        next({ name: "NotFound" });
+      }
+    },
+  },
+  {
+    path: "/:category/:id",
     component: () => import("pages/DrinksDetails.vue"),
     meta: { title: "Unlimited Drinks" },
   },
@@ -28,6 +55,7 @@ const routes = [
   // but you can also remove it
   {
     path: "/:catchAll(.*)*",
+    name: "NotFound",
     component: () => import("pages/ErrorNotFound.vue"),
   },
 ];

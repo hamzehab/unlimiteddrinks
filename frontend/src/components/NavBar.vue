@@ -1,6 +1,9 @@
 <script setup>
+import AddressModal from "./AddressModal.vue";
 import { ref, onMounted, onUnmounted, watchEffect } from "vue";
 import { useCartStore } from "src/stores/cart-store";
+
+const category = "category";
 
 const cartStore = useCartStore();
 const cartItemCount = ref(cartStore.totalQuantity);
@@ -9,6 +12,7 @@ const selected = ref(0);
 const searchInput = ref("");
 const windowWidth = ref(window.innerWidth);
 const addressModal = ref(false);
+const newAddress = ref(false);
 
 const search = () => {
   console.log("Hello");
@@ -32,7 +36,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="oswald bg-dark text-white fixed full-width" style="z-index: 9999">
+  <div class="oswald bg-dark text-white fixed full-width" style="z-index: 1">
     <div class="row justify-between items-center q-mx-xl">
       <div class="row items-center q-gutter-x-lg">
         <q-btn flat class="q-pa-none">
@@ -58,6 +62,20 @@ watchEffect(() => {
               <q-card-section class="bg-dark text-white text-bold ys">
                 Choose your location
               </q-card-section>
+              <q-card-section class="oswald text-bold q-pb-none">
+                <q-btn
+                  class="full-width"
+                  style="border: 2px solid grey; border-radius: 1rem"
+                  flat
+                  color="grey-6"
+                  @click="newAddress = true"
+                >
+                  <div class="text-center">
+                    <q-icon name="add" size="30px" />
+                    <div>Add Address</div>
+                  </div>
+                </q-btn>
+              </q-card-section>
               <q-card-section class="oswald text-body2 text-grey-6 q-pb-none">
                 Delivery options and delivery speeds may vary for different
                 locations
@@ -73,6 +91,7 @@ watchEffect(() => {
                   <div>Address {{ n }}</div>
                 </div>
               </q-card-section>
+
               <q-separator inset />
               <q-card-actions class="oswald" align="right">
                 <q-btn label="Close" color="dark" v-close-popup />
@@ -273,5 +292,6 @@ watchEffect(() => {
       </div>
     </div>
   </div>
+  <AddressModal v-model="newAddress" />
   <div style="padding-bottom: 5rem" />
 </template>

@@ -70,7 +70,7 @@ const increaseQuantity = () => {
 </script>
 
 <template>
-  <q-card class="q-my-lg oswald q-mx-xl" style="width: 100%; max-width: 350px">
+  <q-card class="q-my-lg oswald" style="width: 100%; max-width: 350px">
     <img class="cursor-pointer" :src="image" @click="viewFullItem" />
 
     <q-card-section class="q-pb-none" @click="viewFullItem">
