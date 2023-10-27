@@ -1,15 +1,15 @@
 import { api } from "boot/axios";
 
 const checkIfCategoryExists = async (category) => {
-  // try {
-  //   const response = await api.get("/categories", category);
-  //   if (response.status === 200) {
-  //     return true;
-  //   }
-  // } catch (error) {
-  //   return false;
-  // }
-  return true;
+  try {
+    const response = await api.get(`/category/${category}`);
+    if (response.data.status === 200) {
+      return true;
+    }
+  } catch (error) {
+    return false;
+  }
+  return false;
 };
 
 const routes = [

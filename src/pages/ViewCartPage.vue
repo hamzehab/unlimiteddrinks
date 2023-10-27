@@ -253,55 +253,18 @@ const removeItem = (product_id) => {
       </div>
     </div>
     <div
+      v-if="cartStore.totalQuantity !== 0"
       class="text-deep-purple-14 cursor-pointer row items-center q-mt-lg"
-      @click="$router.push('/')"
+      style="width: fit-content"
     >
       <q-icon name="arrow_back" size="20px" />
-      <div class="on-right underline oswald text-body1">
+      <div
+        class="on-right underline oswald text-body1 q-pa-md"
+        @click="$router.push('/')"
+      >
         Return to Previous Page
       </div>
     </div>
-    <!-- <div class="ys text-h6 q-mt-xl">Payment</div>
-    <q-select
-      class="q-my-lg"
-      standout="bg-grey-2 text-deep-purple-14"
-      v-model="model"
-      :options="options"
-      label="Addressess"
-      style="width: 100%; max-width: 250px"
-    />
-    <q-card class="oswald" style="width: 100%; max-width: 1000px">
-      <q-card-section class="text-subtitle1">
-        Personal Information
-      </q-card-section>
-      <q-card-section class="flex q-mx-lg">
-        <q-input
-          class="on-left"
-          label="First Name"
-          standout="bg-grey-2 text-deep-purple-14"
-          style="width: 400px"
-          input-class="text-black"
-          dense
-        />
-        <q-input
-          class="on-right"
-          label="Last Name"
-          style="width: 400px"
-          standout="bg-grey-2 text-deep-purple-14"
-          input-class="text-black"
-          dense
-        />
-      </q-card-section>
-      <q-card-section class="q-mx-lg">
-        <q-input
-          label="Last Name"
-          style="width: 816px"
-          standout="bg-grey-2 text-deep-purple-14"
-          input-class="text-black"
-          dense
-        />
-      </q-card-section>
-    </q-card> -->
   </div>
 
   <FooterComponent />

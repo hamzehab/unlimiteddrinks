@@ -3,7 +3,9 @@ import AddressModal from "./AddressModal.vue";
 import { ref, onMounted, onUnmounted, watchEffect } from "vue";
 import { useCartStore } from "src/stores/cart-store";
 
-const category = "category";
+import { api } from "src/boot/axios";
+
+const categories = ref([]);
 
 const cartStore = useCartStore();
 const cartItemCount = ref(cartStore.totalQuantity);
@@ -22,8 +24,27 @@ const handleResize = () => {
   windowWidth.value = window.innerWidth;
 };
 
-onMounted(() => {
+const capitalizeCategory = (category) => {
+  const updated_category_name = category.toLowerCase().split(" ");
+  return updated_category_name
+    .map((word) => {
+      return word[0].toUpperCase() + word.substring(1);
+    })
+    .join(" ");
+};
+
+const getCategories = async () => {
+  try {
+    const response = await api.get("/categories");
+    categories.value = response.data;
+  } catch (err) {
+    console.error(error);
+  }
+};
+
+onMounted(async () => {
   window.addEventListener("resize", handleResize);
+  getCategories();
 });
 
 onUnmounted(() => {
@@ -129,18 +150,20 @@ watchEffect(() => {
         <q-btn label="Products" padding="md" push flat>
           <q-icon name="keyboard_arrow_down" class="on-right" />
           <q-menu
-            fit
-            class="bg-dark text-white oswald text-body1"
+            class="bg-dark text-white oswald text-body1 text-center"
+            style="width: 200px"
             transition-show="jump-down"
             transition-hide="jump-up"
             :offset="[0, 15]"
           >
             <q-list>
-              <div v-for="n in 4" :key="n">
-                <q-item clickable @click="$router.push(`/${category}`)">
-                  <q-item-section>Category {{ n }}</q-item-section>
+              <div v-for="(category, index) in categories" :key="category.id">
+                <q-item clickable @click="$router.push(`/${category.name}`)">
+                  <q-item-section>{{
+                    capitalizeCategory(category.name)
+                  }}</q-item-section>
                 </q-item>
-                <q-separator dark />
+                <q-separator v-if="index < categories.length - 1" dark />
               </div>
             </q-list>
           </q-menu>
@@ -215,17 +238,25 @@ watchEffect(() => {
                 </q-item-section>
                 <q-menu
                   fit
-                  class="bg-dark text-white oswald text-center"
+                  class="bg-dark text-white oswald text-center text-body1"
                   anchor="top end"
                   self="top start"
                   :offset="[0, -3]"
                 >
                   <q-list>
-                    <div v-for="n in 4" :key="n">
-                      <q-item clickable @click="$router.push(`/${category}`)">
-                        <q-item-section>Category {{ n }}</q-item-section>
+                    <div
+                      v-for="(category, index) in categories"
+                      :key="category.id"
+                    >
+                      <q-item
+                        clickable
+                        @click="$router.push(`/${category.name}`)"
+                      >
+                        <q-item-section>{{
+                          capitalizeCategory(category.name)
+                        }}</q-item-section>
                       </q-item>
-                      <q-separator dark />
+                      <q-separator v-if="index < categories.length - 1" dark />
                     </div>
                   </q-list>
                 </q-menu>
