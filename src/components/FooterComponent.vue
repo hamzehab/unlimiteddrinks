@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { api } from "src/boot/axios";
 import emailjs from "@emailjs/browser";
 
 const name = ref(null);
@@ -9,6 +10,7 @@ const message = ref(null);
 
 const isLoading = ref(false);
 const submitted = ref(null);
+const categories = ref([]);
 
 const error = ref("");
 
@@ -53,6 +55,28 @@ const submitForm = async () => {
     submitted.value = null;
   }, 2000);
 };
+
+const capitalizeCategory = (category) => {
+  const updated_category_name = category.toLowerCase().split(" ");
+  return updated_category_name
+    .map((word) => {
+      return word[0].toUpperCase() + word.substring(1);
+    })
+    .join(" ");
+};
+
+const getCategories = async () => {
+  try {
+    const response = await api.get("/categories");
+    categories.value = response.data;
+  } catch (err) {
+    console.error(error);
+  }
+};
+
+onMounted(async () => {
+  getCategories();
+});
 </script>
 
 <template>
@@ -65,8 +89,13 @@ const submitForm = async () => {
       <div class="row justify-between q-mt-xl items-center">
         <div class="oswald text-center" style="width: 20%">
           <div class="ys text-h6 q-mb-md">SHOP</div>
-          <div v-for="n in 5" :key="n" class="text-body1 q-my-md">
-            Category {{ n }}
+          <div
+            v-for="category in categories"
+            :key="category.id"
+            class="text-body1 q-my-md cursor-pointer"
+            @click="$router.push(`/${category.name}`)"
+          >
+            {{ capitalizeCategory(category.name) }}
           </div>
         </div>
 

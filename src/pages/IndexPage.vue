@@ -3,17 +3,28 @@ import NavBar from "src/components/NavBar.vue";
 import FooterComponent from "src/components/FooterComponent.vue";
 import ProductCard from "src/components/ProductCard.vue";
 import { ref, onMounted, onUnmounted } from "vue";
+import { api } from "src/boot/axios";
 
 const windowWidth = ref(window.innerWidth);
 const slide = ref(1);
+const rouletteProducts = ref([]);
 
-const roulette = () => {};
+const roulette = async () => {
+  try {
+    const response = await api.get("/roulette");
+    rouletteProducts.value = response.data;
+  } catch (err) {
+    console.error(err);
+  }
+  console.log(rouletteProducts.value);
+};
 
 const handleResize = () => {
   windowWidth.value = window.innerWidth;
 };
 
-onMounted(() => {
+onMounted(async () => {
+  roulette();
   window.addEventListener("resize", handleResize);
 
   const fadeIn = document.querySelectorAll(".fade");
@@ -97,13 +108,9 @@ onUnmounted(() => {
     <div class="q-mx-xl q-mb-xl row justify-evenly">
       <ProductCard
         class="fade"
-        v-for="n in 4"
-        :key="n"
-        :product_id="n"
-        :name="'Product Name'"
-        :description="'Description'"
-        :image="'static/pepsi.jpg'"
-        :price="0"
+        v-for="(product, index) in rouletteProducts"
+        :key="index"
+        :product="product"
       />
     </div>
   </div>

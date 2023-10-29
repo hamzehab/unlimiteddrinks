@@ -7,24 +7,8 @@ const cartStore = useCartStore();
 const $router = useRouter();
 
 const props = defineProps({
-  product_id: {
-    type: Number,
-    required: true,
-  },
-  name: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  image: {
-    type: String,
-    required: true,
-  },
-  price: {
-    type: Number,
+  product: {
+    type: Object,
     required: true,
   },
 });
@@ -33,10 +17,8 @@ const quantity = ref(1);
 const isLoading = ref(false);
 const addedToCart = ref(null);
 
-const category = "TBD";
-
 const viewFullItem = () => {
-  $router.push(`/${category}/${props.product_id}`);
+  $router.push(`/${props.product.category_name}/${props.product.id}`);
 };
 
 const addToCart = (event) => {
@@ -44,7 +26,12 @@ const addToCart = (event) => {
   isLoading.value = true;
 
   cartStore.addItem(
-    { id: props.product_id, price: 20, name: "test", category: "category" },
+    {
+      id: props.product.id,
+      price: props.product.price,
+      name: props.product.name,
+      category: props.product.category_name,
+    },
     quantity.value
   );
   addedToCart.value = true;
@@ -60,6 +47,7 @@ const decreaseQuantity = () => {
   if (quantity.value > 1) {
     quantity.value = parseInt(quantity.value) - 1;
   }
+  console.log(props);
 };
 
 const increaseQuantity = () => {
@@ -71,16 +59,16 @@ const increaseQuantity = () => {
 
 <template>
   <q-card class="q-my-lg oswald" style="width: 100%; max-width: 350px">
-    <img class="cursor-pointer" :src="image" @click="viewFullItem" />
+    <img class="cursor-pointer" src="/static/pepsi.jpg" @click="viewFullItem" />
 
     <q-card-section class="q-pb-none" @click="viewFullItem">
       <span class="text-h6 cursor-pointer" @click="viewFullItem">
-        {{ name }}
+        {{ product.name }}
       </span>
     </q-card-section>
 
     <q-card-section class="q-py-none">
-      <div>{{ description }}</div>
+      <div>{{ product.description }}</div>
     </q-card-section>
 
     <q-card-section class="q-pb-none row justify-end items-center">
@@ -113,15 +101,15 @@ const increaseQuantity = () => {
     </q-card-section>
     <q-card-section
       class="q-py-none"
-      v-if="cartStore.items.find((item) => item.id === product_id)"
+      v-if="cartStore.items.find((item) => item.id === product.id)"
     >
       <div
         class="row justify-end"
-        v-if="cartStore.items.find((item) => item.id === product_id)"
+        v-if="cartStore.items.find((item) => item.id === product.id)"
       >
         <div
           v-if="
-            cartStore.items.find((item) => item.id === product_id).quantity +
+            cartStore.items.find((item) => item.id === product.id).quantity +
               quantity <=
             25
           "
@@ -132,7 +120,7 @@ const increaseQuantity = () => {
             leave-active-class="animated zoomOut"
           >
             <div v-if="addedToCart" class="text-positive animated zoomIn">
-              Product Name successfully added to cart!
+              {{ product.name }} successfully added to cart!
             </div>
           </transition>
           <transition
@@ -148,7 +136,6 @@ const increaseQuantity = () => {
             </div>
           </transition>
         </div>
-        <!-- assuming Animate.css is included on the page -->
         <transition
           appear
           enter-active-class="animated zoomIn"
@@ -156,7 +143,7 @@ const increaseQuantity = () => {
         >
           <div
             v-if="
-              cartStore.items.find((item) => item.id === product_id).quantity +
+              cartStore.items.find((item) => item.id === product.id).quantity +
                 quantity >
               25
             "
@@ -169,7 +156,7 @@ const increaseQuantity = () => {
     </q-card-section>
     <q-card-section class="row justify-between items-center">
       <div class="ys text-h6 cursor-pointer" @click="viewFullItem">
-        $ {{ parseFloat(price).toFixed(2) }}
+        $ {{ parseFloat(product.price).toFixed(2) }}
       </div>
       <q-btn
         :loading="isLoading"

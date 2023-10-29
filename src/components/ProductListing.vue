@@ -7,24 +7,8 @@ const $router = useRouter();
 const cartStore = useCartStore();
 
 const props = defineProps({
-  product_id: {
-    type: Number,
-    required: true,
-  },
-  name: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  image: {
-    type: String,
-    required: true,
-  },
-  price: {
-    type: Number,
+  product: {
+    type: Object,
     required: true,
   },
 });
@@ -47,14 +31,19 @@ const increaseQuantity = () => {
 };
 
 const viewFullItem = () => {
-  $router.push(`/${category}/${props.product_id}`);
+  $router.push(`/${props.product.category_name}/${props.product.id}`);
 };
 
 const addToCart = () => {
   isLoading.value = true;
 
   cartStore.addItem(
-    { id: props.product_id, price: 20, name: "test", category: "category" },
+    {
+      id: props.product.id,
+      price: props.product.price,
+      name: props.product.name,
+      category: props.product.category_name,
+    },
     quantity.value
   );
   addedToCart.value = true;
@@ -77,11 +66,11 @@ const addToCart = () => {
       />
 
       <q-card-section class="q-pb-none" style="width: 100%">
-        <div class="ys text-h6">{{ name }}</div>
+        <div class="ys text-h6">{{ product.name }}</div>
         <div class="text-grey-6 text-caption row">
-          <span>Date</span>
+          <span>{{ product.created_at }}</span>
           <q-separator vertical class="on-right on-left" />
-          <span>by Company</span>
+          <span>{{ product.brand }}</span>
         </div>
         <div class="row items-center">
           <div class="text-overline q-mr-xs">0</div>
@@ -100,7 +89,9 @@ const addToCart = () => {
         <div class="row justify-between">
           <div class="q-mt-md cursor-pointer" @click="viewFullItem">
             <span class="ys row items-start text-body1">
-              $<span class="oswald text-h5">{{ price.toFixed(2) }}</span>
+              $<span class="oswald text-h5">{{
+                product.price.toFixed(2)
+              }}</span>
             </span>
           </div>
           <div class="row justify-end items-center q-pr-sm">
@@ -135,15 +126,15 @@ const addToCart = () => {
         >
           <div
             class="q-py-none on-left"
-            v-if="cartStore.items.find((item) => item.id === product_id)"
+            v-if="cartStore.items.find((item) => item.id === product.id)"
           >
             <div
               class="row justify-end"
-              v-if="cartStore.items.find((item) => item.id === product_id)"
+              v-if="cartStore.items.find((item) => item.id === product.id)"
             >
               <div
                 v-if="
-                  cartStore.items.find((item) => item.id === product_id)
+                  cartStore.items.find((item) => item.id === product.id)
                     .quantity +
                     quantity <=
                   25
@@ -155,7 +146,7 @@ const addToCart = () => {
                   leave-active-class="animated zoomOut"
                 >
                   <div v-if="addedToCart" class="text-positive animated zoomIn">
-                    Product Name successfully added to cart!
+                    {{ product.name }} successfully added to cart!
                   </div>
                 </transition>
                 <transition
@@ -178,7 +169,7 @@ const addToCart = () => {
               >
                 <div
                   v-if="
-                    cartStore.items.find((item) => item.id === product_id)
+                    cartStore.items.find((item) => item.id === product.id)
                       .quantity +
                       quantity >
                     25

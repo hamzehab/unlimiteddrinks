@@ -12,8 +12,6 @@ const quantities = ref([]);
 const removed = ref([]);
 const updated = ref([]);
 
-console.log(cartStore.totalCostBeforeTax, cartStore.totalCostAfterTax);
-
 for (let i = 0; i < items.length; i++) {
   quantities.value.push(items[i].quantity);
   removed.value[i] = false;

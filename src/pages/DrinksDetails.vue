@@ -4,25 +4,42 @@ import FooterComponent from "src/components/FooterComponent.vue";
 import ProductCard from "src/components/ProductCard.vue";
 
 import { ref, onMounted } from "vue";
+import { onBeforeRouteUpdate } from "vue-router";
+import { api } from "src/boot/axios";
 import { useCartStore } from "src/stores/cart-store";
 
 const cartStore = useCartStore();
+const rouletteProducts = ref([]);
 
 const slide = ref(1);
 const rating = ref(3.2);
 const quantity = ref(1);
 
-const product_id = parseInt(window.location.href.split("/").at(-1));
-
 const isLoading = ref(false);
 const addedToCart = ref(null);
+
+const id = parseInt(window.location.href.split("/").at(-1));
+const product = ref(null);
+const getProductDetails = async (id) => {
+  try {
+    const response = await api.get(`/product/${id}`);
+    product.value = response.data;
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 const addToCart = (event) => {
   event.stopPropagation();
   isLoading.value = true;
 
   cartStore.addItem(
-    { id: product_id, name: "test", price: 20, category: "category" },
+    {
+      id: product.value.id,
+      price: product.value.price,
+      name: product.value.name,
+      category: product.value.category_name,
+    },
     quantity.value
   );
   addedToCart.value = true;
@@ -46,7 +63,25 @@ const increaseQuantity = () => {
   }
 };
 
-onMounted(() => {
+const roulette = async () => {
+  try {
+    const response = await api.get("/roulette");
+    rouletteProducts.value = response.data;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+onBeforeRouteUpdate(async (to, from) => {
+  if (to.params.id !== from.params.id) {
+    getProductDetails(to.params.id);
+  }
+});
+
+onMounted(async () => {
+  roulette();
+  getProductDetails(id);
+
   const fadeIn = document.querySelectorAll(".fade");
   const observer = new IntersectionObserver(
     (entries) => {
@@ -95,9 +130,18 @@ onMounted(() => {
         <q-carousel-slide :name="5" img-src="/static/shelfDrinks2.jpg" />
       </q-carousel>
 
-      <div class="fade oswald q-mt-xl" style="width: 100%; max-width: 800px">
-        <div class="text-caption fade">Category</div>
-        <div class="text-h4 ys fade">Product Name</div>
+      <div
+        v-if="product"
+        class="fade oswald q-mt-xl"
+        style="width: 100%; max-width: 800px"
+      >
+        <div class="text-caption fade">
+          {{
+            product.category_name[0].toUpperCase() +
+            product.category_name.substring(1)
+          }}
+        </div>
+        <div class="text-h4 ys fade">{{ product.name }}</div>
         <div class="cursor-pointer row items-center">
           <div class="text-overline q-mr-xs">{{ rating }}</div>
           <q-rating
@@ -114,8 +158,8 @@ onMounted(() => {
         </div>
 
         <q-separator class="q-my-md" />
-        <div class="text-h3 ys q-mb-xl">$ 0.00</div>
-        <div class="text-body1 q-mb-xl">Description</div>
+        <div class="text-h3 ys q-mb-xl">$ {{ product.price }}</div>
+        <div class="text-body1 q-mb-xl">{{ product.description }}</div>
 
         <div class="row justify-end items-center q-mr-md q-mb-md no-wrap">
           <q-icon
@@ -156,11 +200,10 @@ onMounted(() => {
         </div>
 
         <div class="row justify-end items-center q-mr-md text-body1">
-          <div v-if="cartStore.items.find((item) => item.id === product_id)">
+          <div v-if="cartStore.items.find((item) => item.id === id)">
             <div
               v-if="
-                cartStore.items.find((item) => item.id === product_id)
-                  .quantity +
+                cartStore.items.find((item) => item.id === id).quantity +
                   quantity <=
                 25
               "
@@ -171,7 +214,7 @@ onMounted(() => {
                 leave-active-class="animated zoomOut"
               >
                 <div v-if="addedToCart" class="text-positive animated zoomIn">
-                  Product Name successfully added to cart!
+                  {{ product.name }} successfully added to cart!
                 </div>
               </transition>
               <transition
@@ -195,8 +238,7 @@ onMounted(() => {
             >
               <div
                 v-if="
-                  cartStore.items.find((item) => item.id === product_id)
-                    .quantity +
+                  cartStore.items.find((item) => item.id === id).quantity +
                     quantity >
                   25
                 "
@@ -216,13 +258,10 @@ onMounted(() => {
   </div>
   <div class="q-mx-xl q-mb-xl row justify-evenly">
     <ProductCard
-      v-for="n in 4"
-      :key="n"
-      :product_id="n"
-      :name="'Product Name'"
-      :description="'Description'"
-      :image="'/static/pepsi.jpg'"
-      :price="0"
+      class="fade"
+      v-for="(product, index) in rouletteProducts"
+      :key="index"
+      :product="product"
     />
   </div>
 
