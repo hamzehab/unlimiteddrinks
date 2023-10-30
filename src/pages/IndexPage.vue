@@ -8,15 +8,19 @@ import { api } from "src/boot/axios";
 const windowWidth = ref(window.innerWidth);
 const slide = ref(1);
 const rouletteProducts = ref([]);
+const loading = ref(false);
 
 const roulette = async () => {
+  loading.value = true;
   try {
     const response = await api.get("/roulette");
     rouletteProducts.value = response.data;
+    setTimeout(() => {
+      loading.value = false;
+    }, 1000);
   } catch (err) {
     console.error(err);
   }
-  console.log(rouletteProducts.value);
 };
 
 const handleResize = () => {
@@ -99,13 +103,18 @@ onUnmounted(() => {
     >
       Try out Drink Roulette!
       <q-icon
+        v-if="!loading"
         class="on-right cursor-pointer"
         name="replay"
         size="40px"
         @click="roulette"
       />
+      <q-card v-if="loading" class="on-right">
+        <q-inner-loading :showing="loading" />
+      </q-card>
     </div>
-    <div class="q-mx-xl q-mb-xl row justify-evenly">
+
+    <div v-if="!loading" class="q-mx-xl q-mb-xl row justify-evenly">
       <ProductCard
         class="fade"
         v-for="(product, index) in rouletteProducts"

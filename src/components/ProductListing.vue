@@ -14,7 +14,7 @@ const props = defineProps({
 });
 
 const quantity = ref(1);
-const rating = ref(3.2);
+const rating = props.product.rating;
 const isLoading = ref(false);
 const addedToCart = ref(null);
 
@@ -34,7 +34,8 @@ const viewFullItem = () => {
   $router.push(`/${props.product.category_name}/${props.product.id}`);
 };
 
-const addToCart = () => {
+const addToCart = (event) => {
+  event.stopPropagation();
   isLoading.value = true;
 
   cartStore.addItem(
@@ -54,10 +55,24 @@ const addToCart = () => {
     addedToCart.value = null;
   }, 3000);
 };
+
+const formatDate = (date) => {
+  const dateObj = new Date(date);
+  const formattedDate = `${dateObj.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  })}`;
+  return formattedDate;
+};
 </script>
 
 <template>
-  <q-card class="q-mx-auto q-my-md" style="max-width: 70%" bordered>
+  <q-card
+    class="q-mx-auto q-my-md cursor-pointer"
+    style="max-width: 70%"
+    bordered
+    @click="viewFullItem"
+  >
     <q-card-section class="q-mx-lg q-my-md" horizontal>
       <img
         class="cursor-pointer"
@@ -67,13 +82,13 @@ const addToCart = () => {
 
       <q-card-section class="q-pb-none" style="width: 100%">
         <div class="ys text-h6">{{ product.name }}</div>
-        <div class="text-grey-6 text-caption row">
-          <span>{{ product.created_at }}</span>
+        <div class="text-grey-6 text-caption row oswald">
+          <span>{{ formatDate(product.created_at) }}</span>
           <q-separator vertical class="on-right on-left" />
-          <span>{{ product.brand }}</span>
+          <span class="on-left">by &nbsp; {{ product.brand }}</span>
         </div>
-        <div class="row items-center">
-          <div class="text-overline q-mr-xs">0</div>
+        <div class="row items-center oswald">
+          <div class="q-mr-xs text-overline">{{ rating.toFixed(1) }}</div>
           <q-rating
             v-model="rating"
             max="5"
@@ -84,14 +99,19 @@ const addToCart = () => {
             icon-half="star_half"
             readonly
           />
-          <div class="on-right">0 Reviews</div>
+          <div class="on-right">
+            <div v-if="product.reviews.length > 0">
+              {{ product.reviews.length }} reviews
+            </div>
+            <div v-else class="on-right">No reviews</div>
+          </div>
         </div>
         <div class="row justify-between">
           <div class="q-mt-md cursor-pointer" @click="viewFullItem">
             <span class="ys row items-start text-body1">
-              $<span class="oswald text-h5">{{
-                product.price.toFixed(2)
-              }}</span>
+              $<span class="oswald text-h5">
+                {{ product.price.toFixed(2) }}
+              </span>
             </span>
           </div>
           <div class="row justify-end items-center q-pr-sm">

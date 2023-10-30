@@ -16,6 +16,11 @@ const routes = [
     meta: { title: "Unlimited Drinks" },
   },
   {
+    path: "/search",
+    component: () => import("pages/SearchProductResults.vue"),
+    meta: { title: `Unlimited Drinks Search Result:` },
+  },
+  {
     path: "/:category",
     component: () => import("pages/CategoryDrinks.vue"),
     meta: { title: "Unlimited Drinks" },
@@ -45,7 +50,7 @@ const routes = [
   },
   {
     path: "/checkout",
-    component: () => import("pages/CheckoutPage.vue"),
+    component: () => import("pages/OrderCheckout.vue"),
     meta: { title: "Checkout" },
   },
   // Always leave this as last one,

@@ -4,7 +4,9 @@ import { ref, onMounted, onUnmounted, watchEffect } from "vue";
 import { useCartStore } from "src/stores/cart-store";
 
 import { api } from "src/boot/axios";
+import { useRouter } from "vue-router";
 
+const $router = useRouter();
 const categories = ref([]);
 
 const cartStore = useCartStore();
@@ -12,12 +14,22 @@ const cartItemCount = ref(cartStore.totalQuantity);
 const selected = ref(0);
 
 const searchInput = ref("");
+const searchFailed = ref(false);
+
 const windowWidth = ref(window.innerWidth);
 const addressModal = ref(false);
 const newAddress = ref(false);
 
-const search = () => {
-  console.log("Hello");
+const search = async () => {
+  if (searchInput.value.trim().length > 0) {
+    const new_query = searchInput.value.trim();
+    $router.push({ path: "/search", query: { q: new_query } });
+  } else {
+    searchFailed.value = true;
+    setTimeout(() => {
+      searchFailed.value = false;
+    }, 1000);
+  }
 };
 
 const handleResize = () => {
@@ -123,7 +135,10 @@ watchEffect(() => {
         </q-btn>
       </div>
 
-      <div style="width: 55%">
+      <div
+        style="width: 55%"
+        :class="searchFailed ? 'animated shakeX slower' : ''"
+      >
         <q-input
           type="search"
           dense
@@ -158,7 +173,10 @@ watchEffect(() => {
           >
             <q-list>
               <div v-for="(category, index) in categories" :key="category.id">
-                <q-item clickable @click="$router.push(`/${category.name}`)">
+                <q-item
+                  clickable
+                  @click="$router.push(`/${category.name.replace(' ', '-')}`)"
+                >
                   <q-item-section>{{
                     capitalizeCategory(category.name)
                   }}</q-item-section>
@@ -250,7 +268,9 @@ watchEffect(() => {
                     >
                       <q-item
                         clickable
-                        @click="$router.push(`/${category.name}`)"
+                        @click="
+                          $router.push(`/${category.name.replace(' ', '-')}`)
+                        "
                       >
                         <q-item-section>{{
                           capitalizeCategory(category.name)

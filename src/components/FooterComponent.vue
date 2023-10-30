@@ -93,7 +93,7 @@ onMounted(async () => {
             v-for="category in categories"
             :key="category.id"
             class="text-body1 q-my-md cursor-pointer"
-            @click="$router.push(`/${category.name}`)"
+            @click="$router.push(`/${category.name.replace(' ', '-')}`)"
           >
             {{ capitalizeCategory(category.name) }}
           </div>

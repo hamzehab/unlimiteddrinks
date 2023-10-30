@@ -5,38 +5,52 @@ import ProductListing from "src/components/ProductListing.vue";
 
 import { ref, onMounted } from "vue";
 import { api } from "src/boot/axios";
-import { useRoute } from "vue-router";
+import { onBeforeRouteUpdate, useRoute } from "vue-router";
 
 const $route = useRoute();
-
-const capitalizeCategory = (category) => {
-  const updated_category_name = category.toLowerCase().split(" ");
-  return updated_category_name
-    .map((word) => {
-      return word[0].toUpperCase() + word.substring(1);
-    })
-    .join(" ");
-};
+const category = ref(
+  $route.params.category
+    .split("-")
+    .map((word) => word[0].toUpperCase() + word.substring(1))
+    .join(" ")
+);
 
 const products = ref(null);
-const getProductsByCategory = async () => {
+const getProductsByCategory = async (category) => {
   try {
-    const response = await api.get(`/products/${$route.params.category}`);
+    const response = await api.get(`/products/${category}`);
     products.value = response.data;
   } catch (err) {
     console.error(err);
   }
 };
+
 onMounted(async () => {
-  getProductsByCategory();
+  getProductsByCategory($route.params.category);
+});
+
+onBeforeRouteUpdate(async (to, from) => {
+  if (to.params.category !== from.params.category) {
+    getProductsByCategory(to.params.category);
+    category.value = to.params.category
+      .split("-")
+      .map((word) => word[0].toUpperCase() + word.substring(1))
+      .join(" ");
+  }
 });
 </script>
 
 <template>
   <NavBar />
-  <div class="main q-my-xl">
-    <div class="q-ml-xl q-mb-xl ys text-h4">
-      {{ capitalizeCategory($route.params.category) }}
+  <div class="main q-ma-xl">
+    <div class="q-mx-auto q-mb-xl ys text-h4" style="max-width: 70%">
+      {{ category }}
+    </div>
+    <div class="oswald text-body1 q-mx-auto" style="max-width: 70%">
+      <div v-if="products">
+        {{ products.length }} results found for category: {{ category }}
+      </div>
+      <div v-else>No results found for category: {{ category }}</div>
     </div>
 
     <ProductListing

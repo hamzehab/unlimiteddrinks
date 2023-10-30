@@ -51,6 +51,22 @@ const removeItem = (product_id) => {
 
 <template>
   <NavBar />
+  <q-dialog v-model="deleteModal">
+    <q-card class="q-pa-md q-px-sm">
+      <q-card-section class="q-pb-lg">
+        <div class="ys text-h6">Are you sure you want remove this item?</div>
+      </q-card-section>
+      <q-card-actions class="float-right">
+        <q-btn label="Cancel" color="deep-purple-14" v-close-popup />
+        <q-btn
+          flat
+          label="Delete"
+          color="negative"
+          @click="removeItem(item.id)"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
   <div class="q-ma-xl main">
     <div class="row justify-between items-center q-mt-xl q-mb-lg">
       <div class="flex items-center">
@@ -63,7 +79,7 @@ const removeItem = (product_id) => {
     </div>
     <div
       v-if="cartStore.totalQuantity === 0"
-      class="q-pb-xl text-center text-h6 text-grey-6"
+      class="q-py-xl q-my-xl text-center text-h6 text-grey-6"
     >
       <div class="q-py-xl">Your Shopping Cart is Empty</div>
       <q-btn
@@ -91,7 +107,11 @@ const removeItem = (product_id) => {
               />
               <div class="q-ml-lg">
                 <div class="text-h6">{{ item.name }}</div>
-                <div class="text-caption">{{ item.category }}</div>
+                <div class="text-caption">
+                  {{
+                    item.category[0].toUpperCase() + item.category.substring(1)
+                  }}
+                </div>
               </div>
             </div>
             <div class="row items-center">
@@ -159,28 +179,6 @@ const removeItem = (product_id) => {
                   color="negative"
                   @click="deleteModal = true"
                 />
-                <q-dialog v-model="deleteModal">
-                  <q-card class="q-pa-md q-px-sm">
-                    <q-card-section class="q-pb-lg">
-                      <div class="ys text-h6">
-                        Are you sure you want remove this item?
-                      </div>
-                    </q-card-section>
-                    <q-card-actions class="float-right">
-                      <q-btn
-                        label="Cancel"
-                        color="deep-purple-14"
-                        v-close-popup
-                      />
-                      <q-btn
-                        flat
-                        label="Delete"
-                        color="negative"
-                        @click="removeItem(item.id)"
-                      />
-                    </q-card-actions>
-                  </q-card>
-                </q-dialog>
               </div>
             </div>
           </q-card-section>
@@ -238,6 +236,7 @@ const removeItem = (product_id) => {
             label="Continue Shopping"
             color="dark"
             push
+            @click="$router.push('/')"
           />
           <q-btn
             class="rounded-borders"
@@ -246,6 +245,7 @@ const removeItem = (product_id) => {
             icon="lock_outline"
             color="deep-purple-14"
             push
+            @click="$router.push('/checkout')"
           />
         </div>
       </div>

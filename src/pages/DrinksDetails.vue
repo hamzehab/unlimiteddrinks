@@ -9,10 +9,10 @@ import { api } from "src/boot/axios";
 import { useCartStore } from "src/stores/cart-store";
 
 const cartStore = useCartStore();
-const rouletteProducts = ref([]);
+const recProducts = ref([]);
 
 const slide = ref(1);
-const rating = ref(3.2);
+const rating = ref(0);
 const quantity = ref(1);
 
 const isLoading = ref(false);
@@ -23,7 +23,9 @@ const product = ref(null);
 const getProductDetails = async (id) => {
   try {
     const response = await api.get(`/product/${id}`);
+
     product.value = response.data;
+    rating.value = response.data.rating;
   } catch (err) {
     console.error(err);
   }
@@ -63,10 +65,10 @@ const increaseQuantity = () => {
   }
 };
 
-const roulette = async () => {
+const getRecommended = async () => {
   try {
     const response = await api.get("/roulette");
-    rouletteProducts.value = response.data;
+    recProducts.value = response.data;
   } catch (err) {
     console.error(err);
   }
@@ -79,7 +81,7 @@ onBeforeRouteUpdate(async (to, from) => {
 });
 
 onMounted(async () => {
-  roulette();
+  getRecommended();
   getProductDetails(id);
 
   const fadeIn = document.querySelectorAll(".fade");
@@ -103,6 +105,7 @@ onMounted(async () => {
 
 <template>
   <NavBar />
+
   <div class="q-mx-xl">
     <div
       class="fade q-ma-xl cursor-pointer row items-center text-deep-purple-14"
@@ -142,8 +145,8 @@ onMounted(async () => {
           }}
         </div>
         <div class="text-h4 ys fade">{{ product.name }}</div>
-        <div class="cursor-pointer row items-center">
-          <div class="text-overline q-mr-xs">{{ rating }}</div>
+        <div class="cursor-pointer row items-center oswald">
+          <div class="text-overline q-mr-xs">{{ rating.toFixed(1) }}</div>
           <q-rating
             v-model="rating"
             max="5"
@@ -154,7 +157,7 @@ onMounted(async () => {
             icon-half="star_half"
             readonly
           />
-          <div class="on-right">0 Reviews</div>
+          <div class="on-right">{{ product.reviews.length }} Reviews</div>
         </div>
 
         <q-separator class="q-my-md" />
@@ -230,7 +233,6 @@ onMounted(async () => {
                 </div>
               </transition>
             </div>
-            <!-- assuming Animate.css is included on the page -->
             <transition
               appear
               enter-active-class="animated zoomIn"
@@ -259,7 +261,7 @@ onMounted(async () => {
   <div class="q-mx-xl q-mb-xl row justify-evenly">
     <ProductCard
       class="fade"
-      v-for="(product, index) in rouletteProducts"
+      v-for="(product, index) in recProducts"
       :key="index"
       :product="product"
     />
