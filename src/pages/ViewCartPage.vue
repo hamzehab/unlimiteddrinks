@@ -1,23 +1,21 @@
 <script setup>
+import { api } from "src/boot/axios";
 import FooterComponent from "src/components/FooterComponent.vue";
 import NavBar from "src/components/NavBar.vue";
 import { useCartStore } from "src/stores/cart-store";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 
 const cartStore = useCartStore();
-const items = cartStore.items;
+const items = ref([]);
 const deleteModal = ref(false);
 const deleteID = ref(null);
+
+const subtotal = ref(0);
+const taxesAndFees = ref(0);
 
 const quantities = ref([]);
 const removed = ref([]);
 const updated = ref([]);
-
-for (let i = 0; i < items.length; i++) {
-  quantities.value.push(items[i].quantity);
-  removed.value[i] = false;
-  updated.value[i] = false;
-}
 
 const decreaseQuantity = (index) => {
   if (quantities.value[index] > 1) {
@@ -35,7 +33,7 @@ const increaseQuantity = (index) => {
 
 const updateQuantity = (index) => {
   const newQuantity = quantities.value[index];
-  if (newQuantity !== items[index].quantity) {
+  if (newQuantity !== items.value[index].quantity) {
     updated.value[index] = true;
     cartStore.update(index, newQuantity);
     setTimeout(() => {
@@ -47,7 +45,31 @@ const updateQuantity = (index) => {
 const removeItem = (product_id) => {
   cartStore.removeItem(product_id);
   deleteModal.value = false;
+  fetchProductsInCart();
 };
+
+const fetchProductsInCart = async () => {
+  items.value = [];
+  quantities.value = [];
+  subtotal.value = 0;
+  taxesAndFees.value = 0;
+
+  for (const product of cartStore.items) {
+    try {
+      const response = await api.get(`/product/${product.product_id}`);
+      items.value.push(response.data);
+      quantities.value.push(product.quantity);
+      subtotal.value += response.data.price * product.quantity;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  taxesAndFees.value = subtotal.value * 0.06625;
+};
+
+onMounted(async () => {
+  fetchProductsInCart();
+});
 </script>
 
 <template>
@@ -110,12 +132,13 @@ const removeItem = (product_id) => {
                 <div class="text-h6">{{ item.name }}</div>
                 <div class="text-caption">
                   {{
-                    item.category[0].toUpperCase() + item.category.substring(1)
+                    item.category_name[0].toUpperCase() +
+                    item.category_name.substring(1)
                   }}
                 </div>
               </div>
             </div>
-            <div class="row items-center">
+            <div class="row items-center ys nowrap">
               <div class="text-subtitle1">
                 <span class="text-bold">$</span>
                 {{ item.price.toFixed(2) }}
@@ -201,7 +224,7 @@ const removeItem = (product_id) => {
               </div>
               <div class="text-subtitle1">
                 <span class="text-bold">$</span>
-                {{ cartStore.totalCostBeforeTax }}
+                {{ subtotal.toFixed(2) }}
               </div>
             </div>
           </q-card-section>
@@ -210,7 +233,7 @@ const removeItem = (product_id) => {
               <div class="text-body1">Taxes and Fees:</div>
               <div class="text-subtitle1">
                 <span class="text-bold">$</span>
-                {{ cartStore.taxesAndFees }}
+                {{ taxesAndFees.toFixed(2) }}
               </div>
             </div>
           </q-card-section>
@@ -220,12 +243,7 @@ const removeItem = (product_id) => {
               <div>Total:</div>
               <div>
                 <span class="text-bold">$</span>
-                {{
-                  (
-                    parseFloat(cartStore.totalCostBeforeTax) +
-                    parseFloat(cartStore.taxesAndFees)
-                  ).toFixed(2)
-                }}
+                {{ (subtotal * 1.06625).toFixed(2) }}
               </div>
             </div>
           </q-card-section>

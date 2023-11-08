@@ -4,15 +4,18 @@ import FooterComponent from "src/components/FooterComponent.vue";
 import NavBar from "src/components/NavBar.vue";
 import { ref } from "vue";
 
+import { useCustomerStore } from "src/stores/customer-store";
+
+const customerStore = useCustomerStore();
+
 const editName = ref(true);
-const editPassword = ref(true);
 const deletetion = ref(false);
 const newAddress = ref(false);
 
-const username = ref("testing");
-const email = ref("email");
-const first_name = ref("first name");
-const last_name = ref("last name");
+const email = customerStore.getEmail;
+
+const first_name = ref(customerStore.getFirstName);
+const last_name = ref(customerStore.getLastName);
 
 const street = ref("");
 const apt = ref("");
@@ -21,7 +24,8 @@ const state = ref("");
 const zip_code = ref("");
 
 const model = ref(null);
-const addresses = ["Google", "Facebook", "Twitter", "Apple", "Oracle"];
+const addresses = customerStore.getAddresses;
+console.log(customerStore.getAddresses);
 const usStates = [
   "Alabama",
   "Alaska",
@@ -96,27 +100,18 @@ const deleteAccount = () => {
         <q-icon name="mdi-account-circle-outline" size="50px" />
         <div class="on-right">
           <div>Your Account</div>
-          <div class="text-caption on-right">Welcome, First Last</div>
+          <div class="text-body1 on-right">
+            Welcome, {{ customerStore.getFullName }}
+          </div>
+          <div class="text-caption on-right">
+            Member Since: {{ customerStore.getMemberSince }}
+          </div>
         </div>
       </div>
 
       <q-separator class="q-mt-lg q-mb-xl" />
 
       <q-card class="q-pa-md">
-        <q-card-section class="oswald" style="width: 100%; max-width: 60%">
-          <div class="ys text-h6 q-mb-sm">Username</div>
-          <q-input
-            class="q-mb-sm"
-            label="Username"
-            v-model.trim="username"
-            standout="bg-grey-3 text-deep-purple-14"
-            input-class="text-dark"
-            disable
-          />
-          <div class="row justify-end text-grey-6 text-body2">
-            Username cannot be edited
-          </div>
-        </q-card-section>
         <q-card-section class="oswald" style="width: 100%; max-width: 60%">
           <div class="ys text-h6 q-mb-sm">Email</div>
           <q-input
@@ -171,15 +166,15 @@ const deleteAccount = () => {
 
         <q-card-section class="row justify-center oswald">
           <q-btn
-            v-if="!editPassword || !editName"
+            v-if="!editName"
             class="q-mt-lg on-left"
             label="Cancel"
             color="dark"
             flat
-            @click="(editPassword = true), (editName = true)"
+            @click="editName = true"
           />
           <q-btn
-            v-if="!editPassword || !editName"
+            v-if="!editName"
             class="q-mt-lg on-right"
             label="Confirm Changes"
             color="deep-purple-14"

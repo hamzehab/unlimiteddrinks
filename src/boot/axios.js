@@ -7,7 +7,60 @@ import axios from "axios";
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const api = axios.create({ baseURL: "http://localhost:5000" });
+const api = axios.create({
+  baseURL: "http://localhost:5000",
+  timeout: 1800,
+  withCredentials: false,
+});
+
+// // Request interceptor
+// api.interceptors.request.use((config) => {
+//   config.metadata = { startTime: new Date() };
+//   const url = new URL(config.url, config.baseURL).href;
+//   console.log(`axios ${config.method.toUpperCase()} ${url}`);
+//   return config;
+// });
+
+// // Response interceptor
+// api.interceptors.response.use(
+//   (response) => {
+//     const endTime = new Date();
+//     const duration = endTime - response.config.metadata.startTime;
+//     const url = new URL(response.config.url, response.config.baseURL).href;
+//     const status = `${response.status} ${response.statusText}`;
+//     console.log(
+//       `axios ${status} (${response.config.method.toUpperCase()} ${url}) +${duration}ms`
+//     );
+
+//     // Handle redirects
+//     if (
+//       response.status >= 300 &&
+//       response.status < 400 &&
+//       response.headers.location
+//     ) {
+//       const redirectUrl = new URL(
+//         response.headers.location,
+//         response.config.baseURL
+//       ).href;
+//       console.log(`Redirected to: ${redirectUrl}`);
+//     }
+
+//     return response;
+//   },
+//   (error) => {
+//     const endTime = new Date();
+//     const duration = endTime - error.config.metadata.startTime;
+//     const url = new URL(error.config.url, error.config.baseURL).href;
+//     const status = error.response
+//       ? `${error.response.status} ${error.response.statusText}`
+//       : "Error";
+//     console.log(
+//       `axios ${status} (${error.config.method.toUpperCase()} ${url}) +${duration}ms`
+//     );
+
+//     throw error;
+//   }
+// );
 
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api

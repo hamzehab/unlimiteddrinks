@@ -2,6 +2,7 @@
 import AddressModal from "./AddressModal.vue";
 import { ref, onMounted, onUnmounted, watchEffect, watch } from "vue";
 import { useCartStore } from "src/stores/cart-store";
+import { useCustomerStore } from "src/stores/customer-store";
 
 import { api } from "src/boot/axios";
 import { useRouter } from "vue-router";
@@ -14,6 +15,8 @@ const categories = ref([]);
 const cartStore = useCartStore();
 const cartItemCount = ref(cartStore.totalQuantity);
 const selected = ref(0);
+
+const customerStore = useCustomerStore();
 
 const searchInput = ref("");
 const searchFailed = ref(false);
@@ -72,7 +75,6 @@ const userExists = async () => {
     const response = await api.get(
       `/customer/exists/${auth0.user._rawValue.sub.split("|")[1]}`
     );
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -86,6 +88,15 @@ const loggedIn = async () => {
       isLoggedIn.value = response;
       if (!response) {
         $router.push("/setup");
+      } else {
+        try {
+          const customerData = await api.get(
+            `/customer/${auth0.user._rawValue.sub.split("|")[1]}`
+          );
+          customerStore.initCustomer(customerData.data);
+        } catch (error) {
+          console.error(error);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -205,7 +216,7 @@ watchEffect(async () => {
         </q-input>
       </div>
       <div
-        v-if="windowWidth >= 1310"
+        v-if="windowWidth >= 1662"
         class="row justify-end q-gutter-x-lg items-center"
       >
         <q-btn label="Products" padding="md" push flat>
@@ -239,7 +250,7 @@ watchEffect(async () => {
             <div class="on-right">
               <div>
                 <span class="text-body1 text-bold">Hello, </span>
-                <span class="text-body2">name</span>
+                <span class="text-body2">{{ customerStore.getFirstName }}</span>
               </div>
               <div class="text-body2 text-weight-medium">Account</div>
             </div>
@@ -319,9 +330,9 @@ watchEffect(async () => {
                           $router.push(`/${category.name.replace(' ', '-')}`)
                         "
                       >
-                        <q-item-section>{{
-                          capitalizeCategory(category.name)
-                        }}</q-item-section>
+                        <q-item-section>
+                          {{ capitalizeCategory(category.name) }}
+                        </q-item-section>
                       </q-item>
                       <q-separator v-if="index < categories.length - 1" dark />
                     </div>
@@ -337,7 +348,9 @@ watchEffect(async () => {
                     <div class="on-right">
                       <div>
                         <span class="text-body1 text-bold">Hello, </span>
-                        <span class="text-body2">name</span>
+                        <span class="text-body2">
+                          {{ customerStore.getFirstName }}
+                        </span>
                       </div>
                       <div class="text-body2 text-weight-medium">Account</div>
                     </div>

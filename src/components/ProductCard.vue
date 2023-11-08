@@ -25,15 +25,7 @@ const addToCart = (event) => {
   event.stopPropagation();
   isLoading.value = true;
 
-  cartStore.addItem(
-    {
-      id: props.product.id,
-      price: props.product.price,
-      name: props.product.name,
-      category: props.product.category_name,
-    },
-    quantity.value
-  );
+  cartStore.addItem(props.product.id, quantity.value);
   addedToCart.value = true;
   setTimeout(() => {
     isLoading.value = false;
@@ -101,15 +93,16 @@ const increaseQuantity = () => {
     </q-card-section>
     <q-card-section
       class="q-py-none"
-      v-if="cartStore.items.find((item) => item.id === product.id)"
+      v-if="cartStore.items.find((item) => item.product_id === product.id)"
     >
       <div
         class="row justify-end"
-        v-if="cartStore.items.find((item) => item.id === product.id)"
+        v-if="cartStore.items.find((item) => item.product_id === product.id)"
       >
         <div
           v-if="
-            cartStore.items.find((item) => item.id === product.id).quantity +
+            cartStore.items.find((item) => item.product_id === product.id)
+              .quantity +
               quantity <=
             25
           "
@@ -143,7 +136,8 @@ const increaseQuantity = () => {
         >
           <div
             v-if="
-              cartStore.items.find((item) => item.id === product.id).quantity +
+              cartStore.items.find((item) => item.product_id === product.id)
+                .quantity +
                 quantity >
               25
             "

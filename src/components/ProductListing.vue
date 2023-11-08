@@ -18,13 +18,15 @@ const rating = props.product.rating;
 const isLoading = ref(false);
 const addedToCart = ref(null);
 
-const decreaseQuantity = () => {
+const decreaseQuantity = (event) => {
+  event.stopPropagation();
   if (quantity.value > 1) {
     quantity.value = parseInt(quantity.value) - 1;
   }
 };
 
-const increaseQuantity = () => {
+const increaseQuantity = (event) => {
+  event.stopPropagation();
   if (quantity.value < 25) {
     quantity.value = parseInt(quantity.value) + 1;
   }
@@ -38,15 +40,7 @@ const addToCart = (event) => {
   event.stopPropagation();
   isLoading.value = true;
 
-  cartStore.addItem(
-    {
-      id: props.product.id,
-      price: props.product.price,
-      name: props.product.name,
-      category: props.product.category_name,
-    },
-    quantity.value
-  );
+  cartStore.addItem(props.product.id, quantity.value);
   addedToCart.value = true;
   setTimeout(() => {
     isLoading.value = false;
@@ -146,15 +140,19 @@ const formatDate = (date) => {
         >
           <div
             class="q-py-none on-left"
-            v-if="cartStore.items.find((item) => item.id === product.id)"
+            v-if="
+              cartStore.items.find((item) => item.product_id === product.id)
+            "
           >
             <div
               class="row justify-end"
-              v-if="cartStore.items.find((item) => item.id === product.id)"
+              v-if="
+                cartStore.items.find((item) => item.product_id === product.id)
+              "
             >
               <div
                 v-if="
-                  cartStore.items.find((item) => item.id === product.id)
+                  cartStore.items.find((item) => item.product_id === product.id)
                     .quantity +
                     quantity <=
                   25
@@ -189,8 +187,9 @@ const formatDate = (date) => {
               >
                 <div
                   v-if="
-                    cartStore.items.find((item) => item.id === product.id)
-                      .quantity +
+                    cartStore.items.find(
+                      (item) => item.product_id === product.id
+                    ).quantity +
                       quantity >
                     25
                   "

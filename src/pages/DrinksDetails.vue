@@ -35,15 +35,7 @@ const addToCart = (event) => {
   event.stopPropagation();
   isLoading.value = true;
 
-  cartStore.addItem(
-    {
-      id: product.value.id,
-      price: product.value.price,
-      name: product.value.name,
-      category: product.value.category_name,
-    },
-    quantity.value
-  );
+  cartStore.addItem(product.value.id, quantity.value);
   addedToCart.value = true;
   setTimeout(() => {
     isLoading.value = false;
@@ -203,10 +195,11 @@ onMounted(async () => {
         </div>
 
         <div class="row justify-end items-center q-mr-md text-body1">
-          <div v-if="cartStore.items.find((item) => item.id === id)">
+          <div v-if="cartStore.items.find((item) => item.product_id === id)">
             <div
               v-if="
-                cartStore.items.find((item) => item.id === id).quantity +
+                cartStore.items.find((item) => item.product_id === id)
+                  .quantity +
                   quantity <=
                 25
               "
@@ -240,9 +233,10 @@ onMounted(async () => {
             >
               <div
                 v-if="
-                  cartStore.items.find((item) => item.id === id).quantity +
+                  cartStore.items.find((item) => item.product_id === id)
+                    .quantity +
                     quantity >
-                  25
+                    25 && addedToCart === null
                 "
                 class="text-amber-8"
               >
