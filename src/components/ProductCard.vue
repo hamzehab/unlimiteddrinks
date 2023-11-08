@@ -82,7 +82,7 @@ const increaseQuantity = () => {
         class="rounded-borders"
         input-class="ys text-bold text-h6 text-center"
         style="width: 2.5rem"
-        v-model="quantity"
+        v-model.trim="quantity"
         mask="##"
         dense
         borderless

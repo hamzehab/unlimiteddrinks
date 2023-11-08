@@ -53,6 +53,11 @@ const routes = [
     component: () => import("pages/OrderCheckout.vue"),
     meta: { title: "Checkout" },
   },
+  {
+    path: "/setup",
+    component: () => import("pages/SetupAccount.vue"),
+    meta: { title: "Setup Account" },
+  },
   // Always leave this as last one,
   // but you can also remove it
   {

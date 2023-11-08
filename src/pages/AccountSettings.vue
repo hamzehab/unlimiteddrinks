@@ -6,19 +6,13 @@ import { ref } from "vue";
 
 const editName = ref(true);
 const editPassword = ref(true);
-const editEmail = ref(true);
 const deletetion = ref(false);
-const passwordModal = ref(false);
 const newAddress = ref(false);
 
 const username = ref("testing");
 const email = ref("email");
 const first_name = ref("first name");
 const last_name = ref("last name");
-
-const current_password = ref("");
-const confirm_password = ref("");
-const new_password = ref("");
 
 const street = ref("");
 const apt = ref("");
@@ -82,20 +76,10 @@ const usStates = [
 ];
 
 const handleClick = () => {
-  if (!editPassword.value) {
-    editPassword.value = true;
-    console.log("password");
-  }
   if (!editName.value) {
     editName.value = true;
     console.log("name");
   }
-};
-
-const confirmIdentity = () => {
-  console.log("confirm");
-  editPassword.value = false;
-  passwordModal.value = false;
 };
 
 const deleteAccount = () => {
@@ -119,12 +103,12 @@ const deleteAccount = () => {
       <q-separator class="q-mt-lg q-mb-xl" />
 
       <q-card class="q-pa-md">
-        <q-card-section class="oswald" style="width: 100%; max-width: 45%">
+        <q-card-section class="oswald" style="width: 100%; max-width: 60%">
           <div class="ys text-h6 q-mb-sm">Username</div>
           <q-input
             class="q-mb-sm"
             label="Username"
-            v-model="username"
+            v-model.trim="username"
             standout="bg-grey-3 text-deep-purple-14"
             input-class="text-dark"
             disable
@@ -133,42 +117,18 @@ const deleteAccount = () => {
             Username cannot be edited
           </div>
         </q-card-section>
-        <q-card-section class="oswald">
-          <div class="q-mb-sm row items-center">
-            <div class="ys text-h6 on-left">Email</div>
-            <div
-              class="cursor-pointer oswald text-deep-purple-14"
-              v-if="editEmail"
-              @click="editEmail = false"
-            >
-              Change Email
-            </div>
-          </div>
-          <div class="row items-center">
-            <q-input
-              style="width: 100%; max-width: 44%"
-              label="Email"
-              v-model="email"
-              standout="bg-grey-3 text-deep-purple-14"
-              input-class="text-dark"
-              :disable="editEmail"
-            />
-            <q-btn
-              v-if="!editEmail"
-              class="on-right"
-              label="Cancel"
-              color="dark"
-              @click="editEmail = true"
-              flat
-            />
-            <q-btn
-              v-if="!editEmail"
-              class="on-right"
-              label="Apply Changes"
-              color="deep-purple-14"
-              @click="editEmail = true"
-              push
-            />
+        <q-card-section class="oswald" style="width: 100%; max-width: 60%">
+          <div class="ys text-h6 q-mb-sm">Email</div>
+          <q-input
+            class="q-mb-sm"
+            label="Email Address"
+            v-model.trim="email"
+            standout="bg-grey-3 text-deep-purple-14"
+            input-class="text-dark"
+            disable
+          />
+          <div class="row justify-end text-grey-6 text-body2">
+            Email cannot be edited
           </div>
         </q-card-section>
       </q-card>
@@ -176,7 +136,7 @@ const deleteAccount = () => {
       <q-separator class="q-my-xl" />
       <q-card class="q-pa-lg">
         <q-card-section class="row justify-between">
-          <div class="oswald" style="width: 100%; max-width: 45%">
+          <div class="oswald" style="width: 100%; max-width: 60%">
             <div class="row ys q-mb-md">
               <div class="text-h6 on-left">Name</div>
               <div
@@ -196,48 +156,15 @@ const deleteAccount = () => {
               label="First Name"
               standout="bg-grey-3 text-deep-purple-14"
               input-class="text-dark"
-              v-model="first_name"
+              v-model.trim="first_name"
               :disable="editName"
             />
             <q-input
               label="Last Name"
               standout="bg-grey-3 text-deep-purple-14"
               input-class="text-dark"
-              v-model="last_name"
+              v-model.trim="last_name"
               :disable="editName"
-            />
-          </div>
-
-          <q-separator vertical />
-          <div class="oswald" style="width: 100%; max-width: 45%">
-            <div class="row ys q-mb-md">
-              <div class="text-h6 on-left">Password</div>
-              <div
-                class="oswald underline row items-center text-deep-purple-14 text-body2"
-              >
-                <div
-                  class="cursor-pointer"
-                  v-if="editPassword"
-                  @click="passwordModal = true"
-                >
-                  Change Password
-                </div>
-              </div>
-            </div>
-            <q-input
-              class="q-mb-lg"
-              label="New Password"
-              standout="bg-grey-3 text-deep-purple-14"
-              input-class="text-dark"
-              v-model="new_password"
-              :disable="editPassword"
-            />
-            <q-input
-              label="Confirm Password"
-              standout="bg-grey-3 text-deep-purple-14"
-              input-class="text-dark"
-              v-model="confirm_password"
-              :disable="editPassword"
             />
           </div>
         </q-card-section>
@@ -271,7 +198,7 @@ const deleteAccount = () => {
           <div class="row justify-between">
             <q-select
               outlined
-              v-model="model"
+              v-model.trim="model"
               :options="addresses"
               label="Select Address"
               style="width: 60%"
@@ -290,7 +217,7 @@ const deleteAccount = () => {
                 class="on-left"
                 style="width: 100%; max-width: 45%"
                 label="Street Address"
-                v-model="street"
+                v-model.trim="street"
                 standout="bg-grey-3 text-deep-purple-14"
                 input-class="text-dark"
               />
@@ -298,7 +225,7 @@ const deleteAccount = () => {
                 class="on-right"
                 style="width: 100%; max-width: 48%"
                 label="Apt, suite, unit, building, floor, etc."
-                v-model="apt"
+                v-model.trim="apt"
                 standout="bg-grey-3 text-deep-purple-14"
                 input-class="text-dark"
               />
@@ -308,24 +235,29 @@ const deleteAccount = () => {
                 class="on-left"
                 style="width: 100%; max-width: 30%"
                 label="City"
-                v-model="city"
+                v-model.trim="city"
                 standout="bg-grey-3 text-deep-purple-14"
                 input-class="text-dark"
               />
               <q-select
                 class="on-right on-left"
                 standout="bg-grey-3 text-deep-purple-14"
-                v-model="state"
+                v-model.trim="state"
                 :options="usStates"
                 label="State"
                 style="width: 100%; max-width: 30%"
-                use-input
-              />
+              >
+                <template v-slot:selected-item="scope">
+                  <span class="text-dark">
+                    {{ scope.opt }}
+                  </span>
+                </template>
+              </q-select>
               <q-input
                 class="on-right"
                 style="width: 100%; max-width: 30%"
                 label="ZIP Code"
-                v-model="zip_code"
+                v-model.trim="zip_code"
                 standout="bg-grey-3 text-deep-purple-14"
                 input-class="text-dark"
                 mask="#####"
@@ -393,22 +325,6 @@ const deleteAccount = () => {
             </div>
           </div>
         </q-card-section>
-        <q-card-section class="oswald text-body1 q-mx-xl">
-          Please confirm your decision by entering your account password:
-          <q-input
-            class="q-my-md"
-            label="Password"
-            v-model="password"
-            input-class="text-black"
-            standout="text-deep-purple-14 bg-grey-3"
-          />
-          <q-input
-            label="Confirm Password"
-            input-class="text-black"
-            v-model="confirm_password"
-            standout="text-deep-purple-14 bg-grey-3"
-          />
-        </q-card-section>
         <q-card-actions class="q-pb-md" align="right">
           <q-btn
             label="cancel"
@@ -427,33 +343,7 @@ const deleteAccount = () => {
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <q-dialog v-model="passwordModal">
-      <q-card style="width: 100%; max-width: 600px">
-        <q-card-section class="ys text-h6 bg-dark text-white">
-          Please enter your password to confirm identity
-        </q-card-section>
-        <q-card-section class="oswald text-body1 q-pb-none q-mx-md">
-          Enter password below
-        </q-card-section>
-        <q-card-section class="q-mx-md oswald">
-          <q-input
-            label="Current Password "
-            standout="bg-grey-3 text-deep-purple-14"
-            input-class="text-dark "
-            v-model="current_password"
-          />
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn label="Close" flat v-close-popup />
-          <q-btn
-            label="Confirm"
-            color="deep-purple-14"
-            push
-            @click="confirmIdentity"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+
     <AddressModal v-model="newAddress" />
   </div>
   <FooterComponent />

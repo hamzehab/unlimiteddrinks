@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 
 export const useCartStore = defineStore("cart", {
   state: () => ({
-    items: JSON.parse(localStorage.getItem("cart")) || [],
+    items: JSON.parse(sessionStorage.getItem("cart")) || [],
   }),
   getters: {
     totalQuantity: (state) =>
@@ -22,7 +22,7 @@ export const useCartStore = defineStore("cart", {
   actions: {
     update(index, quantity) {
       this.items[index].quantity = quantity;
-      localStorage.setItem("cart", JSON.stringify(this.items));
+      sessionStorage.setItem("cart", JSON.stringify(this.items));
     },
     addItem(item, quantity) {
       const existingItem = this.items.find(
@@ -37,14 +37,14 @@ export const useCartStore = defineStore("cart", {
         this.items.push({ ...item, quantity: quantity });
       }
 
-      localStorage.setItem("cart", JSON.stringify(this.items));
+      sessionStorage.setItem("cart", JSON.stringify(this.items));
     },
     removeItem(product_id) {
       const existingItem = this.items.find(
         (cartItem) => cartItem.id === product_id
       );
       this.items.splice(this.items.indexOf(existingItem), 1);
-      localStorage.setItem("cart", JSON.stringify(this.items));
+      sessionStorage.setItem("cart", JSON.stringify(this.items));
     },
   },
 });

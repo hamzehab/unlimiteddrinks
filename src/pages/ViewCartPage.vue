@@ -7,6 +7,7 @@ import { ref } from "vue";
 const cartStore = useCartStore();
 const items = cartStore.items;
 const deleteModal = ref(false);
+const deleteID = ref(null);
 
 const quantities = ref([]);
 const removed = ref([]);
@@ -62,7 +63,7 @@ const removeItem = (product_id) => {
           flat
           label="Delete"
           color="negative"
-          @click="removeItem(item.id)"
+          @click="removeItem(deleteID)"
         />
       </q-card-actions>
     </q-card>
@@ -177,7 +178,7 @@ const removeItem = (product_id) => {
                 <q-btn
                   icon="delete_outline"
                   color="negative"
-                  @click="deleteModal = true"
+                  @click="(deleteModal = true), (deleteID = item.id)"
                 />
               </div>
             </div>

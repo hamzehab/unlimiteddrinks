@@ -1,11 +1,13 @@
 <script setup>
 import AddressModal from "./AddressModal.vue";
-import { ref, onMounted, onUnmounted, watchEffect } from "vue";
+import { ref, onMounted, onUnmounted, watchEffect, watch } from "vue";
 import { useCartStore } from "src/stores/cart-store";
 
 import { api } from "src/boot/axios";
 import { useRouter } from "vue-router";
+import { useAuth0 } from "@auth0/auth0-vue";
 
+const auth0 = useAuth0();
 const $router = useRouter();
 const categories = ref([]);
 
@@ -19,6 +21,8 @@ const searchFailed = ref(false);
 const windowWidth = ref(window.innerWidth);
 const addressModal = ref(false);
 const newAddress = ref(false);
+
+const isLoggedIn = ref(false);
 
 const search = async () => {
   if (searchInput.value.trim().length > 0) {
@@ -54,6 +58,41 @@ const getCategories = async () => {
   }
 };
 
+const login = async () => {
+  await auth0.loginWithRedirect();
+};
+
+const logout = async () => {
+  await auth0.logout({ logoutParams: { returnTo: window.location.origin } });
+  sessionStorage.removeItem("cart");
+};
+
+const userExists = async () => {
+  try {
+    const response = await api.get(
+      `/customer/exists/${auth0.user._rawValue.sub.split("|")[1]}`
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+const loggedIn = async () => {
+  if (auth0.isAuthenticated.value && !auth0.isLoading.value) {
+    try {
+      const response = await userExists();
+      isLoggedIn.value = response;
+      if (!response) {
+        $router.push("/setup");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+};
+
 onMounted(async () => {
   window.addEventListener("resize", handleResize);
   getCategories();
@@ -63,8 +102,9 @@ onUnmounted(() => {
   window.removeEventListener("resize", handleResize);
 });
 
-watchEffect(() => {
+watchEffect(async () => {
   cartItemCount.value = cartStore.totalQuantity;
+  await loggedIn();
 });
 </script>
 
@@ -82,7 +122,13 @@ watchEffect(() => {
             @click="$router.push('/')"
           />
         </q-btn>
-        <q-btn no-caps push flat @click="addressModal = true">
+        <q-btn
+          v-if="auth0.isAuthenticated.value && isLoggedIn"
+          no-caps
+          push
+          flat
+          @click="addressModal = true"
+        >
           <div class="row items-center no-wrap">
             <q-icon left name="mdi-map-marker-outline" />
             <div class="text-center">
@@ -145,7 +191,7 @@ watchEffect(() => {
           dark
           rounded
           standout="text-deep-purple-14"
-          v-model="searchInput"
+          v-model.trim="searchInput"
           label="Search"
           @keydown.enter.prevent="search"
         >
@@ -187,7 +233,7 @@ watchEffect(() => {
           </q-menu>
         </q-btn>
 
-        <q-btn no-caps flat>
+        <q-btn v-if="auth0.isAuthenticated.value" no-caps flat>
           <div class="row items-center">
             <q-icon size="30px" name="mdi-account-circle-outline" />
             <div class="on-right">
@@ -212,13 +258,14 @@ watchEffect(() => {
               <q-item clickable @click="$router.push('/account')">
                 <q-item-section>Account Settings</q-item-section>
               </q-item>
-              <q-item clickable>
+              <q-item clickable @click="logout">
                 <q-item-section>Logout</q-item-section>
               </q-item>
               <q-separator dark />
             </q-list>
           </q-menu>
         </q-btn>
+        <q-btn v-else flat label="Login" @click="login" />
         <q-btn padding="md" no-caps flat @click="$router.push('/cart')">
           <div>
             <q-icon size="30px" name="mdi-cart-outline">
@@ -281,7 +328,7 @@ watchEffect(() => {
                   </q-list>
                 </q-menu>
               </q-item>
-              <q-item clickable>
+              <q-item v-if="auth0.isAuthenticated.value" clickable>
                 <q-item-section class="q-py-md">
                   <div
                     class="row justify-betweem items-center flex flex-center"
@@ -311,12 +358,17 @@ watchEffect(() => {
                     <q-item clickable @click="$router.push('/account')">
                       <q-item-section>Account Settings</q-item-section>
                     </q-item>
-                    <q-item clickable>
+                    <q-item clickable @click="logout">
                       <q-item-section>Logout</q-item-section>
                     </q-item>
                     <q-separator dark />
                   </q-list>
                 </q-menu>
+              </q-item>
+              <q-item v-else clickable @click="login">
+                <q-item-section class="text-center q-py-md">
+                  Login
+                </q-item-section>
               </q-item>
               <q-item clickable v-close-popup @click="$router.push('/cart')">
                 <q-item-section class="q-py-md">

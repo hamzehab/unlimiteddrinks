@@ -118,7 +118,7 @@ onMounted(async () => {
               class="q-my-lg"
               type="text"
               label="Preferred Name"
-              v-model="name"
+              v-model.trim.trim="name"
               dense
               standout="text-deep-purple-14"
               dark
@@ -128,7 +128,7 @@ onMounted(async () => {
               class="q-my-lg"
               type="text"
               label="Email"
-              v-model="email"
+              v-model.trim="email"
               dense
               dark
               rounded
@@ -138,7 +138,7 @@ onMounted(async () => {
               class="q-my-lg"
               type="text"
               label="Subject"
-              v-model="subject"
+              v-model.trim="subject"
               dense
               dark
               rounded
@@ -147,7 +147,7 @@ onMounted(async () => {
             <q-input
               class="q-my-lg"
               label="Your Message"
-              v-model="message"
+              v-model.trim="message"
               autogrow
               standout="text-deep-purple-14"
               dark

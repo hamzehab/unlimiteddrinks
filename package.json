@@ -13,6 +13,7 @@
     "build": "quasar build"
   },
   "dependencies": {
+    "@auth0/auth0-vue": "^2.3.2",
     "@emailjs/browser": "^3.11.0",
     "@quasar/extras": "^1.0.0",
     "axios": "^1.2.1",

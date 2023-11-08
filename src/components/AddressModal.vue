@@ -77,7 +77,7 @@ const addAddress = () => {
         <q-input
           standout="bg-grey-3 text-deep-purple-14"
           input-class="text-dark"
-          v-model="firstName"
+          v-model.trim="firstName"
         />
       </q-card-section>
       <q-card-section class="oswald text-body1 q-pb-none q-mx-md">
@@ -85,7 +85,7 @@ const addAddress = () => {
         <q-input
           standout="bg-grey-3 text-deep-purple-14"
           input-class="text-dark"
-          v-model="lastName"
+          v-model.trim="lastName"
         />
       </q-card-section>
       <q-card-section class="oswald text-body1 q-pb-none q-mx-md">
@@ -93,7 +93,7 @@ const addAddress = () => {
         <q-input
           standout="bg-grey-3 text-deep-purple-14"
           input-class="text-dark"
-          v-model="streetAddress"
+          v-model.trim="streetAddress"
         />
       </q-card-section>
       <q-card-section class="oswald text-body1 q-pb-none q-mx-md">
@@ -101,7 +101,7 @@ const addAddress = () => {
         <q-input
           standout="bg-grey-3 text-deep-purple-14"
           input-class="text-dark"
-          v-model="city"
+          v-model.trim="city"
         />
       </q-card-section>
       <q-card-section class="oswald text-body1 q-mx-md">
@@ -110,7 +110,7 @@ const addAddress = () => {
             <div class="q-mb-sm">State</div>
             <q-select
               standout="bg-grey-3 text-deep-purple-14"
-              v-model="state"
+              v-model.trim="state"
               :options="usStates"
               label="State"
               use-input
@@ -121,7 +121,7 @@ const addAddress = () => {
             <q-input
               standout="bg-grey-3 text-deep-purple-14"
               input-class="text-dark"
-              v-model="zip_code"
+              v-model.trim="zip_code"
               mask="#####"
             />
           </div>
