@@ -83,46 +83,39 @@ const city = ref(null);
 const state = ref(null);
 const zip = ref(null);
 
-const createCustomer = async () => {
-  try {
-    const id = auth0.user._rawValue.sub.split("|")[1];
-    const customer = {
-      id: id,
-      first_name: firstName.value,
-      last_name: lastName.value,
-      email: email.value,
-    };
-    await api.post("/create/customer", customer);
-    return id;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
 const createAccount = async () => {
   loading.value = true;
-  const id = await createCustomer();
-  const address = {
-    first_name: firstName.value,
-    last_name: lastName.value,
-    street: street.value,
-    street2: apt.value,
-    city: city.value,
-    state: state.value,
-    zip_code: zip.value,
-  };
   try {
-    await api.post(`/customer/${id}/add_address`, address);
-    loading.value = false;
+    const id = auth0.user._rawValue.sub.split("|")[1];
+    const data = {
+      customer: {
+        id: id,
+        first_name: firstName.value,
+        last_name: lastName.value,
+        email: email.value,
+      },
+      address: {
+        first_name: firstName.value,
+        last_name: lastName.value,
+        street: street.value,
+        street2: apt.value,
+        city: city.value,
+        state: state.value,
+        zip_code: zip.value,
+      },
+    };
+    await api.post("/create/customer", data);
     $router.push("/");
   } catch (error) {
     console.error(error);
   }
+  loading.value = false;
 };
 
 const logout = async () => {
   await auth0.logout({ logoutParams: { returnTo: window.location.origin } });
   sessionStorage.removeItem("cart");
+  sessionStorage.removeItem("customer");
 };
 console.log(auth0.isAuthenticated.value);
 watchEffect(async () => {

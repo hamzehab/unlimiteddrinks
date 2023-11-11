@@ -68,6 +68,7 @@ const login = async () => {
 const logout = async () => {
   await auth0.logout({ logoutParams: { returnTo: window.location.origin } });
   sessionStorage.removeItem("cart");
+  sessionStorage.removeItem("customer");
 };
 
 const userExists = async () => {
@@ -104,6 +105,10 @@ const loggedIn = async () => {
   }
 };
 
+const addressFormat = (address) => {
+  return `${address.street}, ${address.city} ${address.state} ${address.zip_code} ${address.country}`;
+};
+
 onMounted(async () => {
   window.addEventListener("resize", handleResize);
   getCategories();
@@ -134,7 +139,7 @@ watchEffect(async () => {
           />
         </q-btn>
         <q-btn
-          v-if="auth0.isAuthenticated.value && isLoggedIn"
+          v-if="auth0.isAuthenticated.value && isLoggedIn && windowWidth >= 465"
           no-caps
           push
           flat
@@ -143,12 +148,19 @@ watchEffect(async () => {
           <div class="row items-center no-wrap">
             <q-icon left name="mdi-map-marker-outline" />
             <div class="text-center">
-              <div class="text-caption">Deliver to Name</div>
-              <div class="text-bold text-subtitle1">Ridgewood 07450</div>
+              <div class="text-caption">
+                Deliver to
+                {{ customerStore.getMainAddress.first_name }}
+              </div>
+              <div class="text-bold text-subtitle1">
+                {{ customerStore.getMainAddress.city }}
+                {{ customerStore.getMainAddress.zip_code }}
+              </div>
             </div>
           </div>
           <q-dialog v-model="addressModal">
             <q-card>
+              {{ customerStore.getAddresses }}
               <q-card-section class="bg-dark text-white text-bold ys">
                 Choose your location
               </q-card-section>
@@ -173,12 +185,20 @@ watchEffect(async () => {
               <q-card-section class="oswald text-bold q-py-none">
                 <div
                   class="cursor-pointer q-my-md q-pa-lg"
-                  :class="n === selected ? 'selected-address' : 'address'"
-                  v-for="n in 3"
-                  :key="n"
-                  @click="selected = n"
+                  :class="address === selected ? 'selected-address' : 'address'"
+                  v-for="(address, index) in [
+                    customerStore.getMainAddress,
+                    ...customerStore.getAddresses,
+                  ]"
+                  :key="index"
+                  @click="selected = address"
                 >
-                  <div>Address {{ n }}</div>
+                  <div class="text-body1">
+                    <div class="text-bold">
+                      {{ address.first_name }} {{ address.last_name }}
+                    </div>
+                    {{ addressFormat(address) }}
+                  </div>
                 </div>
               </q-card-section>
 
@@ -192,18 +212,16 @@ watchEffect(async () => {
         </q-btn>
       </div>
 
-      <div
-        style="width: 55%"
-        :class="searchFailed ? 'animated shakeX slower' : ''"
-      >
+      <div v-if="windowWidth > 698" style="width: 100%; max-width: 40%">
         <q-input
+          :class="searchFailed ? 'animated shakeX slower' : ''"
+          label="Search"
           type="search"
+          standout="text-deep-purple-14"
+          v-model.trim="searchInput"
           dense
           dark
           rounded
-          standout="text-deep-purple-14"
-          v-model.trim="searchInput"
-          label="Search"
           @keydown.enter.prevent="search"
         >
           <template v-slot:append>
@@ -215,8 +233,9 @@ watchEffect(async () => {
           </template>
         </q-input>
       </div>
+
       <div
-        v-if="windowWidth >= 1662"
+        v-if="windowWidth >= 1300"
         class="row justify-end q-gutter-x-lg items-center"
       >
         <q-btn label="Products" padding="md" push flat>
@@ -341,9 +360,7 @@ watchEffect(async () => {
               </q-item>
               <q-item v-if="auth0.isAuthenticated.value" clickable>
                 <q-item-section class="q-py-md">
-                  <div
-                    class="row justify-betweem items-center flex flex-center"
-                  >
+                  <div class="row items-center flex flex-center">
                     <q-icon size="30px" name="mdi-account-circle-outline" />
                     <div class="on-right">
                       <div>
@@ -406,6 +423,90 @@ watchEffect(async () => {
           </q-menu>
         </q-btn>
       </div>
+    </div>
+
+    <div
+      class="q-mx-auto"
+      v-if="windowWidth < 699"
+      style="width: 100%; max-width: 50%"
+    >
+      <q-btn
+        v-if="auth0.isAuthenticated.value && isLoggedIn && windowWidth < 465"
+        no-caps
+        push
+        flat
+        @click="addressModal = true"
+      >
+        <div class="row items-center no-wrap">
+          <q-icon left name="mdi-map-marker-outline" />
+          <div class="text-center">
+            <div class="text-caption">Deliver to Name</div>
+            <div class="text-bold text-subtitle1">Ridgewood 07450</div>
+          </div>
+        </div>
+        <q-dialog v-model="addressModal">
+          <q-card>
+            <q-card-section class="bg-dark text-white text-bold ys">
+              Choose your location
+            </q-card-section>
+            <q-card-section class="oswald text-bold q-pb-none">
+              <q-btn
+                class="full-width"
+                style="border: 2px solid grey; border-radius: 1rem"
+                flat
+                color="grey-6"
+                @click="newAddress = true"
+              >
+                <div class="text-center">
+                  <q-icon name="add" size="30px" />
+                  <div>Add Address</div>
+                </div>
+              </q-btn>
+            </q-card-section>
+            <q-card-section class="oswald text-body2 text-grey-6 q-pb-none">
+              Delivery options and delivery speeds may vary for different
+              locations
+            </q-card-section>
+            <q-card-section class="oswald text-bold q-py-none">
+              <div
+                class="cursor-pointer q-my-md q-pa-lg"
+                :class="n === selected ? 'selected-address' : 'address'"
+                v-for="n in 3"
+                :key="n"
+                @click="selected = n"
+              >
+                <div>Address {{ n }}</div>
+              </div>
+            </q-card-section>
+
+            <q-separator inset />
+            <q-card-actions class="oswald" align="right">
+              <q-btn label="Close" color="dark" v-close-popup />
+              <q-btn label="Done" color="deep-purple-14" />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
+      </q-btn>
+      <q-input
+        class="q-mb-lg"
+        :class="searchFailed ? 'animated shakeX slower' : ''"
+        label="Search"
+        type="search"
+        standout="text-deep-purple-14"
+        v-model.trim="searchInput"
+        dense
+        dark
+        rounded
+        @keydown.enter.prevent="search"
+      >
+        <template v-slot:append>
+          <q-icon
+            name="search"
+            @click="search"
+            class="search-btn bg-deep-purple-14 q-pa-sm text-white"
+          />
+        </template>
+      </q-input>
     </div>
   </div>
   <AddressModal v-model="newAddress" />

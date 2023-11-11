@@ -3,13 +3,21 @@ import { defineStore } from "pinia";
 export const useCustomerStore = defineStore("customerStore", {
   state: () => ({
     customer: {
-      firstName:
-        JSON.parse(sessionStorage.getItem("customer")).firstName || null,
-      lastName: JSON.parse(sessionStorage.getItem("customer")).lastName || null,
-      email: JSON.parse(sessionStorage.getItem("customer")).email || null,
-      addresses: JSON.parse(sessionStorage.getItem("customer")).addresses || [],
-      memberSince:
-        JSON.parse(sessionStorage.getItem("customer")).memberSince || null,
+      firstName: sessionStorage.getItem("customer")
+        ? JSON.parse(sessionStorage.getItem("customer")).firstName
+        : null,
+      lastName: sessionStorage.getItem("customer")
+        ? JSON.parse(sessionStorage.getItem("customer")).lastName
+        : null,
+      email: sessionStorage.getItem("customer")
+        ? JSON.parse(sessionStorage.getItem("customer")).email
+        : null,
+      addresses: sessionStorage.getItem("customer")
+        ? JSON.parse(sessionStorage.getItem("customer")).addresses
+        : [],
+      memberSince: sessionStorage.getItem("customer")
+        ? JSON.parse(sessionStorage.getItem("customer")).memberSince
+        : null,
     },
   }),
   getters: {
@@ -18,7 +26,8 @@ export const useCustomerStore = defineStore("customerStore", {
     getFullName: (state) =>
       `${state.customer.firstName} ${state.customer.lastName}`,
     getEmail: (state) => state.customer.email,
-    getAddresses: (state) => state.customer.addresses,
+    getMainAddress: (state) => state.customer.addresses.main_address,
+    getAddresses: (state) => state.customer.addresses.addresses,
     getMemberSince: (state) => state.customer.memberSince,
   },
   actions: {
