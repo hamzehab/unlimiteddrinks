@@ -2,20 +2,24 @@
 import AddressModal from "src/components/AddressModal.vue";
 import FooterComponent from "src/components/FooterComponent.vue";
 import NavBar from "src/components/NavBar.vue";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 
+import { useAuth0 } from "@auth0/auth0-vue";
 import { useCustomerStore } from "src/stores/customer-store";
 
+const auth0 = useAuth0();
 const customerStore = useCustomerStore();
+const $router = useRouter();
 
 const editName = ref(true);
 const deletetion = ref(false);
 const newAddress = ref(false);
 
-const email = customerStore.getEmail;
+const email = customerStore.customer.email;
 
-const first_name = ref(customerStore.getFirstName);
-const last_name = ref(customerStore.getLastName);
+const first_name = ref(customerStore.customer.firstName);
+const last_name = ref(customerStore.customer.lastName);
 
 const street = ref("");
 const apt = ref("");
@@ -24,60 +28,17 @@ const state = ref("");
 const zip_code = ref("");
 
 const model = ref(null);
-const addresses = customerStore.getAddresses;
-console.log(customerStore.getAddresses);
-const usStates = [
-  "Alabama",
-  "Alaska",
-  "Arizona",
-  "Arkansas",
-  "California",
-  "Colorado",
-  "Connecticut",
-  "Delaware",
-  "Florida",
-  "Georgia",
-  "Hawaii",
-  "Idaho",
-  "Illinois",
-  "Indiana",
-  "Iowa",
-  "Kansas",
-  "Kentucky",
-  "Louisiana",
-  "Maine",
-  "Maryland",
-  "Massachusetts",
-  "Michigan",
-  "Minnesota",
-  "Mississippi",
-  "Missouri",
-  "Montana",
-  "Nebraska",
-  "Nevada",
-  "New Hampshire",
-  "New Jersey",
-  "New Mexico",
-  "New York",
-  "North Carolina",
-  "North Dakota",
-  "Ohio",
-  "Oklahoma",
-  "Oregon",
-  "Pennsylvania",
-  "Rhode Island",
-  "South Carolina",
-  "South Dakota",
-  "Tennessee",
-  "Texas",
-  "Utah",
-  "Vermont",
-  "Virginia",
-  "Washington",
-  "West Virginia",
-  "Wisconsin",
-  "Wyoming",
-];
+const addresses = sessionStorage.getItem("customer")
+  ? [customerStore.getSelectedAddress, ...customerStore.getAddresses]
+  : [];
+
+const addressStrings = addresses.map((address) => {
+  return `${address.street}${
+    address.street2 ? " " + address.street2 + ", " : ", "
+  }${address.city}, ${address.state}, ${address.zip_code}`;
+});
+
+console.log(addresses);
 
 const handleClick = () => {
   if (!editName.value) {
@@ -90,6 +51,30 @@ const deleteAccount = () => {
   console.log("deleted");
   deletetion.value = false;
 };
+
+const updateSelectedAddress = (value) => {
+  const selectedAddressObject = addresses.find((address) => {
+    return (
+      `${address.street} ${address.street2 ? address.street2 + ", " : ""}${
+        address.city
+      }, ${address.state}, ${address.zip_code}` === value
+    );
+  });
+
+  if (selectedAddressObject) {
+    street.value = selectedAddressObject.street;
+    apt.value = selectedAddressObject.street2 || "";
+    city.value = selectedAddressObject.city;
+    state.value = selectedAddressObject.state;
+    zip_code.value = selectedAddressObject.zip_code;
+  }
+};
+
+onMounted(() => {
+  if (!sessionStorage.getItem("customer")) {
+    $router.push("/");
+  }
+});
 </script>
 
 <template>
@@ -104,7 +89,7 @@ const deleteAccount = () => {
             Welcome, {{ customerStore.getFullName }}
           </div>
           <div class="text-caption on-right">
-            Member Since: {{ customerStore.getMemberSince }}
+            Member Since: {{ customerStore.customer.memberSince }}
           </div>
         </div>
       </div>
@@ -194,9 +179,10 @@ const deleteAccount = () => {
             <q-select
               outlined
               v-model.trim="model"
-              :options="addresses"
+              :options="addressStrings"
               label="Select Address"
               style="width: 60%"
+              @update:model-value="updateSelectedAddress"
             />
 
             <q-btn flat color="grey-6" @click="newAddress = true">
@@ -205,74 +191,6 @@ const deleteAccount = () => {
                 <div>Add Address</div>
               </div>
             </q-btn>
-          </div>
-          <div v-if="model !== null">
-            <div class="q-mt-lg row items-center">
-              <q-input
-                class="on-left"
-                style="width: 100%; max-width: 45%"
-                label="Street Address"
-                v-model.trim="street"
-                standout="bg-grey-3 text-deep-purple-14"
-                input-class="text-dark"
-              />
-              <q-input
-                class="on-right"
-                style="width: 100%; max-width: 48%"
-                label="Apt, suite, unit, building, floor, etc."
-                v-model.trim="apt"
-                standout="bg-grey-3 text-deep-purple-14"
-                input-class="text-dark"
-              />
-            </div>
-            <div class="q-mt-lg row items-center">
-              <q-input
-                class="on-left"
-                style="width: 100%; max-width: 30%"
-                label="City"
-                v-model.trim="city"
-                standout="bg-grey-3 text-deep-purple-14"
-                input-class="text-dark"
-              />
-              <q-select
-                class="on-right on-left"
-                standout="bg-grey-3 text-deep-purple-14"
-                v-model.trim="state"
-                :options="usStates"
-                label="State"
-                style="width: 100%; max-width: 30%"
-              >
-                <template v-slot:selected-item="scope">
-                  <span class="text-dark">
-                    {{ scope.opt }}
-                  </span>
-                </template>
-              </q-select>
-              <q-input
-                class="on-right"
-                style="width: 100%; max-width: 30%"
-                label="ZIP Code"
-                v-model.trim="zip_code"
-                standout="bg-grey-3 text-deep-purple-14"
-                input-class="text-dark"
-                mask="#####"
-              />
-            </div>
-            <div class="row justify-end">
-              <q-btn
-                class="q-mt-lg"
-                label="Cancel"
-                color="dark"
-                flat
-                @click="model = null"
-              />
-              <q-btn
-                class="q-mt-lg on-right"
-                label="Save Changes"
-                color="deep-purple-14"
-                push
-              />
-            </div>
           </div>
         </q-card-section>
       </q-card>

@@ -2,9 +2,10 @@
 import FooterComponent from "src/components/FooterComponent.vue";
 import NavBar from "src/components/NavBar.vue";
 import { useAuth0 } from "@auth0/auth0-vue";
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, watchEffect, onMounted } from "vue";
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
+import router from "src/router";
 
 const auth0 = useAuth0();
 const $router = useRouter();
@@ -117,8 +118,14 @@ const logout = async () => {
   sessionStorage.removeItem("cart");
   sessionStorage.removeItem("customer");
 };
-console.log(auth0.isAuthenticated.value);
-watchEffect(async () => {
+
+onMounted(() => {
+  if (sessionStorage.getItem("customer")) {
+    $router.back();
+  }
+});
+
+watchEffect(() => {
   email.value = auth0.user.value.email;
 });
 </script>

@@ -51,7 +51,11 @@ const increaseQuantity = () => {
 
 <template>
   <q-card class="q-my-lg oswald" style="width: 100%; max-width: 350px">
-    <img class="cursor-pointer" src="/static/pepsi.jpg" @click="viewFullItem" />
+    <img
+      class="cursor-pointer"
+      :src="`/static/${product.image}`"
+      @click="viewFullItem"
+    />
 
     <q-card-section class="q-pb-none" @click="viewFullItem">
       <span class="text-h6 cursor-pointer" @click="viewFullItem">
@@ -59,8 +63,8 @@ const increaseQuantity = () => {
       </span>
     </q-card-section>
 
-    <q-card-section class="q-py-none">
-      <div>{{ product.description }}</div>
+    <q-card-section class="q-pb-none">
+      <div>{{ product.description.slice(0, 250) }}...</div>
     </q-card-section>
 
     <q-card-section class="q-pb-none row justify-end items-center">

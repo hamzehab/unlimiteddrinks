@@ -1,14 +1,20 @@
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
+import { api } from "src/boot/axios";
+import { useAuth0 } from "@auth0/auth0-vue";
+import { useCustomerStore } from "stores/customer-store";
 
-const addressAdded = ref(false);
+const auth0 = useAuth0();
+const customerStore = useCustomerStore();
 
-const firstName = ref("");
-const lastName = ref("");
-const streetAddress = ref("");
-const city = ref("");
-const state = ref("");
-const zip_code = ref("");
+const addressAdded = ref(null);
+
+const firstName = ref(null);
+const lastName = ref(null);
+const streetAddress = ref(null);
+const city = ref(null);
+const state = ref(null);
+const zip_code = ref(null);
 
 const usStates = [
   { label: "Alabama", value: "AL" },
@@ -63,14 +69,41 @@ const usStates = [
   { label: "Wyoming", value: "WY" },
 ];
 
-const addAddress = () => {
-  console.log("address added");
+const addAddress = async () => {
+  addressAdded.value = null;
+  const data = {
+    first_name: firstName.value,
+    last_name: lastName.value,
+    street: streetAddress.value,
+    state: state.value,
+    city: city.value,
+    zip_code: zip_code.value,
+  };
+  try {
+    const newAddress = await api.post(
+      `/address/add/${auth0.user._rawValue.sub.split("|")[1]}`,
+      data
+    );
+    customerStore.addAddress(newAddress);
+    addressAdded.value = true;
+  } catch (error) {
+    addressAdded.value = false;
+    console.error(error);
+  }
 };
+
+watch(
+  () => addressAdded.value,
+  (newValue, oldValue) => {
+    console.log(`addressAdded changed: ${oldValue} -> ${newValue}`);
+    console.log(addressAdded.value);
+  }
+);
 </script>
 
 <template>
   <q-dialog>
-    <q-card style="width: 100%; max-width: 500px">
+    <q-card style="width: 100%; max-width: 600px">
       <q-card-section class="ys text-h6 bg-dark text-white">
         Add a new address
       </q-card-section>
@@ -110,6 +143,7 @@ const addAddress = () => {
         <div class="row justify-between">
           <div style="width: 100%; max-width: 45%">
             <div class="q-mb-sm">State</div>
+
             <q-select
               standout="bg-grey-3 text-deep-purple-14"
               v-model.trim="state"
@@ -117,7 +151,13 @@ const addAddress = () => {
               label="State"
               emit-value
               map-options
-            />
+            >
+              <template v-slot:selected-item="scope">
+                <span class="text-dark">
+                  {{ scope.opt.label }}
+                </span>
+              </template>
+            </q-select>
           </div>
           <div style="width: 100%; max-width: 45%">
             <div class="q-mb-sm">ZIP Code</div>
@@ -130,9 +170,10 @@ const addAddress = () => {
           </div>
         </div>
       </q-card-section>
-      <q-card-actions align="right">
+      <q-card-actions class="q-mr-lg q-pb-md" align="right">
         <q-btn label="Close" flat v-close-popup />
         <q-btn
+          :class="addressAdded === false ? 'animated shakeX slower' : ''"
           label="Confirm"
           color="deep-purple-14"
           push

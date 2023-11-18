@@ -36,6 +36,13 @@ onBeforeRouteUpdate(async (to, from) => {
     <div class="q-ml-xl q-mb-xl ys text-h4">
       Search Results for: {{ $route.query.q }}
     </div>
+    <div class="oswald text-body1 q-mx-auto" style="max-width: 70%">
+      <div v-if="products">
+        {{ products.length }}
+        {{ products.length > 1 ? "results" : "result" }} found
+      </div>
+      <div v-else>No results found for category: {{ category }}</div>
+    </div>
 
     <ProductListing
       class="fade"

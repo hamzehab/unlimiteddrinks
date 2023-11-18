@@ -1,9 +1,15 @@
 <script setup>
-import { api } from "src/boot/axios";
+import { ref, onMounted } from "vue";
 import FooterComponent from "src/components/FooterComponent.vue";
 import NavBar from "src/components/NavBar.vue";
+
+import { api } from "src/boot/axios";
 import { useCartStore } from "src/stores/cart-store";
-import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuth0 } from "@auth0/auth0-vue";
+
+const auth0 = useAuth0();
+const $router = useRouter();
 
 const cartStore = useCartStore();
 const items = ref([]);
@@ -67,8 +73,21 @@ const fetchProductsInCart = async () => {
   taxesAndFees.value = subtotal.value * 0.06625;
 };
 
+const checkout = async () => {
+  if (auth0.isAuthenticated.value) {
+    try {
+      const url = await api.post("/checkout/session", cartStore.items);
+      window.location.href = url.data;
+    } catch (e) {
+      console.error(e);
+    }
+  } else {
+    await auth0.loginWithRedirect();
+  }
+};
+
 onMounted(async () => {
-  fetchProductsInCart();
+  await fetchProductsInCart();
 });
 </script>
 
@@ -124,7 +143,7 @@ onMounted(async () => {
             <div class="flex items-center">
               <img
                 class="rounded-borders q-mr-lg"
-                src="/static/pepsi.jpg"
+                :src="`/static/${item.image}`"
                 alt=""
                 style="width: 150px; height: 150px"
               />
@@ -264,7 +283,7 @@ onMounted(async () => {
             icon="lock_outline"
             color="deep-purple-14"
             push
-            @click="$router.push('/checkout')"
+            @click="checkout"
           />
         </div>
       </div>

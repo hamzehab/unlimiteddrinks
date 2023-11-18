@@ -19,16 +19,15 @@ export const useCustomerStore = defineStore("customerStore", {
         ? JSON.parse(sessionStorage.getItem("customer")).memberSince
         : null,
     },
+    selectedAddress: sessionStorage.getItem("selectedAddress")
+      ? JSON.parse(sessionStorage.getItem("selectedAddress"))
+      : null,
   }),
   getters: {
-    getFirstName: (state) => state.customer.firstName,
-    getLastName: (state) => state.customer.lastName,
     getFullName: (state) =>
       `${state.customer.firstName} ${state.customer.lastName}`,
-    getEmail: (state) => state.customer.email,
-    getMainAddress: (state) => state.customer.addresses.main_address,
     getAddresses: (state) => state.customer.addresses.addresses,
-    getMemberSince: (state) => state.customer.memberSince,
+    getSelectedAddress: (state) => state.selectedAddress,
   },
   actions: {
     initCustomer(customerData) {
@@ -36,6 +35,7 @@ export const useCustomerStore = defineStore("customerStore", {
       this.customer.lastName = customerData.last_name;
       this.customer.email = customerData.email;
       this.customer.addresses = customerData.addresses;
+      this.selectedAddress = customerData.addresses.main_address;
 
       const dateObj = new Date(customerData.created_at);
       const formattedDate = `${dateObj.toLocaleDateString("en-US", {
@@ -46,6 +46,21 @@ export const useCustomerStore = defineStore("customerStore", {
 
       this.customer.memberSince = formattedDate;
       sessionStorage.setItem("customer", JSON.stringify(this.customer));
+      sessionStorage.setItem(
+        "selectedAddress",
+        JSON.stringify(this.selectedAddress)
+      );
+    },
+    addAddress(addresses) {
+      this.customer.addresses.addresses.push(addresses);
+      sessionStorage.setItem("customer", JSON.stringify(this.customer));
+    },
+    changeSelectedAddress(address) {
+      this.selectedAddress = address;
+      sessionStorage.setItem(
+        "selectedAddress",
+        JSON.stringify(this.selectedAddress)
+      );
     },
   },
 });

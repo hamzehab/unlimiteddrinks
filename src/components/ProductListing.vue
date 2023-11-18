@@ -70,7 +70,7 @@ const formatDate = (date) => {
     <q-card-section class="q-mx-lg q-my-md" horizontal>
       <img
         class="cursor-pointer"
-        src="static/pepsi.jpg"
+        :src="`static/${product.image}`"
         style="width: 200px; height: 200px"
       />
 

@@ -11,7 +11,6 @@ import { useCartStore } from "src/stores/cart-store";
 const cartStore = useCartStore();
 const recProducts = ref([]);
 
-const slide = ref(1);
 const rating = ref(0);
 const quantity = ref(1);
 
@@ -106,24 +105,12 @@ onMounted(async () => {
       <div class="text-h6 underline ys" @click="$router.back()">Back</div>
     </div>
 
-    <div class="row justify-evenly" style="width: 100%">
-      <q-carousel
-        class="rounded-borders fade"
-        v-model="slide"
-        control-color="dark"
-        style="width: 100%; max-width: 800px"
-        height="600px"
-        swipeable
-        animated
-        arrows
-        thumbnails
-      >
-        <q-carousel-slide :name="1" img-src="/static/warehouse.jpg" />
-        <q-carousel-slide :name="2" img-src="/static/vending.jpg" />
-        <q-carousel-slide :name="3" img-src="/static/shelfDrinks.jpg" />
-        <q-carousel-slide :name="4" img-src="/static/pepsi.jpg" />
-        <q-carousel-slide :name="5" img-src="/static/shelfDrinks2.jpg" />
-      </q-carousel>
+    <div v-if="product" class="row justify-evenly" style="width: 100%">
+      <img
+        :src="`/static/${product.image}`"
+        style="width: 100%; max-width: 800px; height: 100%"
+        alt=""
+      />
 
       <div
         v-if="product"

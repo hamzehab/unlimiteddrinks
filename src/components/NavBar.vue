@@ -1,6 +1,6 @@
 <script setup>
 import AddressModal from "./AddressModal.vue";
-import { ref, onMounted, onUnmounted, watchEffect, watch } from "vue";
+import { ref, onMounted, onUnmounted, watchEffect } from "vue";
 import { useCartStore } from "src/stores/cart-store";
 import { useCustomerStore } from "src/stores/customer-store";
 
@@ -14,9 +14,10 @@ const categories = ref([]);
 
 const cartStore = useCartStore();
 const cartItemCount = ref(cartStore.totalQuantity);
-const selected = ref(0);
 
 const customerStore = useCustomerStore();
+const selected = ref(null);
+const addresses = ref([]);
 
 const searchInput = ref("");
 const searchFailed = ref(false);
@@ -26,6 +27,7 @@ const addressModal = ref(false);
 const newAddress = ref(false);
 
 const isLoggedIn = ref(false);
+const viewMore = ref(false);
 
 const search = async () => {
   if (searchInput.value.trim().length > 0) {
@@ -95,6 +97,11 @@ const loggedIn = async () => {
             `/customer/${auth0.user._rawValue.sub.split("|")[1]}`
           );
           customerStore.initCustomer(customerData.data);
+          selected.value = customerStore.getSelectedAddress.id;
+          addresses.value = [
+            customerStore.getSelectedAddress,
+            ...customerStore.getAddresses,
+          ];
         } catch (error) {
           console.error(error);
         }
@@ -107,6 +114,21 @@ const loggedIn = async () => {
 
 const addressFormat = (address) => {
   return `${address.street}, ${address.city} ${address.state} ${address.zip_code} ${address.country}`;
+};
+
+const changeSelected = async (address_id) => {
+  try {
+    const response = await api.post(
+      `address/updateMain/${
+        auth0.user._rawValue.sub.split("|")[1]
+      }/${address_id}`
+    );
+    selected.value = response.data;
+    customerStore.changeSelectedAddress(response.data);
+    selected.value = address_id;
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 onMounted(async () => {
@@ -150,17 +172,16 @@ watchEffect(async () => {
             <div class="text-center">
               <div class="text-caption">
                 Deliver to
-                {{ customerStore.getMainAddress.first_name }}
+                {{ customerStore.selectedAddress.first_name }}
               </div>
               <div class="text-bold text-subtitle1">
-                {{ customerStore.getMainAddress.city }}
-                {{ customerStore.getMainAddress.zip_code }}
+                {{ customerStore.selectedAddress.city }}
+                {{ customerStore.selectedAddress.zip_code }}
               </div>
             </div>
           </div>
           <q-dialog v-model="addressModal">
             <q-card>
-              {{ customerStore.getAddresses }}
               <q-card-section class="bg-dark text-white text-bold ys">
                 Choose your location
               </q-card-section>
@@ -185,13 +206,37 @@ watchEffect(async () => {
               <q-card-section class="oswald text-bold q-py-none">
                 <div
                   class="cursor-pointer q-my-md q-pa-lg"
-                  :class="address === selected ? 'selected-address' : 'address'"
-                  v-for="(address, index) in [
-                    customerStore.getMainAddress,
-                    ...customerStore.getAddresses,
-                  ]"
+                  :class="
+                    address && address.id === selected
+                      ? 'selected-address'
+                      : 'address'
+                  "
+                  v-for="(address, index) in addresses.slice(0, 3)"
                   :key="index"
-                  @click="selected = address"
+                  @click="changeSelected(address.id)"
+                >
+                  <div class="text-body1">
+                    <div class="text-bold">
+                      {{ address.first_name }} {{ address.last_name }}
+                    </div>
+                    {{ addressFormat(address) }}
+                  </div>
+                </div>
+              </q-card-section>
+              <q-card-section
+                v-if="viewMore"
+                class="oswald text-bold q-py-none"
+              >
+                <div
+                  class="cursor-pointer q-my-md q-pa-lg"
+                  :class="
+                    address && address.id === selected
+                      ? 'selected-address'
+                      : 'address'
+                  "
+                  v-for="(address, index) in addresses.slice(3)"
+                  :key="index"
+                  @click="selected = address.id"
                 >
                   <div class="text-body1">
                     <div class="text-bold">
@@ -202,10 +247,23 @@ watchEffect(async () => {
                 </div>
               </q-card-section>
 
+              <q-card-section
+                v-if="addresses.length > 3"
+                class="q-pt-none"
+                align="right"
+              >
+                <div
+                  class="q-pa-sm text-grey-6 text-caption cursor-pointer"
+                  style="width: fit-content"
+                  @click="viewMore = !viewMore"
+                >
+                  View More...
+                </div>
+              </q-card-section>
+
               <q-separator inset />
               <q-card-actions class="oswald" align="right">
-                <q-btn label="Close" color="dark" v-close-popup />
-                <q-btn label="Done" color="deep-purple-14" />
+                <q-btn label="Done" color="deep-purple-14" v-close-popup />
               </q-card-actions>
             </q-card>
           </q-dialog>
@@ -253,9 +311,9 @@ watchEffect(async () => {
                   clickable
                   @click="$router.push(`/${category.name.replace(' ', '-')}`)"
                 >
-                  <q-item-section>{{
-                    capitalizeCategory(category.name)
-                  }}</q-item-section>
+                  <q-item-section>
+                    {{ capitalizeCategory(category.name) }}
+                  </q-item-section>
                 </q-item>
                 <q-separator v-if="index < categories.length - 1" dark />
               </div>
@@ -269,7 +327,9 @@ watchEffect(async () => {
             <div class="on-right">
               <div>
                 <span class="text-body1 text-bold">Hello, </span>
-                <span class="text-body2">{{ customerStore.getFirstName }}</span>
+                <span class="text-body2">{{
+                  customerStore.customer.firstName
+                }}</span>
               </div>
               <div class="text-body2 text-weight-medium">Account</div>
             </div>
@@ -366,7 +426,7 @@ watchEffect(async () => {
                       <div>
                         <span class="text-body1 text-bold">Hello, </span>
                         <span class="text-body2">
-                          {{ customerStore.getFirstName }}
+                          {{ customerStore.customer.firstName }}
                         </span>
                       </div>
                       <div class="text-body2 text-weight-medium">Account</div>
@@ -470,19 +530,61 @@ watchEffect(async () => {
             <q-card-section class="oswald text-bold q-py-none">
               <div
                 class="cursor-pointer q-my-md q-pa-lg"
-                :class="n === selected ? 'selected-address' : 'address'"
-                v-for="n in 3"
-                :key="n"
-                @click="selected = n"
+                :class="
+                  address && address.id === selected
+                    ? 'selected-address'
+                    : 'address'
+                "
+                v-for="(address, index) in addresses.slice(0, 3)"
+                :key="index"
+                @click="selected = address"
               >
-                <div>Address {{ n }}</div>
+                <div class="text-body1">
+                  <div class="text-bold">
+                    {{ address.first_name }} {{ address.last_name }}
+                  </div>
+                  {{ addressFormat(address) }}
+                </div>
+              </div>
+            </q-card-section>
+            <q-card-section v-if="viewMore" class="oswald text-bold q-py-none">
+              <div
+                class="cursor-pointer q-my-md q-pa-lg"
+                :class="
+                  address && address.id === selected
+                    ? 'selected-address'
+                    : 'address'
+                "
+                v-for="(address, index) in addresses.slice(3)"
+                :key="index"
+                @click="selected = address"
+              >
+                <div class="text-body1">
+                  <div class="text-bold">
+                    {{ address.first_name }} {{ address.last_name }}
+                  </div>
+                  {{ addressFormat(address) }}
+                </div>
+              </div>
+            </q-card-section>
+
+            <q-card-section
+              v-if="addresses.length > 3"
+              class="q-pt-none"
+              align="right"
+            >
+              <div
+                class="q-pa-sm text-grey-6 text-caption cursor-pointer"
+                style="width: fit-content"
+                @click="viewMore = !viewMore"
+              >
+                View More...
               </div>
             </q-card-section>
 
             <q-separator inset />
             <q-card-actions class="oswald" align="right">
-              <q-btn label="Close" color="dark" v-close-popup />
-              <q-btn label="Done" color="deep-purple-14" />
+              <q-btn label="Done" color="deep-purple-14" v-close-popup />
             </q-card-actions>
           </q-card>
         </q-dialog>
