@@ -5,7 +5,6 @@ import { useAuth0 } from "@auth0/auth0-vue";
 import { computed, ref, watchEffect, onMounted } from "vue";
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
-import router from "src/router";
 
 const auth0 = useAuth0();
 const $router = useRouter();
@@ -87,7 +86,7 @@ const zip = ref(null);
 const createAccount = async () => {
   loading.value = true;
   try {
-    const id = auth0.user._rawValue.sub.split("|")[1];
+    const id = auth0.user.value.sub.split("|")[1];
     const data = {
       customer: {
         id: id,
@@ -115,12 +114,14 @@ const createAccount = async () => {
 
 const logout = async () => {
   await auth0.logout({ logoutParams: { returnTo: window.location.origin } });
-  sessionStorage.removeItem("cart");
   sessionStorage.removeItem("customer");
 };
 
-onMounted(() => {
-  if (sessionStorage.getItem("customer")) {
+onMounted(async () => {
+  const customerExists = await api.get(
+    `/customer/exists/${auth0.user.value.sub.split("|")[1]}`
+  );
+  if (customerExists.data) {
     $router.back();
   }
 });

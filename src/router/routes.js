@@ -1,4 +1,5 @@
 import { api } from "boot/axios";
+import { authGuard } from "@auth0/auth0-vue";
 
 const checkIfCategoryExists = async (category) => {
   try {
@@ -42,6 +43,7 @@ const routes = [
     path: "/account",
     component: () => import("pages/AccountSettings.vue"),
     meta: { title: "Account Settings" },
+    beforeEnter: authGuard,
   },
   {
     path: "/cart",
@@ -52,12 +54,21 @@ const routes = [
     path: "/checkout",
     component: () => import("pages/OrderCheckout.vue"),
     meta: { title: "Checkout" },
+    beforeEnter: authGuard,
   },
   {
     path: "/setup",
     component: () => import("pages/SetupAccount.vue"),
     meta: { title: "Setup Account" },
+    beforeEnter: authGuard,
   },
+  {
+    path: "/orders",
+    component: () => import("pages/ViewOrdersPage.vue"),
+    meta: { title: "Unlimited Drinks: Orders" },
+    beforeEnter: authGuard,
+  },
+
   // Always leave this as last one,
   // but you can also remove it
   {

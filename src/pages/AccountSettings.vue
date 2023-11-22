@@ -2,15 +2,11 @@
 import AddressModal from "src/components/AddressModal.vue";
 import FooterComponent from "src/components/FooterComponent.vue";
 import NavBar from "src/components/NavBar.vue";
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
 
-import { useAuth0 } from "@auth0/auth0-vue";
+import { ref } from "vue";
 import { useCustomerStore } from "src/stores/customer-store";
 
-const auth0 = useAuth0();
 const customerStore = useCustomerStore();
-const $router = useRouter();
 
 const editName = ref(true);
 const deletetion = ref(false);
@@ -38,17 +34,13 @@ const addressStrings = addresses.map((address) => {
   }${address.city}, ${address.state}, ${address.zip_code}`;
 });
 
-console.log(addresses);
-
 const handleClick = () => {
   if (!editName.value) {
     editName.value = true;
-    console.log("name");
   }
 };
 
 const deleteAccount = () => {
-  console.log("deleted");
   deletetion.value = false;
 };
 
@@ -69,12 +61,6 @@ const updateSelectedAddress = (value) => {
     zip_code.value = selectedAddressObject.zip_code;
   }
 };
-
-onMounted(() => {
-  if (!sessionStorage.getItem("customer")) {
-    $router.push("/");
-  }
-});
 </script>
 
 <template>

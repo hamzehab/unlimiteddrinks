@@ -26,8 +26,8 @@ const windowWidth = ref(window.innerWidth);
 const addressModal = ref(false);
 const newAddress = ref(false);
 
-const isLoggedIn = ref(false);
 const viewMore = ref(false);
+const isLoggedIn = ref(false);
 
 const search = async () => {
   if (searchInput.value.trim().length > 0) {
@@ -59,7 +59,7 @@ const getCategories = async () => {
     const response = await api.get("/categories");
     categories.value = response.data;
   } catch (err) {
-    console.error(error);
+    console.error(err);
   }
 };
 
@@ -69,14 +69,13 @@ const login = async () => {
 
 const logout = async () => {
   await auth0.logout({ logoutParams: { returnTo: window.location.origin } });
-  sessionStorage.removeItem("cart");
   sessionStorage.removeItem("customer");
 };
 
 const userExists = async () => {
   try {
     const response = await api.get(
-      `/customer/exists/${auth0.user._rawValue.sub.split("|")[1]}`
+      `/customer/exists/${auth0.user.value.sub.split("|")[1]}`
     );
     return response.data;
   } catch (error) {
@@ -84,17 +83,18 @@ const userExists = async () => {
     return false;
   }
 };
+
 const loggedIn = async () => {
   if (auth0.isAuthenticated.value && !auth0.isLoading.value) {
     try {
-      const response = await userExists();
-      isLoggedIn.value = response;
-      if (!response) {
+      const bool = await userExists();
+      isLoggedIn.value = bool;
+      if (!bool) {
         $router.push("/setup");
       } else {
         try {
           const customerData = await api.get(
-            `/customer/${auth0.user._rawValue.sub.split("|")[1]}`
+            `/customer/${auth0.user.value.sub.split("|")[1]}`
           );
           customerStore.initCustomer(customerData.data);
           selected.value = customerStore.getSelectedAddress.id;
@@ -119,9 +119,7 @@ const addressFormat = (address) => {
 const changeSelected = async (address_id) => {
   try {
     const response = await api.post(
-      `address/updateMain/${
-        auth0.user._rawValue.sub.split("|")[1]
-      }/${address_id}`
+      `address/updateMain/${auth0.user.value.sub.split("|")[1]}/${address_id}`
     );
     selected.value = response.data;
     customerStore.changeSelectedAddress(response.data);
@@ -167,7 +165,10 @@ watchEffect(async () => {
           flat
           @click="addressModal = true"
         >
-          <div class="row items-center no-wrap">
+          <div
+            v-if="customerStore.selectedAddress && customerStore.getAddresses"
+            class="row items-center no-wrap"
+          >
             <q-icon left name="mdi-map-marker-outline" />
             <div class="text-center">
               <div class="text-caption">
@@ -327,9 +328,9 @@ watchEffect(async () => {
             <div class="on-right">
               <div>
                 <span class="text-body1 text-bold">Hello, </span>
-                <span class="text-body2">{{
-                  customerStore.customer.firstName
-                }}</span>
+                <span class="text-body2">
+                  {{ customerStore.customer.firstName }}
+                </span>
               </div>
               <div class="text-body2 text-weight-medium">Account</div>
             </div>
@@ -342,7 +343,7 @@ watchEffect(async () => {
             :offset="[0, 15]"
           >
             <q-list>
-              <q-item clickable>
+              <q-item clickable @click="$router.push('/orders')">
                 <q-item-section>Orders</q-item-section>
               </q-item>
               <q-item clickable @click="$router.push('/account')">
@@ -442,7 +443,7 @@ watchEffect(async () => {
                   self="top start"
                 >
                   <q-list>
-                    <q-item clickable>
+                    <q-item clickable @click="$router.push('/orders')">
                       <q-item-section>Orders</q-item-section>
                     </q-item>
                     <q-item clickable @click="$router.push('/account')">
@@ -500,7 +501,9 @@ watchEffect(async () => {
         <div class="row items-center no-wrap">
           <q-icon left name="mdi-map-marker-outline" />
           <div class="text-center">
-            <div class="text-caption">Deliver to Name</div>
+            <div class="text-caption">
+              Deliver to {{ customerStore.selectedAddress.first_name }}
+            </div>
             <div class="text-bold text-subtitle1">Ridgewood 07450</div>
           </div>
         </div>
@@ -612,5 +615,9 @@ watchEffect(async () => {
     </div>
   </div>
   <AddressModal v-model="newAddress" />
-  <div style="padding-bottom: 5rem" />
+  <div
+    :style="
+      windowWidth > 470 ? 'padding-bottom: 6rem' : 'padding-bottom: 10rem'
+    "
+  />
 </template>

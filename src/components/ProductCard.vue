@@ -39,7 +39,6 @@ const decreaseQuantity = () => {
   if (quantity.value > 1) {
     quantity.value = parseInt(quantity.value) - 1;
   }
-  console.log(props);
 };
 
 const increaseQuantity = () => {

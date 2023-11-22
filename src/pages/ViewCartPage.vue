@@ -4,14 +4,12 @@ import FooterComponent from "src/components/FooterComponent.vue";
 import NavBar from "src/components/NavBar.vue";
 
 import { api } from "src/boot/axios";
-import { useCartStore } from "src/stores/cart-store";
-import { useRouter } from "vue-router";
 import { useAuth0 } from "@auth0/auth0-vue";
+import { useCartStore } from "src/stores/cart-store";
 
 const auth0 = useAuth0();
-const $router = useRouter();
-
 const cartStore = useCartStore();
+
 const items = ref([]);
 const deleteModal = ref(false);
 const deleteID = ref(null);
@@ -74,15 +72,15 @@ const fetchProductsInCart = async () => {
 };
 
 const checkout = async () => {
-  if (auth0.isAuthenticated.value) {
-    try {
-      const url = await api.post("/checkout/session", cartStore.items);
-      window.location.href = url.data;
-    } catch (e) {
-      console.error(e);
-    }
-  } else {
-    await auth0.loginWithRedirect();
+  try {
+    const response = await api.post(
+      `checkout/session?customer_email=${auth0.user.value.email}`,
+      cartStore.items
+    );
+
+    window.location.href = response.data.url;
+  } catch (e) {
+    console.error(e);
   }
 };
 

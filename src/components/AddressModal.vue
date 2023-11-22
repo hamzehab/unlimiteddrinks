@@ -81,7 +81,7 @@ const addAddress = async () => {
   };
   try {
     const newAddress = await api.post(
-      `/address/add/${auth0.user._rawValue.sub.split("|")[1]}`,
+      `/address/add/${auth0.user.value.sub.split("|")[1]}`,
       data
     );
     customerStore.addAddress(newAddress);
