@@ -216,6 +216,7 @@ watchEffect(() => {
                   label="State"
                   emit-value
                   map-options
+                  options-dense
                   v-model="state"
                   :options="usStates"
                   rounded
