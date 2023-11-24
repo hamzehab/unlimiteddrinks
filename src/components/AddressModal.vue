@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref, computed } from "vue";
 import { api } from "src/boot/axios";
 import { useAuth0 } from "@auth0/auth0-vue";
 import { useCustomerStore } from "stores/customer-store";
@@ -7,11 +7,14 @@ import { useCustomerStore } from "stores/customer-store";
 const auth0 = useAuth0();
 const customerStore = useCustomerStore();
 
-const addressAdded = ref(null);
+const emit = defineEmits(["add-address"]);
+const errorMsg = ref(null);
+const isSuccessful = ref(null);
 
 const firstName = ref(null);
 const lastName = ref(null);
 const streetAddress = ref(null);
+const apt = ref(null);
 const city = ref(null);
 const state = ref(null);
 const zip_code = ref(null);
@@ -69,8 +72,18 @@ const usStates = [
   { label: "Wyoming", value: "WY" },
 ];
 
+const isRegistrationDisabled = computed(() => {
+  return !(
+    firstName.value &&
+    lastName.value &&
+    streetAddress.value &&
+    city.value &&
+    state.value &&
+    (zip_code.value === null ? zip_code.value : zip_code.value.length === 5)
+  );
+});
+
 const addAddress = async () => {
-  addressAdded.value = null;
   const data = {
     first_name: firstName.value,
     last_name: lastName.value,
@@ -85,20 +98,18 @@ const addAddress = async () => {
       data
     );
     customerStore.addAddress(newAddress);
-    addressAdded.value = true;
+    isSuccessful.value = true;
+    errorMsg.value = false;
+    emit("add-address");
   } catch (error) {
-    addressAdded.value = false;
+    errorMsg.value = true;
+    isSuccessful.value = false;
     console.error(error);
   }
+  setTimeout(() => {
+    isSuccessful.value = null;
+  }, 2000);
 };
-
-watch(
-  () => addressAdded.value,
-  (newValue, oldValue) => {
-    console.log(`addressAdded changed: ${oldValue} -> ${newValue}`);
-    console.log(addressAdded.value);
-  }
-);
 </script>
 
 <template>
@@ -132,6 +143,14 @@ watch(
         />
       </q-card-section>
       <q-card-section class="oswald text-body1 q-pb-none q-mx-md">
+        <div class="q-mb-sm">Apt, suite, etc. (optional)</div>
+        <q-input
+          standout="bg-grey-3 text-deep-purple-14"
+          input-class="text-dark"
+          v-model.trim="apt"
+        />
+      </q-card-section>
+      <q-card-section class="oswald text-body1 q-pb-none q-mx-md">
         <div class="q-mb-sm">City</div>
         <q-input
           standout="bg-grey-3 text-deep-purple-14"
@@ -151,6 +170,7 @@ watch(
               label="State"
               emit-value
               map-options
+              options-dense
             >
               <template v-slot:selected-item="scope">
                 <span class="text-dark">
@@ -173,14 +193,21 @@ watch(
       <q-card-actions class="q-mr-lg q-pb-md" align="right">
         <q-btn label="Close" flat v-close-popup />
         <q-btn
-          :class="addressAdded === false ? 'animated shakeX slower' : ''"
+          :class="errorMsg ? 'animated shakeX slower' : ''"
           label="Confirm"
           color="deep-purple-14"
+          :disable="isRegistrationDisabled"
           push
           @click="addAddress"
-          v-close-popup="addressAdded"
         />
       </q-card-actions>
+      <q-card-section
+        v-if="errorMsg"
+        class="text-red text-bold text-caption q-mr-lg q-pt-none"
+        align="right"
+      >
+        Something went wrong
+      </q-card-section>
     </q-card>
   </q-dialog>
 </template>

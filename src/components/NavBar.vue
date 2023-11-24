@@ -116,17 +116,22 @@ const addressFormat = (address) => {
   return `${address.street}, ${address.city} ${address.state} ${address.zip_code} ${address.country}`;
 };
 
-const changeSelected = async (address_id) => {
+const changeSelected = async () => {
   try {
     const response = await api.post(
-      `address/updateMain/${auth0.user.value.sub.split("|")[1]}/${address_id}`
+      `address/updateMain/${auth0.user.value.sub.split("|")[1]}/${
+        selected.value
+      }`
     );
-    selected.value = response.data;
     customerStore.changeSelectedAddress(response.data);
-    selected.value = address_id;
+    location.reload(true);
   } catch (error) {
     console.error(error);
   }
+};
+
+const closeAddressModal = () => {
+  newAddress.value = false;
 };
 
 onMounted(async () => {
@@ -212,30 +217,10 @@ watchEffect(async () => {
                       ? 'selected-address'
                       : 'address'
                   "
-                  v-for="(address, index) in addresses.slice(0, 3)"
-                  :key="index"
-                  @click="changeSelected(address.id)"
-                >
-                  <div class="text-body1">
-                    <div class="text-bold">
-                      {{ address.first_name }} {{ address.last_name }}
-                    </div>
-                    {{ addressFormat(address) }}
-                  </div>
-                </div>
-              </q-card-section>
-              <q-card-section
-                v-if="viewMore"
-                class="oswald text-bold q-py-none"
-              >
-                <div
-                  class="cursor-pointer q-my-md q-pa-lg"
-                  :class="
-                    address && address.id === selected
-                      ? 'selected-address'
-                      : 'address'
-                  "
-                  v-for="(address, index) in addresses.slice(3)"
+                  v-for="(address, index) in addresses.slice(
+                    0,
+                    viewMore ? addresses.length : 3
+                  )"
                   :key="index"
                   @click="selected = address.id"
                 >
@@ -258,13 +243,18 @@ watchEffect(async () => {
                   style="width: fit-content"
                   @click="viewMore = !viewMore"
                 >
-                  View More...
+                  {{ viewMore ? "View Less" : "View More..." }}
                 </div>
               </q-card-section>
 
               <q-separator inset />
               <q-card-actions class="oswald" align="right">
-                <q-btn label="Done" color="deep-purple-14" v-close-popup />
+                <q-btn
+                  label="Done"
+                  color="deep-purple-14"
+                  v-close-popup
+                  @click="changeSelected()"
+                />
               </q-card-actions>
             </q-card>
           </q-dialog>
@@ -530,46 +520,6 @@ watchEffect(async () => {
               Delivery options and delivery speeds may vary for different
               locations
             </q-card-section>
-            <q-card-section class="oswald text-bold q-py-none">
-              <div
-                class="cursor-pointer q-my-md q-pa-lg"
-                :class="
-                  address && address.id === selected
-                    ? 'selected-address'
-                    : 'address'
-                "
-                v-for="(address, index) in addresses.slice(0, 3)"
-                :key="index"
-                @click="selected = address"
-              >
-                <div class="text-body1">
-                  <div class="text-bold">
-                    {{ address.first_name }} {{ address.last_name }}
-                  </div>
-                  {{ addressFormat(address) }}
-                </div>
-              </div>
-            </q-card-section>
-            <q-card-section v-if="viewMore" class="oswald text-bold q-py-none">
-              <div
-                class="cursor-pointer q-my-md q-pa-lg"
-                :class="
-                  address && address.id === selected
-                    ? 'selected-address'
-                    : 'address'
-                "
-                v-for="(address, index) in addresses.slice(3)"
-                :key="index"
-                @click="selected = address"
-              >
-                <div class="text-body1">
-                  <div class="text-bold">
-                    {{ address.first_name }} {{ address.last_name }}
-                  </div>
-                  {{ addressFormat(address) }}
-                </div>
-              </div>
-            </q-card-section>
 
             <q-card-section
               v-if="addresses.length > 3"
@@ -581,7 +531,7 @@ watchEffect(async () => {
                 style="width: fit-content"
                 @click="viewMore = !viewMore"
               >
-                View More...
+                {{ viewMore ? "View Less" : "View More..." }}
               </div>
             </q-card-section>
 
@@ -614,7 +564,7 @@ watchEffect(async () => {
       </q-input>
     </div>
   </div>
-  <AddressModal v-model="newAddress" />
+  <AddressModal v-model="newAddress" @add-address="closeAddressModal" />
   <div
     :style="
       windowWidth > 470 ? 'padding-bottom: 6rem' : 'padding-bottom: 10rem'
