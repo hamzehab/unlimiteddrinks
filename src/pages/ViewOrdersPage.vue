@@ -99,7 +99,17 @@ onMounted(async () => {
               style="width: 100px; border-radius: 0.5rem"
             />
             <div class="q-ml-lg">
-              <div class="cursor-pointer text-deep-purple-14">
+              <div
+                class="cursor-pointer text-deep-purple-14"
+                style="width: fit-content"
+                @click="
+                  $router.push(
+                    `/${item.category.toLowerCase().split(' ').join('-')}/${
+                      item.id
+                    }`
+                  )
+                "
+              >
                 {{ item.name }}
               </div>
               <div>{{ item.brand }}</div>
