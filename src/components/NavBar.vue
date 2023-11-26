@@ -253,7 +253,7 @@ watchEffect(async () => {
                   label="Done"
                   color="deep-purple-14"
                   v-close-popup
-                  @click="changeSelected()"
+                  @click="changeSelected"
                 />
               </q-card-actions>
             </q-card>

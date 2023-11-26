@@ -97,7 +97,7 @@ const addAddress = async () => {
       `/address/add/${auth0.user.value.sub.split("|")[1]}`,
       data
     );
-    customerStore.addAddress(newAddress);
+    customerStore.addAddress(newAddress.data);
     isSuccessful.value = true;
     errorMsg.value = false;
     emit("add-address");
