@@ -3,40 +3,83 @@ import AddressModal from "src/components/AddressModal.vue";
 import FooterComponent from "src/components/FooterComponent.vue";
 import NavBar from "src/components/NavBar.vue";
 
-import { ref } from "vue";
+import { useAuth0 } from "@auth0/auth0-vue";
+import { ref, computed } from "vue";
 import { useCustomerStore } from "src/stores/customer-store";
+import { api } from "src/boot/axios";
 
 const customerStore = useCustomerStore();
+const auth0 = useAuth0();
 
-const editName = ref(true);
+const editName = ref(false);
 const deletetion = ref(false);
 const newAddress = ref(false);
+
+const isError = ref(null);
+const message = ref(null);
 
 const email = customerStore.customer.email;
 
 const first_name = ref(customerStore.customer.firstName);
 const last_name = ref(customerStore.customer.lastName);
 
+const address_first_name = ref("");
+const address_last_name = ref("");
 const street = ref("");
 const apt = ref("");
 const city = ref("");
 const state = ref("");
 const zip_code = ref("");
 
-const model = ref(null);
-const addresses = sessionStorage.getItem("customer")
-  ? [customerStore.getSelectedAddress, ...customerStore.getAddresses]
-  : [];
-
-const addressStrings = addresses.map((address) => {
-  return `${address.street}${
-    address.street2 ? " " + address.street2 + ", " : ", "
-  }${address.city}, ${address.state}, ${address.zip_code}`;
+const disableAddressSave = computed(() => {
+  return !(
+    address_first_name.value &&
+    address_last_name.value &&
+    street.value &&
+    city.value &&
+    state.value &&
+    (zip_code.value === null ? zip_code.value : zip_code.value.length === 5)
+  );
 });
 
-const handleClick = () => {
-  if (!editName.value) {
-    editName.value = true;
+const disableNameSave = computed(() => {
+  return !(first_name.value && last_name.value);
+});
+
+const model = ref(null);
+
+const handleClick = async () => {
+  const customer_name = {
+    first_name: first_name.value,
+    last_name: last_name.value,
+  };
+  try {
+    const response = await api.post(
+      `/customer/editName/${auth0.user.value.sub.split("|")[1]}`,
+      customer_name
+    );
+    console.log(response.status);
+    if (response.status === 204) {
+      isError.value = true;
+      message.value = "No changes were made since there were no edits made!";
+    } else if (response.status === 200) {
+      isError.value = false;
+      message.value = "Name changed successfully";
+      first_name.value = response.data.first_name;
+      last_name.value = response.data.last_name;
+      setTimeout(() => {
+        isError.value = null;
+        message.value = null;
+      }, 2000);
+      editName.value = false;
+    } else {
+      isError.value = true;
+      message.value = "Something went wrong!";
+    }
+  } catch (err) {
+    isError.value = true;
+    message.value = "Something went wrong!";
+    console.error(err);
   }
 };
 
@@ -44,23 +87,137 @@ const deleteAccount = () => {
   deletetion.value = false;
 };
 
-const updateSelectedAddress = (value) => {
-  const selectedAddressObject = addresses.find((address) => {
-    return (
-      `${address.street} ${address.street2 ? address.street2 + ", " : ""}${
-        address.city
-      }, ${address.state}, ${address.zip_code}` === value
-    );
-  });
+const addresses = sessionStorage.getItem("customer")
+  ? [customerStore.getSelectedAddress, ...customerStore.getAddresses]
+  : [];
 
-  if (selectedAddressObject) {
-    street.value = selectedAddressObject.street;
-    apt.value = selectedAddressObject.street2 || "";
-    city.value = selectedAddressObject.city;
-    state.value = selectedAddressObject.state;
-    zip_code.value = selectedAddressObject.zip_code;
+const addressStrings = addresses.map((address) => {
+  return {
+    id: address.id,
+    label: {
+      first_name: `${address.first_name}`,
+      last_name: `${address.last_name}`,
+    },
+    value: {
+      street: `${address.street}`,
+      apt: `${address.street2 ? " " + address.street2 + ", " : ""}`,
+      city: `${address.city}`,
+      state: `${address.state}`,
+      zip_code: `${address.zip_code}`,
+    },
+  };
+});
+
+const updateSelectedAddress = (value) => {
+  model.value = value;
+
+  address_first_name.value = value.label.first_name;
+  address_last_name.value = value.label.last_name;
+  street.value = value.value.street;
+  apt.value = value.value.apt;
+  city.value = value.value.city;
+  state.value = value.value.state;
+  zip_code.value = value.value.zip_code;
+};
+
+const closeAddressModal = () => {
+  newAddress.value = false;
+  location.reload();
+};
+
+const saveAddressUpdates = async () => {
+  const data = {
+    first_name: address_first_name.value,
+    last_name: address_last_name.value,
+    street: street.value,
+    street2: apt.value !== "" ? apt.value : undefined,
+    city: city.value,
+    state: state.value,
+    zip_code: zip_code.value,
+  };
+  try {
+    const response = await api.post(
+      `/address/update/${auth0.user.value.sub.split("|")[1]}/${model.value.id}`,
+      data
+    );
+
+    if (response.status === 200) {
+      isError.value = false;
+      message.value = "Address Updated!";
+
+      customerStore.updateAddress(response.data);
+      setTimeout(() => {
+        isError.value = null;
+        message.value = null;
+        location.reload(true);
+      }, 2000);
+    } else if (response.status === 204) {
+      isError.value = true;
+      message.value =
+        "Address not updated were made since there were no changes!";
+    } else {
+      isError.value = true;
+      message.value = "Something went wrong!";
+    }
+  } catch (e) {
+    isError.value = true;
+    message.value = "Something went wrong!";
+    console.error(e);
   }
 };
+
+const usStates = [
+  { label: "Alabama", value: "AL" },
+  { label: "Alaska", value: "AK" },
+  { label: "Arizona", value: "AZ" },
+  { label: "Arkansas", value: "AR" },
+  { label: "California", value: "CA" },
+  { label: "Colorado", value: "CO" },
+  { label: "Connecticut", value: "CT" },
+  { label: "Delaware", value: "DE" },
+  { label: "Florida", value: "FL" },
+  { label: "Georgia", value: "GA" },
+  { label: "Hawaii", value: "HI" },
+  { label: "Idaho", value: "ID" },
+  { label: "Illinois", value: "IL" },
+  { label: "Indiana", value: "IN" },
+  { label: "Iowa", value: "IA" },
+  { label: "Kansas", value: "KS" },
+  { label: "Kentucky", value: "KY" },
+  { label: "Louisiana", value: "LA" },
+  { label: "Maine", value: "ME" },
+  { label: "Maryland", value: "MD" },
+  { label: "Massachusetts", value: "MA" },
+  { label: "Michigan", value: "MI" },
+  { label: "Minnesota", value: "MN" },
+  { label: "Mississippi", value: "MS" },
+  { label: "Missouri", value: "MO" },
+  { label: "Montana", value: "MT" },
+  { label: "Nebraska", value: "NE" },
+  { label: "Nevada", value: "NV" },
+  { label: "New Hampshire", value: "NH" },
+  { label: "New Jersey", value: "NJ" },
+  { label: "New Mexico", value: "NM" },
+  { label: "New York", value: "NY" },
+  { label: "North Carolina", value: "NC" },
+  { label: "North Dakota", value: "ND" },
+  { label: "Ohio", value: "OH" },
+  { label: "Oklahoma", value: "OK" },
+  { label: "Oregon", value: "OR" },
+  { label: "Pennsylvania", value: "PA" },
+  { label: "Rhode Island", value: "RI" },
+  { label: "South Carolina", value: "SC" },
+  { label: "South Dakota", value: "SD" },
+  { label: "Tennessee", value: "TN" },
+  { label: "Texas", value: "TX" },
+  { label: "Utah", value: "UT" },
+  { label: "Vermont", value: "VT" },
+  { label: "Virginia", value: "VA" },
+  { label: "Washington", value: "WA" },
+  { label: "West Virginia", value: "WV" },
+  { label: "Wisconsin", value: "WI" },
+  { label: "Wyoming", value: "WY" },
+];
 </script>
 
 <template>
@@ -110,52 +267,65 @@ const updateSelectedAddress = (value) => {
               >
                 <div
                   class="cursor-pointer"
-                  v-if="editName"
-                  @click="editName = false"
+                  v-if="!editName"
+                  @click="editName = true"
                 >
                   Edit Name
                 </div>
               </div>
             </div>
+            <transition
+              appear
+              enter-active-class="animated zoomIn"
+              leave-active-class="animated zoomOut"
+            >
+              <q-card-section
+                v-if="message"
+                class="q-pa-none q-pb-md"
+                :class="isError ? 'text-red' : 'text-green'"
+              >
+                {{ message }}
+              </q-card-section>
+            </transition>
             <q-input
               class="q-mb-lg"
               label="First Name"
               standout="bg-grey-3 text-deep-purple-14"
               input-class="text-dark"
               v-model.trim="first_name"
-              :disable="editName"
+              :disable="!editName"
             />
             <q-input
               label="Last Name"
               standout="bg-grey-3 text-deep-purple-14"
               input-class="text-dark"
               v-model.trim="last_name"
-              :disable="editName"
+              :disable="!editName"
             />
           </div>
         </q-card-section>
 
-        <q-card-section class="row justify-center oswald">
+        <q-card-section v-if="editName" class="row justify-center oswald">
           <q-btn
-            v-if="!editName"
             class="q-mt-lg on-left"
             label="Cancel"
             color="dark"
             flat
-            @click="editName = true"
+            @click="editName = false"
           />
           <q-btn
-            v-if="!editName"
             class="q-mt-lg on-right"
             label="Confirm Changes"
             color="deep-purple-14"
             push
+            :disable="disableNameSave"
             @click="handleClick"
           />
         </q-card-section>
       </q-card>
 
       <q-separator class="q-my-xl" />
+
       <q-card class="q-pa-md">
         <q-card-section class="oswald">
           <div class="q-mb-sm row items-center">
@@ -163,21 +333,146 @@ const updateSelectedAddress = (value) => {
           </div>
           <div class="row justify-between">
             <q-select
+              ref="addressSelect"
               outlined
               v-model.trim="model"
               :options="addressStrings"
               label="Select Address"
               style="width: 60%"
-              @update:model-value="updateSelectedAddress"
-            />
+            >
+              <template v-slot:option="scope">
+                <q-item
+                  clickable
+                  v-close-popup
+                  @click="updateSelectedAddress(scope.opt)"
+                >
+                  <q-item-section>
+                    <div class="text-bold text-body2">
+                      {{ scope.opt.label.first_name }}
+                      {{ scope.opt.label.last_name }}
+                    </div>
+                    <span class="text-caption">
+                      {{ scope.opt.value.street }}{{ scope.opt.value.apt }},
 
-            <q-btn flat color="grey-6" @click="newAddress = true">
+                      {{ scope.opt.value.city }}
+                      {{ scope.opt.value.state }}
+                      {{ scope.opt.value.zip_code }}
+                    </span>
+                  </q-item-section>
+                </q-item>
+              </template>
+              <template v-slot:selected-item="scope">
+                <q-item class="q-pa-none">
+                  <q-item-section>
+                    <div class="text-bold text-body1">
+                      {{ scope.opt.label.first_name }}
+                      {{ scope.opt.label.last_name }}
+                    </div>
+                    <span class="text-body2">
+                      {{ scope.opt.value.street }}{{ scope.opt.value.apt }}
+                      {{ scope.opt.value.city }}
+                      {{ scope.opt.value.state }}
+                      {{ scope.opt.value.zip_code }}
+                    </span>
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
+
+            <q-btn flat color="deep-purple-14" @click="newAddress = true">
               <div class="text-center">
                 <q-icon name="add" size="30px" />
                 <div>Add Address</div>
               </div>
             </q-btn>
           </div>
+          <q-card-section v-if="model" class="q-pa-none q-pt-lg">
+            <q-input
+              class="q-my-md"
+              label="First Name"
+              v-model.trim="address_first_name"
+              standout="bg-grey-3 text-deep-purple-14"
+              input-class="text-dark"
+            />
+            <q-input
+              label="Last Name"
+              v-model.trim="address_last_name"
+              standout="bg-grey-3 text-deep-purple-14 "
+              input-class="text-dark"
+            />
+            <q-input
+              class="q-my-md"
+              label="Street Address"
+              v-model.trim="street"
+              standout="bg-grey-3 text-deep-purple-14"
+              input-class="text-dark"
+            />
+            <q-input
+              label="Apt, suite, unit, building, floor, etc."
+              standout="bg-grey-3 text-deep-purple-14"
+              input-class="text-dark"
+              v-model.trim="apt"
+            />
+            <q-input
+              class="q-my-md"
+              label="City"
+              standout="bg-grey-3 text-deep-purple-14"
+              input-class="text-dark"
+              v-model.trim="city"
+            />
+            <div class="row justify-between">
+              <q-select
+                standout="bg-grey-3 text-deep-purple-14"
+                style="width: 100%; max-width: 49%"
+                label="State"
+                emit-value
+                map-options
+                options-dense
+                v-model="state"
+                :options="usStates"
+              >
+                <template v-slot:selected-item="scope">
+                  <span class="text-dark">
+                    {{ scope.opt.label }}
+                  </span>
+                </template>
+              </q-select>
+
+              <q-input
+                label="ZIP Code"
+                v-model.trim="zip_code"
+                standout="bg-grey-3 text-deep-purple-14"
+                input-class="text-dark"
+                mask="#####"
+                style="width: 100%; max-width: 49%"
+              />
+            </div>
+          </q-card-section>
+        </q-card-section>
+        <q-card-section v-if="message && model" class="q-pb-none">
+          <div
+            class="text-center text-body2 oswald"
+            :class="isError ? 'text-red' : 'text-green'"
+          >
+            {{ message }}
+          </div>
+        </q-card-section>
+        <q-card-section v-if="model" class="flex flex-center oswald">
+          <div
+            class="text-center text-body1 cursor-pointer underline"
+            style="width: 200px"
+            @click="model = null"
+          >
+            Cancel
+          </div>
+          <q-btn
+            label="Save Changes"
+            color="deep-purple-14"
+            style="width: 200px"
+            push
+            :disable="disableAddressSave"
+            @click="saveAddressUpdates"
+          />
         </q-card-section>
       </q-card>
 
@@ -243,7 +538,7 @@ const updateSelectedAddress = (value) => {
       </q-card>
     </q-dialog>
 
-    <AddressModal v-model="newAddress" />
+    <AddressModal v-model="newAddress" @add-address="closeAddressModal" />
   </div>
   <FooterComponent />
 </template>
