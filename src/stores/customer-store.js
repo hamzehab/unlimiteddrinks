@@ -62,5 +62,18 @@ export const useCustomerStore = defineStore("customerStore", {
         JSON.stringify(this.selectedAddress)
       );
     },
+    updateAddress(address) {
+      const existingAddress = this.customer.addresses.addresses.find(
+        (a) => a.id === address.id
+      );
+      if (existingAddress) {
+        Object.assign(existingAddress, address);
+
+        if (this.selectedAddress.id === address.id) {
+          this.changeSelectedAddress(existingAddress);
+        }
+        sessionStorage.setItem("customer", JSON.stringify(this.customer));
+      }
+    },
   },
 });
