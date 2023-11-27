@@ -15,6 +15,10 @@ const addressFormat = (address) => {
 
 const newAddress = ref(false);
 const selected = ref(0);
+
+const populateFields = (address) => {
+  console.log(address);
+};
 </script>
 
 <template>
@@ -27,7 +31,12 @@ const selected = ref(0);
       <q-card-section class="text-center">
         <img src="static/logo.png" alt="" style="width: 100px" />
         <div class="row justify-center items-center ys">
-          <div>Cart <q-icon name="chevron_right" size="24px" /></div>
+          <div>
+            <span class="cursor-pointer" @click="$router.push('/cart')">
+              Cart
+            </span>
+            <q-icon name="chevron_right" size="24px" />
+          </div>
           <div>
             <span class="text-deep-purple-14 text-bold">Information</span>
             <q-icon name="chevron_right" size="24px" />
@@ -65,7 +74,9 @@ const selected = ref(0);
             ...customerStore.getAddresses,
           ]"
           :key="index"
-          @click="(selected = index), (newAddress = false)"
+          @click="
+            (selected = index), (newAddress = false), populateFields(address)
+          "
         >
           <div class="text-body1">
             <div class="text-bold">
