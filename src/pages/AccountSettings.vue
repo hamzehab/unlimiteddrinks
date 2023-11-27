@@ -87,42 +87,50 @@ const deleteAccount = () => {
   deletetion.value = false;
 };
 
-const addresses = sessionStorage.getItem("customer")
-  ? [customerStore.getSelectedAddress, ...customerStore.getAddresses]
-  : [];
+const addresses = ref(
+  sessionStorage.getItem("customer")
+    ? [customerStore.getSelectedAddress, ...customerStore.getAddresses]
+    : []
+);
 
-const addressStrings = addresses.map((address) => {
-  return {
-    id: address.id,
-    label: {
-      first_name: `${address.first_name}`,
-      last_name: `${address.last_name}`,
-    },
-    value: {
-      street: `${address.street}`,
-      apt: `${address.street2 ? " " + address.street2 + ", " : ""}`,
-      city: `${address.city}`,
-      state: `${address.state}`,
-      zip_code: `${address.zip_code}`,
-    },
-  };
-});
+const addressStrings = computed(() =>
+  addresses.value.map((address) => {
+    return {
+      id: address.id,
+      label: {
+        first_name: `${address.first_name}`,
+        last_name: `${address.last_name}`,
+      },
+      value: {
+        street: `${address.street}`,
+        apt: `${address.street2 ? " " + address.street2 + ", " : ""}`,
+        city: `${address.city}`,
+        state: `${address.state}`,
+        zip_code: `${address.zip_code}`,
+      },
+    };
+  })
+);
 
 const updateSelectedAddress = (value) => {
   model.value = value;
 
   address_first_name.value = value.label.first_name;
   address_last_name.value = value.label.last_name;
+
   street.value = value.value.street;
   apt.value = value.value.apt;
+
   city.value = value.value.city;
   state.value = value.value.state;
   zip_code.value = value.value.zip_code;
 };
 
-const closeAddressModal = () => {
+const closeAddressModal = (address) => {
+  console.log(address);
+  addresses.value.push(address);
+  console.log(addresses.value);
   newAddress.value = false;
-  location.reload();
 };
 
 const saveAddressUpdates = async () => {
@@ -146,10 +154,15 @@ const saveAddressUpdates = async () => {
       message.value = "Address Updated!";
 
       customerStore.updateAddress(response.data);
+      addresses.value = [
+        customerStore.getSelectedAddress,
+        ...customerStore.getAddresses,
+      ];
+
+      model.value = null;
       setTimeout(() => {
         isError.value = null;
         message.value = null;
-        location.reload(true);
       }, 2000);
     } else if (response.status === 204) {
       isError.value = true;
@@ -165,6 +178,8 @@ const saveAddressUpdates = async () => {
     console.error(e);
   }
 };
+
+const deleteAddress = async () => {};
 
 const usStates = [
   { label: "Alabama", value: "AL" },
@@ -449,13 +464,24 @@ const usStates = [
             </div>
           </q-card-section>
         </q-card-section>
-        <q-card-section v-if="message && model" class="q-pb-none">
+        <q-card-section
+          v-if="message"
+          :class="isError ? 'q-pb-none' : 'q-py-none'"
+        >
           <div
-            class="text-center text-body2 oswald"
-            :class="isError ? 'text-red' : 'text-green'"
+            class="text-body2 oswald"
+            :class="isError ? 'text-red text-center' : 'text-green'"
           >
             {{ message }}
           </div>
+        </q-card-section>
+        <q-card-section v-if="model" class="q-pb-none flex flex-center">
+          <q-btn
+            label="Remove from account"
+            flat
+            color="red"
+            @click="deleteAddress"
+          />
         </q-card-section>
         <q-card-section v-if="model" class="flex flex-center oswald">
           <div

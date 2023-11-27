@@ -26,7 +26,7 @@ export const useCustomerStore = defineStore("customerStore", {
   getters: {
     getFullName: (state) =>
       `${state.customer.firstName} ${state.customer.lastName}`,
-    getAddresses: (state) => state.customer.addresses.addresses,
+    getAddresses: (state) => state.customer.addresses,
     getSelectedAddress: (state) => state.selectedAddress,
   },
   actions: {
@@ -34,7 +34,7 @@ export const useCustomerStore = defineStore("customerStore", {
       this.customer.firstName = customerData.first_name;
       this.customer.lastName = customerData.last_name;
       this.customer.email = customerData.email;
-      this.customer.addresses = customerData.addresses;
+      this.customer.addresses = customerData.addresses.addresses;
       this.selectedAddress = customerData.addresses.main_address;
 
       const dateObj = new Date(customerData.created_at);
@@ -52,7 +52,7 @@ export const useCustomerStore = defineStore("customerStore", {
       );
     },
     addAddress(addresses) {
-      this.customer.addresses.addresses.push(addresses);
+      this.customer.addresses.push(addresses);
       sessionStorage.setItem("customer", JSON.stringify(this.customer));
     },
     changeSelectedAddress(address) {
@@ -63,16 +63,21 @@ export const useCustomerStore = defineStore("customerStore", {
       );
     },
     updateAddress(address) {
-      const existingAddress = this.customer.addresses.addresses.find(
-        (a) => a.id === address.id
-      );
-      if (existingAddress) {
-        Object.assign(existingAddress, address);
+      if (this.selectedAddress.id == address.id) {
+        this.selectedAddress = address;
+        sessionStorage.setItem(
+          "selectedAddress",
+          JSON.stringify(this.selectedAddress)
+        );
+      } else {
+        const index = this.customer.addresses.findIndex(
+          (item) => item.id === address.id
+        );
 
-        if (this.selectedAddress.id === address.id) {
-          this.changeSelectedAddress(existingAddress);
+        if (index !== undefined || index !== null) {
+          this.customer.addresses[index] = address;
+          sessionStorage.setItem("customer", JSON.stringify(this.customer));
         }
-        sessionStorage.setItem("customer", JSON.stringify(this.customer));
       }
     },
   },

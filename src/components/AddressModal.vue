@@ -100,7 +100,7 @@ const addAddress = async () => {
     customerStore.addAddress(newAddress.data);
     isSuccessful.value = true;
     errorMsg.value = false;
-    emit("add-address");
+    emit("add-address", newAddress.data);
   } catch (error) {
     errorMsg.value = true;
     isSuccessful.value = false;
