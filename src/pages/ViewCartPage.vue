@@ -71,7 +71,7 @@ const fetchProductsInCart = async () => {
   taxesAndFees.value = subtotal.value * 0.06625;
 };
 
-const checkout = async () => {
+/* const checkout = async () => {
   try {
     const response = await api.post(
       `checkout/session?customer_email=${auth0.user.value.email}`,
@@ -82,7 +82,7 @@ const checkout = async () => {
   } catch (e) {
     console.error(e);
   }
-};
+}; */
 
 onMounted(async () => {
   await fetchProductsInCart();
@@ -281,7 +281,7 @@ onMounted(async () => {
             icon="lock_outline"
             color="deep-purple-14"
             push
-            @click="checkout"
+            @click="$router.push('/checkout')"
           />
         </div>
       </div>
