@@ -161,7 +161,7 @@ onMounted(async () => {
               color="deep-purple-14"
               rounded
               push
-              @click="submitForm"
+              @click="submitForm()"
             />
           </div>
           <div

@@ -148,7 +148,7 @@ onMounted(async () => {
             class="cursor-pointer on-left"
             name="remove"
             size="20px"
-            @click="decreaseQuantity"
+            @click="decreaseQuantity()"
           />
           <q-input
             class="rounded-borders"
@@ -165,7 +165,7 @@ onMounted(async () => {
             class="cursor-pointer on-right"
             name="add"
             size="20px"
-            @click="increaseQuantity"
+            @click="increaseQuantity()"
           />
           <q-btn
             class="q-ml-xl"
@@ -175,7 +175,7 @@ onMounted(async () => {
             label="Add to Cart"
             rounded
             push
-            @click="addToCart"
+            @click="addToCart()"
           >
             <q-icon name="mdi-cart-outline on-right" />
           </q-btn>

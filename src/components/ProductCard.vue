@@ -53,11 +53,11 @@ const increaseQuantity = () => {
     <img
       class="cursor-pointer"
       :src="`/static/${product.image}`"
-      @click="viewFullItem"
+      @click="viewFullItem()"
     />
 
-    <q-card-section class="q-pb-none" @click="viewFullItem">
-      <span class="text-h6 cursor-pointer" @click="viewFullItem">
+    <q-card-section class="q-pb-none" @click="viewFullItem()">
+      <span class="text-h6 cursor-pointer" @click="viewFullItem()">
         {{ product.name }}
       </span>
     </q-card-section>
@@ -71,7 +71,7 @@ const increaseQuantity = () => {
         class="cursor-pointer on-left"
         name="remove"
         size="20px"
-        @click="decreaseQuantity"
+        @click="decreaseQuantity()"
       />
       <q-input
         class="rounded-borders"
@@ -88,7 +88,7 @@ const increaseQuantity = () => {
         class="cursor-pointer on-right"
         name="add"
         size="20px"
-        @click="increaseQuantity"
+        @click="increaseQuantity()"
       />
     </q-card-section>
     <q-card-section class="q-pt-none">
@@ -152,7 +152,7 @@ const increaseQuantity = () => {
       </div>
     </q-card-section>
     <q-card-section class="row justify-between items-center">
-      <div class="ys text-h6 cursor-pointer" @click="viewFullItem">
+      <div class="ys text-h6 cursor-pointer" @click="viewFullItem()">
         $ {{ parseFloat(product.price).toFixed(2) }}
       </div>
       <q-btn
@@ -161,7 +161,7 @@ const increaseQuantity = () => {
         rounded
         push
         label="Add to Cart"
-        @click="addToCart"
+        @click="addToCart()"
       >
         <q-icon name="mdi-cart-outline on-right" />
       </q-btn>

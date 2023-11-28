@@ -9,6 +9,8 @@ const auth0 = useAuth0();
 const orders = ref(null);
 const currentPage = ref(1);
 
+const loading = ref(true);
+
 const showDetails = ref(false);
 
 const getOrders = async () => {
@@ -16,7 +18,8 @@ const getOrders = async () => {
     const response = await api.get(
       `/orders/${auth0.user.value.sub.split("|")[1]}`
     );
-    orders.value = response.data;
+
+    if (response.data.length > 0) orders.value = response.data;
   } catch (err) {
     console.error(err);
   }
@@ -24,13 +27,19 @@ const getOrders = async () => {
 
 onMounted(async () => {
   await getOrders();
+  setTimeout(() => {
+    loading.value = false;
+  }, 1000);
 });
 </script>
 
 <template>
   <NavBar />
+  <div v-if="loading" class="main flex flex-center items-center">
+    <q-spinner-tail color="deep-purple-14" size="10rem" :thickness="2" />
+  </div>
 
-  <div class="main" v-if="orders">
+  <div class="main" v-if="!loading && orders">
     <q-card
       v-for="order in orders.slice((currentPage - 1) * 10, currentPage * 10)"
       :key="order.id"
@@ -147,5 +156,30 @@ onMounted(async () => {
       />
     </div>
   </div>
+
+  <div
+    v-if="!loading && orders === null"
+    class="q-mx-auto q-my-auto"
+    style="width: 60%; min-height: 42vh"
+  >
+    <div class="q-mt-xl text-h6 text-grey-6">
+      It looks like you haven't placed any orders with us yet! 🛍️ Don't worry,
+      your shopping journey is just getting started. Feel free to explore our
+      wonderful collection of products and discover something you love. When you
+      find that perfect item, simply add it to your cart and proceed to checkout
+      to place your first order. Happy shopping! If you have any questions or
+      need assistance, our team is here to help.
+    </div>
+    <div class="flex flex-center q-mt-xl">
+      <q-btn
+        class="full-width text-subtitle1 text-bold q-py-sm"
+        label="Continue Shopping"
+        color="deep-purple-14"
+        push
+        @click="$router.push('/')"
+      />
+    </div>
+  </div>
+
   <FooterComponent />
 </template>

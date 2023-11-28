@@ -3,10 +3,11 @@ import AddressModal from "src/components/AddressModal.vue";
 import FooterComponent from "src/components/FooterComponent.vue";
 import NavBar from "src/components/NavBar.vue";
 
-import { useAuth0 } from "@auth0/auth0-vue";
 import { ref, computed } from "vue";
-import { useCustomerStore } from "src/stores/customer-store";
 import { api } from "src/boot/axios";
+import { useAuth0 } from "@auth0/auth0-vue";
+import { useCustomerStore } from "src/stores/customer-store";
+import { states } from "src/assets/usStates";
 
 const customerStore = useCustomerStore();
 const auth0 = useAuth0();
@@ -98,15 +99,15 @@ const addressStrings = computed(() =>
     return {
       id: address.id,
       label: {
-        first_name: `${address.first_name}`,
-        last_name: `${address.last_name}`,
+        first_name: address.first_name,
+        last_name: address.last_name,
       },
       value: {
-        street: `${address.street}`,
-        apt: `${address.street2 ? " " + address.street2 + ", " : ""}`,
-        city: `${address.city}`,
-        state: `${address.state}`,
-        zip_code: `${address.zip_code}`,
+        street: address.street,
+        apt: address.street2 ? address.street2 : null,
+        city: address.city,
+        state: address.state,
+        zip_code: address.zip_code,
       },
     };
   })
@@ -181,58 +182,7 @@ const saveAddressUpdates = async () => {
 
 const deleteAddress = async () => {};
 
-const usStates = [
-  { label: "Alabama", value: "AL" },
-  { label: "Alaska", value: "AK" },
-  { label: "Arizona", value: "AZ" },
-  { label: "Arkansas", value: "AR" },
-  { label: "California", value: "CA" },
-  { label: "Colorado", value: "CO" },
-  { label: "Connecticut", value: "CT" },
-  { label: "Delaware", value: "DE" },
-  { label: "Florida", value: "FL" },
-  { label: "Georgia", value: "GA" },
-  { label: "Hawaii", value: "HI" },
-  { label: "Idaho", value: "ID" },
-  { label: "Illinois", value: "IL" },
-  { label: "Indiana", value: "IN" },
-  { label: "Iowa", value: "IA" },
-  { label: "Kansas", value: "KS" },
-  { label: "Kentucky", value: "KY" },
-  { label: "Louisiana", value: "LA" },
-  { label: "Maine", value: "ME" },
-  { label: "Maryland", value: "MD" },
-  { label: "Massachusetts", value: "MA" },
-  { label: "Michigan", value: "MI" },
-  { label: "Minnesota", value: "MN" },
-  { label: "Mississippi", value: "MS" },
-  { label: "Missouri", value: "MO" },
-  { label: "Montana", value: "MT" },
-  { label: "Nebraska", value: "NE" },
-  { label: "Nevada", value: "NV" },
-  { label: "New Hampshire", value: "NH" },
-  { label: "New Jersey", value: "NJ" },
-  { label: "New Mexico", value: "NM" },
-  { label: "New York", value: "NY" },
-  { label: "North Carolina", value: "NC" },
-  { label: "North Dakota", value: "ND" },
-  { label: "Ohio", value: "OH" },
-  { label: "Oklahoma", value: "OK" },
-  { label: "Oregon", value: "OR" },
-  { label: "Pennsylvania", value: "PA" },
-  { label: "Rhode Island", value: "RI" },
-  { label: "South Carolina", value: "SC" },
-  { label: "South Dakota", value: "SD" },
-  { label: "Tennessee", value: "TN" },
-  { label: "Texas", value: "TX" },
-  { label: "Utah", value: "UT" },
-  { label: "Vermont", value: "VT" },
-  { label: "Virginia", value: "VA" },
-  { label: "Washington", value: "WA" },
-  { label: "West Virginia", value: "WV" },
-  { label: "Wisconsin", value: "WI" },
-  { label: "Wyoming", value: "WY" },
-];
+const usStates = states;
 </script>
 
 <template>
@@ -334,7 +284,7 @@ const usStates = [
             color="deep-purple-14"
             push
             :disable="disableNameSave"
-            @click="handleClick"
+            @click="handleClick()"
           />
         </q-card-section>
       </q-card>
@@ -367,7 +317,10 @@ const usStates = [
                       {{ scope.opt.label.last_name }}
                     </div>
                     <span class="text-caption">
-                      {{ scope.opt.value.street }}{{ scope.opt.value.apt }},
+                      {{ scope.opt.value.street
+                      }}{{
+                        scope.opt.value.apt ? " " + scope.opt.value.apt : ""
+                      }},
 
                       {{ scope.opt.value.city }}
                       {{ scope.opt.value.state }}
@@ -384,7 +337,10 @@ const usStates = [
                       {{ scope.opt.label.last_name }}
                     </div>
                     <span class="text-body2">
-                      {{ scope.opt.value.street }}{{ scope.opt.value.apt }}
+                      {{ scope.opt.value.street
+                      }}{{
+                        scope.opt.value.apt ? " " + scope.opt.value.apt : ""
+                      }},
                       {{ scope.opt.value.city }}
                       {{ scope.opt.value.state }}
                       {{ scope.opt.value.zip_code }}
@@ -480,7 +436,7 @@ const usStates = [
             label="Remove from account"
             flat
             color="red"
-            @click="deleteAddress"
+            @click="deleteAddress()"
           />
         </q-card-section>
         <q-card-section v-if="model" class="flex flex-center oswald">
@@ -497,7 +453,7 @@ const usStates = [
             style="width: 200px"
             push
             :disable="disableAddressSave"
-            @click="saveAddressUpdates"
+            @click="saveAddressUpdates()"
           />
         </q-card-section>
       </q-card>
@@ -558,7 +514,7 @@ const usStates = [
             style="width: 100%; max-width: 150px"
             flat
             color="negative"
-            @click="deleteAccount"
+            @click="deleteAccount()"
           />
         </q-card-actions>
       </q-card>

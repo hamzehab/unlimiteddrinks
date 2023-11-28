@@ -107,7 +107,7 @@ onUnmounted(() => {
         class="on-right cursor-pointer"
         name="replay"
         size="40px"
-        @click="roulette"
+        @click="roulette()"
       />
       <q-card v-if="loading" class="on-right">
         <q-inner-loading :showing="loading" />

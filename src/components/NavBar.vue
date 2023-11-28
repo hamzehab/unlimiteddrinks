@@ -136,7 +136,7 @@ const closeAddressModal = () => {
 
 onMounted(async () => {
   window.addEventListener("resize", handleResize);
-  getCategories();
+  await getCategories();
 });
 
 onUnmounted(() => {
@@ -253,7 +253,7 @@ watchEffect(async () => {
                   label="Done"
                   color="deep-purple-14"
                   v-close-popup
-                  @click="changeSelected"
+                  @click="changeSelected()"
                 />
               </q-card-actions>
             </q-card>
@@ -276,7 +276,7 @@ watchEffect(async () => {
           <template v-slot:append>
             <q-icon
               name="search"
-              @click="search"
+              @click="search()"
               class="search-btn bg-deep-purple-14 q-pa-sm text-white"
             />
           </template>
@@ -339,14 +339,14 @@ watchEffect(async () => {
               <q-item clickable @click="$router.push('/account')">
                 <q-item-section>Account Settings</q-item-section>
               </q-item>
-              <q-item clickable @click="logout">
+              <q-item clickable @click="logout()">
                 <q-item-section>Logout</q-item-section>
               </q-item>
               <q-separator dark />
             </q-list>
           </q-menu>
         </q-btn>
-        <q-btn v-else flat label="Login" @click="login" />
+        <q-btn v-else flat label="Login" @click="login()" />
         <q-btn padding="md" no-caps flat @click="$router.push('/cart')">
           <div>
             <q-icon size="30px" name="mdi-cart-outline">
@@ -439,14 +439,14 @@ watchEffect(async () => {
                     <q-item clickable @click="$router.push('/account')">
                       <q-item-section>Account Settings</q-item-section>
                     </q-item>
-                    <q-item clickable @click="logout">
+                    <q-item clickable @click="logout()">
                       <q-item-section>Logout</q-item-section>
                     </q-item>
                     <q-separator dark />
                   </q-list>
                 </q-menu>
               </q-item>
-              <q-item v-else clickable @click="login">
+              <q-item v-else clickable @click="login()">
                 <q-item-section class="text-center q-py-md">
                   Login
                 </q-item-section>
@@ -564,7 +564,7 @@ watchEffect(async () => {
       </q-input>
     </div>
   </div>
-  <AddressModal v-model="newAddress" @add-address="closeAddressModal" />
+  <AddressModal v-model="newAddress" @add-address="closeAddressModal()" />
   <div
     :style="
       windowWidth > 470 ? 'padding-bottom: 6rem' : 'padding-bottom: 10rem'

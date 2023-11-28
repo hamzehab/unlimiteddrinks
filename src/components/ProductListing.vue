@@ -65,7 +65,7 @@ const formatDate = (date) => {
     class="q-mx-auto q-my-md cursor-pointer"
     style="max-width: 70%"
     bordered
-    @click="viewFullItem"
+    @click="viewFullItem()"
   >
     <q-card-section class="q-mx-lg q-my-md" horizontal>
       <img
@@ -101,7 +101,7 @@ const formatDate = (date) => {
           </div>
         </div>
         <div class="row justify-between">
-          <div class="q-mt-md cursor-pointer" @click="viewFullItem">
+          <div class="q-mt-md cursor-pointer" @click="viewFullItem()">
             <span class="ys row items-start text-body1">
               $<span class="oswald text-h5">
                 {{ product.price.toFixed(2) }}
@@ -113,7 +113,7 @@ const formatDate = (date) => {
               class="cursor-pointer on-left"
               name="remove"
               size="20px"
-              @click="decreaseQuantity"
+              @click="decreaseQuantity()"
             />
             <q-input
               class="rounded-borders"
@@ -130,7 +130,7 @@ const formatDate = (date) => {
               class="cursor-pointer on-right"
               name="add"
               size="20px"
-              @click="increaseQuantity"
+              @click="increaseQuantity()"
             />
           </div>
         </div>
@@ -206,7 +206,7 @@ const formatDate = (date) => {
             rounded
             push
             label="Add to Cart"
-            @click="addToCart"
+            @click="addToCart()"
           >
             <q-icon name="mdi-cart-outline on-right" />
           </q-btn>
