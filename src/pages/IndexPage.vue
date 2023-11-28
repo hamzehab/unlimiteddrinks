@@ -102,16 +102,19 @@ onUnmounted(() => {
       class="ys q-my-xl row justify-center text-bold text-h4 text-weight-light"
     >
       Try out Drink Roulette!
-      <q-icon
-        v-if="!loading"
-        class="on-right cursor-pointer"
-        name="replay"
-        size="40px"
-        @click="roulette()"
-      />
-      <q-card v-if="loading" class="on-right">
-        <q-inner-loading :showing="loading" />
-      </q-card>
+      <transition
+        appear
+        enter-active-class="animated zoomIn"
+        leave-active-class="animated zoomOut"
+      >
+        <q-icon
+          v-if="!loading"
+          class="on-right cursor-pointer"
+          name="replay"
+          size="40px"
+          @click="roulette()"
+        />
+      </transition>
     </div>
 
     <div v-if="!loading" class="q-mx-xl q-mb-xl row justify-evenly">
@@ -121,6 +124,9 @@ onUnmounted(() => {
         :key="index"
         :product="product"
       />
+    </div>
+    <div v-else class="flex flex-center">
+      <q-spinner-tail color="deep-purple-14 q-pb-xl" size="20rem" />
     </div>
   </div>
 
