@@ -57,6 +57,12 @@ const routes = [
     beforeEnter: authGuard,
   },
   {
+    path: "/success",
+    component: () => import("pages/OrderPlacedSuccess.vue"),
+    meta: { title: "Thank you for placing an order!" },
+    beforeEnter: authGuard,
+  },
+  {
     path: "/setup",
     component: () => import("pages/SetupAccount.vue"),
     meta: { title: "Setup Account" },
