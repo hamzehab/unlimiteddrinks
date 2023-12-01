@@ -109,7 +109,7 @@ onMounted(async () => {
             />
             <div class="q-ml-lg">
               <div
-                class="cursor-pointer text-deep-purple-14"
+                class="cursor-pointer text-deep-purple-14 text-body1"
                 style="width: fit-content"
                 @click="
                   $router.push(
@@ -121,7 +121,7 @@ onMounted(async () => {
               >
                 {{ item.name }}
               </div>
-              <div>{{ item.brand }}</div>
+              <div class="text-caption">{{ item.brand }}</div>
             </div>
           </div>
           <div class="row items-center ys nowrap">
@@ -131,7 +131,7 @@ onMounted(async () => {
             </div>
           </div>
           <div class="">
-            <div class="">Quantity: {{ item.quantity }}</div>
+            <div class="">Qty: {{ item.quantity }}</div>
           </div>
           <div class="">
             <div class="text-subtitle1">${{ item.subtotal.toFixed(2) }}</div>
