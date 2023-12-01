@@ -103,7 +103,7 @@ onMounted(async () => {
         >
           <div class="flex items-center">
             <q-img
-              src="/static/pepsi.jpg"
+              :src="`/static/products/${item.image}`"
               :ratio="1"
               style="width: 100px; border-radius: 0.5rem"
             />
@@ -144,7 +144,7 @@ onMounted(async () => {
     </q-card>
     <div class="flex flex-center q-my-xl">
       <q-pagination
-        v-if="orders"
+        v-if="orders && orders.length > 10"
         v-model="currentPage"
         :max="Math.ceil(orders.length / 10)"
         :max-pages="5"
