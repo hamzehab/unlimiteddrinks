@@ -31,7 +31,7 @@ const getProductDetails = async (id) => {
 };
 
 const addToCart = (event) => {
-  event.stopPropagation();
+  if (event && event.stopPropagation) event.stopPropagation();
   isLoading.value = true;
 
   cartStore.addItem(product.value.id, quantity.value);
@@ -107,7 +107,7 @@ onMounted(async () => {
 
     <div v-if="product" class="row justify-evenly" style="width: 100%">
       <img
-        :src="`/static/${product.image}`"
+        :src="`/static/products/${product.image}`"
         style="width: 100%; max-width: 800px; height: 100%"
         alt=""
       />
@@ -123,7 +123,10 @@ onMounted(async () => {
             product.category_name.substring(1)
           }}
         </div>
-        <div class="text-h4 ys fade">{{ product.name }}</div>
+        <div class="text-h4 ys fade">
+          {{ product.name }}
+          <span class="text-caption">by {{ product.brand }}</span>
+        </div>
         <div class="cursor-pointer row items-center oswald">
           <div class="text-overline q-mr-xs">{{ rating.toFixed(1) }}</div>
           <q-rating
@@ -140,7 +143,7 @@ onMounted(async () => {
         </div>
 
         <q-separator class="q-my-md" />
-        <div class="text-h3 ys q-mb-xl">$ {{ product.price }}</div>
+        <div class="text-h3 ys q-mb-xl">$ {{ product.price.toFixed(2) }}</div>
         <div class="text-body1 q-mb-xl">{{ product.description }}</div>
 
         <div class="row justify-end items-center q-mr-md q-mb-md no-wrap">

@@ -71,19 +71,6 @@ const fetchProductsInCart = async () => {
   taxesAndFees.value = subtotal.value * 0.06625;
 };
 
-/* const checkout = async () => {
-  try {
-    const response = await api.post(
-      `checkout/session?customer_email=${auth0.user.value.email}`,
-      cartStore.items
-    );
-
-    window.location.href = response.data.url;
-  } catch (e) {
-    console.error(e);
-  }
-}; */
-
 onMounted(async () => {
   await fetchProductsInCart();
 });
@@ -141,12 +128,21 @@ onMounted(async () => {
             <div class="flex items-center">
               <img
                 class="rounded-borders q-mr-lg"
-                :src="`/static/${item.image}`"
+                :src="`/static/products/${item.image}`"
                 alt=""
                 style="width: 150px; height: 150px"
               />
               <div class="q-ml-lg">
-                <div class="text-h6">{{ item.name }}</div>
+                <div
+                  class="text-h6 cursor-pointer text-deep-purple-14"
+                  @click="
+                    $router.push(
+                      `/${item.category_name.split(' ').join('-')}/${item.id}`
+                    )
+                  "
+                >
+                  {{ item.name }}
+                </div>
                 <div class="text-caption">
                   {{
                     item.category_name[0].toUpperCase() +

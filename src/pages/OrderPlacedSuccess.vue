@@ -51,7 +51,7 @@ onMounted(async () => {
           <q-card-section class="q-ml-xl" v-for="item in items" :key="item">
             <q-card-section horizontal>
               <q-img
-                :src="`static/pepsi.jpg`"
+                :src="`static/products/${item.image}`"
                 width="96px"
                 height="96px"
                 :ratio="1"
@@ -74,7 +74,7 @@ onMounted(async () => {
                   {{ item.name }}
                 </div>
                 <div class="text-caption text-grey-6">
-                  {{ item.quantity }} @ {{ item.price }} each
+                  {{ item.quantity }} @ {{ item.price.toFixed(2) }} each
                 </div>
               </q-card-section>
             </q-card-section>

@@ -84,7 +84,7 @@ onMounted(async () => {
     <div class="q-pa-xl q-mx-xl">
       <div class="ys text-weight-bolder text-h3 text-center">
         Quenching Convenience: Simplifying Student Life, One Sip at a Time
-        <img class="" src="/static/footerCola.png" alt="Pastel Cola" />
+        <img src="/static/footerCola.png" alt="Pastel Cola" />
       </div>
       <div class="row justify-between q-mt-xl items-center">
         <div class="oswald text-center" style="width: 20%">

@@ -66,11 +66,17 @@ onUnmounted(() => {
       infinite
       autoplay
     >
-      <q-carousel-slide :name="1" img-src="static/warehouse.jpg" />
-      <q-carousel-slide :name="2" img-src="static/vending.jpg" />
-      <q-carousel-slide :name="3" img-src="static/shelfDrinks.jpg" />
-      <q-carousel-slide :name="4" img-src="static/pepsi.jpg" />
-      <q-carousel-slide :name="5" img-src="static/shelfDrinks2.jpg" />
+      <q-carousel-slide :name="1" img-src="static/landing_page/warehouse.jpg" />
+      <q-carousel-slide :name="2" img-src="static/landing_page/vending.jpg" />
+      <q-carousel-slide
+        :name="3"
+        img-src="static/landing_page/shelfDrinks.jpg"
+      />
+      <q-carousel-slide :name="4" img-src="static/landing_page/pepsi.jpg" />
+      <q-carousel-slide
+        :name="5"
+        img-src="static/landing_page/shelfDrinks2.jpg"
+      />
     </q-carousel>
     <div
       class="ys fade text-center text-bold text-h4 text-weight-light q-mt-xl"
@@ -85,10 +91,8 @@ onUnmounted(() => {
         src="static/logos/vitamin-water.png"
         alt="Vitamin Water Logo"
       />
-      <img class="fade" src="static/logos/monster.png" alt="Monster Logo" />
       <img class="fade" src="static/logos/redbull.png" alt="Red Bull Logo" />
       <img class="fade" src="static/logos/lacroix.png" alt="Lacroix Logo" />
-      <img class="fade" src="static/logos/gatorade.png" alt="Gatorade Logo" />
       <img class="fade" src="static/logos/celcius.png" alt="Celcius Logo" />
       <img class="fade" src="static/logos/snapple.png" alt="Snapple Logo" />
       <img

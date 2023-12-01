@@ -323,7 +323,7 @@ const clearFields = () => {
           <q-card-section v-for="(item, index) in items" :key="index">
             <q-card-section horizontal>
               <q-img
-                :src="`static/${item.image}`"
+                :src="`static/products/${item.image}`"
                 width="48px"
                 height="48px"
                 :ratio="1"
@@ -332,7 +332,7 @@ const clearFields = () => {
               <q-card-section class="text-body2 q-pa-none q-pl-md">
                 {{ item.name }}
                 <div class="text-caption text-grey-6">
-                  {{ quantities[index] }} @ {{ item.price }} each
+                  {{ quantities[index] }} @ {{ item.price.toFixed(2) }} each
                 </div>
               </q-card-section>
             </q-card-section>

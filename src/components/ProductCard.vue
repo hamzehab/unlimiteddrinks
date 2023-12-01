@@ -18,11 +18,13 @@ const isLoading = ref(false);
 const addedToCart = ref(null);
 
 const viewFullItem = () => {
-  $router.push(`/${props.product.category_name}/${props.product.id}`);
+  $router.push(
+    `/${props.product.category_name.split(" ").join("-")}/${props.product.id}`
+  );
 };
 
 const addToCart = (event) => {
-  event.stopPropagation();
+  if (event && event.stopPropagation) event.stopPropagation();
   isLoading.value = true;
 
   cartStore.addItem(props.product.id, quantity.value);
@@ -49,11 +51,15 @@ const increaseQuantity = () => {
 </script>
 
 <template>
-  <q-card class="q-my-lg oswald" style="width: 100%; max-width: 350px">
+  <q-card class="q-my-lg oswald" style="width: 100%; max-width: 400px">
     <img
       class="cursor-pointer"
-      :src="`/static/${product.image}`"
+      :src="`/static/products/${product.image}`"
       @click="viewFullItem()"
+    />
+    <q-separator
+      class="q-mt-md bg-deep-purple-14"
+      style="padding-top: 1px; padding-bottom: 1px"
     />
 
     <q-card-section class="q-pb-none" @click="viewFullItem()">
@@ -153,7 +159,7 @@ const increaseQuantity = () => {
     </q-card-section>
     <q-card-section class="row justify-between items-center">
       <div class="ys text-h6 cursor-pointer" @click="viewFullItem()">
-        $ {{ parseFloat(product.price).toFixed(2) }}
+        $ {{ product.price.toFixed(2) }}
       </div>
       <q-btn
         :loading="isLoading"

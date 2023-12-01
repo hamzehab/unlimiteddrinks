@@ -19,25 +19,29 @@ const isLoading = ref(false);
 const addedToCart = ref(null);
 
 const decreaseQuantity = (event) => {
-  event.stopPropagation();
+  if (event && event.stopPropagation) event.stopPropagation();
   if (quantity.value > 1) {
     quantity.value = parseInt(quantity.value) - 1;
   }
 };
 
 const increaseQuantity = (event) => {
-  event.stopPropagation();
+  if (event && event.stopPropagation) event.stopPropagation();
   if (quantity.value < 25) {
     quantity.value = parseInt(quantity.value) + 1;
   }
 };
 
 const viewFullItem = () => {
-  $router.push(`/${props.product.category_name}/${props.product.id}`);
+  $router.push(
+    `/${props.product.category_name.split(" ").join("-")}/${props.product.id}`
+  );
 };
 
 const addToCart = (event) => {
-  event.stopPropagation();
+  if (event && event.stopPropagation) {
+    event.stopPropagation();
+  }
   isLoading.value = true;
 
   cartStore.addItem(props.product.id, quantity.value);
@@ -67,11 +71,16 @@ const formatDate = (date) => {
     bordered
     @click="viewFullItem()"
   >
-    <q-card-section class="q-mx-lg q-my-md" horizontal>
+    <q-card-section class="q-mx-xl q-my-md" horizontal>
       <img
         class="cursor-pointer"
-        :src="`static/${product.image}`"
+        :src="`static/products/${product.image}`"
         style="width: 200px; height: 200px"
+      />
+      <q-separator
+        class="bg-deep-purple-14"
+        style="padding-right: 1px; padding-left: 1px"
+        vertical
       />
 
       <q-card-section class="q-pb-none" style="width: 100%">
