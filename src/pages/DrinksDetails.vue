@@ -170,17 +170,22 @@ onMounted(async () => {
             size="20px"
             @click="increaseQuantity()"
           />
+
           <q-btn
             class="q-ml-xl"
             style="width: 80%"
             :loading="isLoading"
-            color="deep-purple-14"
-            label="Add to Cart"
+            :color="product.quantity === 0 ? 'negative' : 'deep-purple-14'"
+            :label="product.quantity === 0 ? 'OUT OF STOCK' : 'Add to Cart'"
             rounded
             push
+            :disable="product.quantity === 0"
             @click="addToCart()"
           >
-            <q-icon name="mdi-cart-outline on-right" />
+            <q-icon
+              v-if="product.quantity !== 0"
+              name="mdi-cart-outline on-right"
+            />
           </q-btn>
         </div>
 

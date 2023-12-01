@@ -163,13 +163,17 @@ const increaseQuantity = () => {
       </div>
       <q-btn
         :loading="isLoading"
-        color="deep-purple-14"
+        :color="product.quantity === 0 ? 'negative' : 'deep-purple-14'"
         rounded
         push
-        label="Add to Cart"
+        :label="product.quantity === 0 ? 'OUT OF STOCK' : 'Add to Cart'"
+        :disable="product.quantity === 0"
         @click="addToCart()"
       >
-        <q-icon name="mdi-cart-outline on-right" />
+        <q-icon
+          v-if="product.quantity !== 0"
+          name="mdi-cart-outline on-right"
+        />
       </q-btn>
     </q-card-section>
   </q-card>
