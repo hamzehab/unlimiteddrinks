@@ -16,6 +16,8 @@ const quantity = ref(1);
 
 const isLoading = ref(false);
 const addedToCart = ref(null);
+const exceedsLimit = ref(null);
+const exceedQuantity = ref(null);
 
 const id = parseInt(window.location.href.split("/").at(-1));
 const product = ref(null);
@@ -30,12 +32,33 @@ const getProductDetails = async (id) => {
   }
 };
 
-const addToCart = (event) => {
+const addToCart = async (event) => {
   if (event && event.stopPropagation) event.stopPropagation();
   isLoading.value = true;
 
-  cartStore.addItem(product.value.id, quantity.value);
-  addedToCart.value = true;
+  const totalQuantity =
+    quantity.value +
+    (cartStore.items.find((item) => item.product_id === product.value.id)
+      ? cartStore.items.find((item) => item.product_id === product.value.id)
+          .quantity
+      : 0);
+
+  try {
+    const response = await api.get(
+      `product/cart/${product.value.id}?quantity=${totalQuantity}`
+    );
+    if (response.data["can_add"] === true) {
+      cartStore.addItem(product.value.id, quantity.value);
+      addedToCart.value = true;
+      exceedsLimit.value = false;
+    } else {
+      exceedsLimit.value = true;
+      exceedQuantity.value = response.data.quantity;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+
   setTimeout(() => {
     isLoading.value = false;
   }, 1000);
@@ -190,6 +213,15 @@ onMounted(async () => {
         </div>
 
         <div class="row justify-end items-center q-mr-md text-body1">
+          <transition
+            appear
+            enter-active-class="animated zoomIn"
+            leave-active-class="animated zoomOut"
+          >
+            <div v-if="exceedsLimit" class="text-warning animated zoomIn">
+              Cannot add to cart. Only {{ exceedQuantity }} left in stock!
+            </div>
+          </transition>
           <div v-if="cartStore.items.find((item) => item.product_id === id)">
             <div
               v-if="

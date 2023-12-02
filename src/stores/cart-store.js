@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { api } from "src/boot/axios";
 
 export const useCartStore = defineStore("cart", {
   state: () => ({
@@ -9,20 +10,45 @@ export const useCartStore = defineStore("cart", {
       state.items.reduce((total, item) => total + item.quantity, 0),
   },
   actions: {
-    update(index, quantity) {
-      this.items[index].quantity = quantity;
+    async update(index, quantity) {
+      try {
+        const response = await api.get(
+          `product/cart/${this.items[index].product_id}?quantity=${quantity}`
+        );
+
+        if (response.data["can_add"] === true) {
+          this.items[index].quantity = quantity;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+
       sessionStorage.setItem("cart", JSON.stringify(this.items));
     },
-    addItem(product_id, quantity) {
+    async addItem(product_id, quantity) {
       const existingItem = this.items.find(
         (cartItem) => cartItem.product_id === product_id
       );
 
       if (existingItem) {
-        existingItem.quantity =
-          existingItem.quantity + quantity <= 25
-            ? existingItem.quantity + quantity
-            : 25;
+        try {
+          const response = await api.get(
+            `product/cart/${product_id}?quantity=${
+              quantity + existingItem.quantity
+            }`
+          );
+
+          if (response.data["can_add"] === true) {
+            existingItem.quantity =
+              existingItem.quantity + quantity <= 25
+                ? existingItem.quantity + quantity
+                : 25;
+          } else {
+            existingItem.quantity = response.data.quantity;
+          }
+        } catch (e) {
+          console.error(e);
+        }
       } else {
         this.items.push({ product_id, quantity });
       }

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import FooterComponent from "src/components/FooterComponent.vue";
 import NavBar from "src/components/NavBar.vue";
 
@@ -20,6 +20,7 @@ const taxesAndFees = ref(0);
 const quantities = ref([]);
 const removed = ref([]);
 const updated = ref([]);
+const itemMessages = ref([]);
 
 const decreaseQuantity = (index) => {
   if (quantities.value[index] > 1) {
@@ -35,14 +36,29 @@ const increaseQuantity = (index) => {
   }
 };
 
-const updateQuantity = (index) => {
+const updateQuantity = async (index) => {
   const newQuantity = quantities.value[index];
   if (newQuantity !== items.value[index].quantity) {
-    updated.value[index] = true;
-    cartStore.update(index, newQuantity);
-    setTimeout(() => {
-      updated.value[index] = false;
-    }, 1000);
+    try {
+      const response = await api.get(
+        `product/cart/${items.value[index].id}?quantity=${newQuantity}`
+      );
+      if (response.data["can_add"] === true) {
+        itemMessages.value[index] = null;
+        cartStore.update(index, newQuantity);
+        updated.value[index] = true;
+        setTimeout(() => {
+          updated.value[index] = false;
+        }, 1000);
+      } else {
+        itemMessages.value[
+          index
+        ] = `Only ${response.data.quantity} left in stock`;
+        quantities.value[index] = response.data.quantity;
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 };
 
@@ -63,6 +79,7 @@ const fetchProductsInCart = async () => {
       const response = await api.get(`/product/${product.product_id}`);
       items.value.push(response.data);
       quantities.value.push(product.quantity);
+      itemMessages.value.push(null);
       subtotal.value += response.data.price * product.quantity;
     } catch (error) {
       console.error(error);
@@ -71,8 +88,18 @@ const fetchProductsInCart = async () => {
   taxesAndFees.value = subtotal.value * 0.06625;
 };
 
+const windowWidth = ref(window.innerWidth);
+const handleResize = () => {
+  windowWidth.value = window.innerWidth;
+};
+
 onMounted(async () => {
+  window.addEventListener("resize", handleResize);
   await fetchProductsInCart();
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", handleResize);
 });
 </script>
 
@@ -95,14 +122,13 @@ onMounted(async () => {
     </q-card>
   </q-dialog>
   <div class="q-ma-xl main">
-    <div class="row justify-between items-center q-mt-xl q-mb-lg">
-      <div class="flex items-center">
-        <q-icon name="work_outline" size="40px" />
-        <div class="ys on-right text-h5">Shopping Cart</div>
-      </div>
-      <div v-if="cartStore.totalQuantity > 0" class="ys text-h5">
-        Payment Summary
-      </div>
+    <div class="row justify-between items-center q-mt-xl q-mb-lg"></div>
+    <div
+      class="flex items-center"
+      :class="windowWidth > 1305 ? '' : 'q-mx-xl q-mb-xl'"
+    >
+      <q-icon name="work_outline" size="40px" />
+      <div class="ys on-right text-h5">Shopping Cart</div>
     </div>
     <div
       v-if="cartStore.totalQuantity === 0"
@@ -118,8 +144,17 @@ onMounted(async () => {
         @click="$router.push('/')"
       />
     </div>
+
     <div v-else class="row justify-between">
-      <q-card class="q-py-lg" bordered style="width: 70%; height: fit-content">
+      <q-card
+        class="q-py-lg"
+        :class="windowWidth > 1305 ? '' : 'q-mx-xl q-mb-xl'"
+        bordered
+        style="height: fit-content"
+        :style="
+          windowWidth > 1305 ? 'width: 100%; max-width: 70%;' : 'width:100%;'
+        "
+      >
         <div v-for="(item, index) in items" :key="(item.id, index)">
           <q-card-section
             class="q-mx-auto row justify-between items-center oswald"
@@ -129,7 +164,7 @@ onMounted(async () => {
               <img
                 class="rounded-borders q-mr-lg"
                 :src="`/static/products/${item.image}`"
-                alt=""
+                :alt="item.name + 'Image'"
                 style="width: 150px; height: 150px"
               />
               <div class="q-ml-lg">
@@ -140,8 +175,19 @@ onMounted(async () => {
                       `/${item.category_name.split(' ').join('-')}/${item.id}`
                     )
                   "
+                  style="width: 160px"
                 >
-                  {{ item.name }}
+                  <div class="ellipsis">
+                    {{ item.name }}
+                    <q-tooltip
+                      class="bg-white text-dark"
+                      style="width: fit-content; border: 1px solid black"
+                      :delay="200"
+                      :offset="[0, 20]"
+                    >
+                      {{ item.name }}
+                    </q-tooltip>
+                  </div>
                 </div>
                 <div class="text-caption">
                   {{
@@ -199,7 +245,16 @@ onMounted(async () => {
                     leave-active-class="animated zoomOut"
                   >
                     <div v-if="removed[index]" class="text-positive">
-                      Succesfully removed from cart
+                      Successfully removed from cart
+                    </div>
+                  </transition>
+                  <transition
+                    appear
+                    enter-active-class="animated zoomIn"
+                    leave-active-class="animated zoomOut"
+                  >
+                    <div v-if="itemMessages[index]" class="text-warning">
+                      {{ itemMessages[index] }}
                     </div>
                   </transition>
                 </div>
@@ -227,7 +282,16 @@ onMounted(async () => {
           />
         </div>
       </q-card>
-      <div style="width: 25%">
+      <div
+        :class="windowWidth > 1305 ? '' : 'q-mx-xl'"
+        :style="
+          windowWidth > 1305 ? 'width: 100%; max-width: 25%;' : 'width:100%;'
+        "
+      >
+        <div v-if="cartStore.totalQuantity > 0" class="ys text-h5">
+          Payment Summary
+        </div>
+
         <q-card class="oswald" bordered>
           <q-card-section class="q-mx-sm">
             <div class="row justify-between">
@@ -261,39 +325,37 @@ onMounted(async () => {
             </div>
           </q-card-section>
         </q-card>
-        <div class="row justify-center q-mt-xl">
-          <q-btn
-            class="rounded-borders q-mb-md"
-            style="width: 400px"
-            label="Continue Shopping"
-            color="dark"
-            push
-            @click="$router.push('/')"
-          />
-          <q-btn
-            class="rounded-borders"
-            style="width: 400px"
-            label="Proceed to Checkout"
-            icon="lock_outline"
-            color="deep-purple-14"
-            push
-            @click="$router.push('/checkout')"
-          />
-        </div>
+
+        <q-btn
+          class="rounded-borders q-mb-md full-width"
+          label="Continue Shopping"
+          color="dark"
+          push
+          @click="$router.push('/')"
+        />
+        <q-btn
+          class="rounded-borders full-width"
+          label="Proceed to Checkout"
+          icon="lock_outline"
+          color="deep-purple-14"
+          push
+          @click="$router.push('/checkout')"
+        />
       </div>
     </div>
+  </div>
+  <div
+    v-if="cartStore.totalQuantity !== 0"
+    class="text-deep-purple-14 cursor-pointer row items-center q-my-lg"
+    style="width: fit-content"
+    :class="windowWidth > 1350 ? '' : 'q-mx-xl'"
+  >
+    <q-icon name="arrow_back" size="20px" />
     <div
-      v-if="cartStore.totalQuantity !== 0"
-      class="text-deep-purple-14 cursor-pointer row items-center q-mt-lg"
-      style="width: fit-content"
+      class="on-right underline oswald text-body1 q-pa-md"
+      @click="$router.push('/')"
     >
-      <q-icon name="arrow_back" size="20px" />
-      <div
-        class="on-right underline oswald text-body1 q-pa-md"
-        @click="$router.push('/')"
-      >
-        Return to Previous Page
-      </div>
+      Return to Previous Page
     </div>
   </div>
 

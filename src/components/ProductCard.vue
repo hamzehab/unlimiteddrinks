@@ -17,18 +17,40 @@ const quantity = ref(1);
 const isLoading = ref(false);
 const addedToCart = ref(null);
 
+const exceedsLimit = ref(null);
+const exceedQuantity = ref(null);
+
 const viewFullItem = () => {
   $router.push(
     `/${props.product.category_name.split(" ").join("-")}/${props.product.id}`
   );
 };
 
-const addToCart = (event) => {
+const addToCart = async (event) => {
   if (event && event.stopPropagation) event.stopPropagation();
-  isLoading.value = true;
+  const totalQuantity =
+    quantity.value +
+    (cartStore.items.find((item) => item.product_id === product.value.id)
+      ? cartStore.items.find((item) => item.product_id === product.value.id)
+          .quantity
+      : 0);
 
-  cartStore.addItem(props.product.id, quantity.value);
-  addedToCart.value = true;
+  try {
+    const response = await api.get(
+      `product/cart/${product.value.id}?quantity=${totalQuantity}`
+    );
+    if (response.data["can_add"] === true) {
+      cartStore.addItem(product.value.id, quantity.value);
+      addedToCart.value = true;
+      exceedsLimit.value = false;
+    } else {
+      exceedsLimit.value = true;
+      exceedQuantity.value = response.data.quantity;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+
   setTimeout(() => {
     isLoading.value = false;
   }, 1000);
@@ -99,6 +121,17 @@ const increaseQuantity = () => {
     </q-card-section>
     <q-card-section class="q-pt-none">
       <div class="text-caption row justify-end">Max limit 25</div>
+    </q-card-section>
+    <q-card-section v-if="exceedsLimit">
+      <transition
+        appear
+        enter-active-class="animated zoomIn"
+        leave-active-class="animated zoomOut"
+      >
+        <div class="text-warning animated zoomIn">
+          Cannot add to cart. Only {{ exceedQuantity }} left in stock!
+        </div>
+      </transition>
     </q-card-section>
     <q-card-section
       class="q-py-none"

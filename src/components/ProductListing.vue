@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useCartStore } from "src/stores/cart-store";
+import { api } from "src/boot/axios";
 
 const $router = useRouter();
 const cartStore = useCartStore();
@@ -17,6 +18,9 @@ const quantity = ref(1);
 const rating = props.product.rating;
 const isLoading = ref(false);
 const addedToCart = ref(null);
+
+const exceedsLimit = ref(null);
+const exceedQuantity = ref(null);
 
 const decreaseQuantity = (event) => {
   if (event && event.stopPropagation) event.stopPropagation();
@@ -38,14 +42,33 @@ const viewFullItem = () => {
   );
 };
 
-const addToCart = (event) => {
-  if (event && event.stopPropagation) {
-    event.stopPropagation();
-  }
+const addToCart = async (event) => {
+  if (event && event.stopPropagation) event.stopPropagation();
   isLoading.value = true;
 
-  cartStore.addItem(props.product.id, quantity.value);
-  addedToCart.value = true;
+  const totalQuantity =
+    quantity.value +
+    (cartStore.items.find((item) => item.product_id === props.product.id)
+      ? cartStore.items.find((item) => item.product_id === props.product.id)
+          .quantity
+      : 0);
+
+  try {
+    const response = await api.get(
+      `product/cart/${props.product.id}?quantity=${totalQuantity}`
+    );
+    if (response.data["can_add"] === true) {
+      cartStore.addItem(props.product.id, quantity.value);
+      addedToCart.value = true;
+      exceedsLimit.value = false;
+    } else {
+      exceedsLimit.value = true;
+      exceedQuantity.value = response.data.quantity;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+
   setTimeout(() => {
     isLoading.value = false;
   }, 1000);
@@ -65,17 +88,13 @@ const formatDate = (date) => {
 </script>
 
 <template>
-  <q-card
-    class="q-mx-auto q-my-md cursor-pointer"
-    style="max-width: 70%"
-    bordered
-    @click="viewFullItem()"
-  >
+  <q-card class="q-mx-auto q-my-md" style="max-width: 70%" bordered>
     <q-card-section class="q-mx-xl q-my-md" horizontal>
       <img
         class="cursor-pointer"
         :src="`static/products/${product.image}`"
         style="width: 200px; height: 200px"
+        @click="viewFullItem()"
       />
       <q-separator
         class="bg-deep-purple-14"
@@ -84,13 +103,29 @@ const formatDate = (date) => {
       />
 
       <q-card-section class="q-pb-none" style="width: 100%">
-        <div class="ys text-h6">{{ product.name }}</div>
+        <div
+          class="ys text-h6 cursor-pointer"
+          style="width: fit-content"
+          @click="viewFullItem()"
+        >
+          {{ product.name }}
+        </div>
         <div class="text-grey-6 text-caption row oswald">
           <span>{{ formatDate(product.created_at) }}</span>
           <q-separator vertical class="on-right on-left" />
-          <span class="on-left">by &nbsp; {{ product.brand }}</span>
+          <span
+            class="on-left cursor-pointer"
+            style="width: fit-content"
+            @click="viewFullItem()"
+          >
+            by &nbsp; {{ product.brand }}
+          </span>
         </div>
-        <div class="row items-center oswald">
+        <div
+          class="row items-center oswald cursor-pointer"
+          style="width: fit-content"
+          @click="viewFullItem()"
+        >
           <div class="q-mr-xs text-overline">{{ rating.toFixed(1) }}</div>
           <q-rating
             v-model="rating"
@@ -147,6 +182,15 @@ const formatDate = (date) => {
         <q-card-section
           class="oswald row justify-end items-center q-px-none q-pb-none"
         >
+          <transition
+            appear
+            enter-active-class="animated zoomIn"
+            leave-active-class="animated zoomOut"
+          >
+            <div v-if="exceedsLimit" class="text-warning animated zoomIn">
+              Cannot add to cart. Only {{ exceedQuantity }} left in stock!
+            </div>
+          </transition>
           <div
             class="q-py-none on-left"
             v-if="
