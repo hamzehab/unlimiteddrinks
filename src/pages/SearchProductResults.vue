@@ -13,7 +13,7 @@ const currentPage = ref(1);
 const products = ref(null);
 const getProductsBySearch = async (query) => {
   try {
-    const response = await api.get(`/search/${query}`);
+    const response = await api.get(`/product/search/${query}`);
     products.value = response.data;
   } catch (err) {
     console.error(err);

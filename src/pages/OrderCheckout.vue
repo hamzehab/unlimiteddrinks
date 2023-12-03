@@ -79,7 +79,7 @@ const checkout = async () => {
 
   try {
     const response = await api.post(
-      `checkout/session?customer_email=${auth0.user.value.email}`,
+      `/order/checkout/session?customer_email=${auth0.user.value.email}`,
       data
     );
 

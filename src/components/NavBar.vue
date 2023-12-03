@@ -56,7 +56,7 @@ const capitalizeCategory = (category) => {
 
 const getCategories = async () => {
   try {
-    const response = await api.get("/categories");
+    const response = await api.get("/category");
     categories.value = response.data;
   } catch (err) {
     console.error(err);

@@ -16,7 +16,7 @@ const items = ref([]);
 
 onMounted(async () => {
   const response = await api.get(
-    `/orders/recent/${auth0.user.value.sub.split("|")[1]}`
+    `/order/recent/${auth0.user.value.sub.split("|")[1]}`
   );
   if (!response.data) {
     $router.push("/cart");
@@ -83,7 +83,7 @@ onMounted(async () => {
             <q-btn
               label="View Orders"
               color="deep-purple-14"
-              style="width: 300px"
+              style="width: 100%; max-width: 300px"
               push
               @click="$router.push('/orders')"
             />

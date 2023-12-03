@@ -19,7 +19,7 @@ const currentPage = ref(parseInt(localStorage.getItem("currentPage")) || 1);
 const products = ref(null);
 const getProductsByCategory = async (category) => {
   try {
-    const response = await api.get(`/products/${category}`);
+    const response = await api.get(`/product/category/${category}`);
     products.value = response.data;
   } catch (err) {
     console.error(err);

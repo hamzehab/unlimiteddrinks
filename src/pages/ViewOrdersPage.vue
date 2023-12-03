@@ -16,7 +16,7 @@ const showDetails = ref(false);
 const getOrders = async () => {
   try {
     const response = await api.get(
-      `/orders/${auth0.user.value.sub.split("|")[1]}`
+      `/order/${auth0.user.value.sub.split("|")[1]}`
     );
 
     if (response.data.length > 0) orders.value = response.data;

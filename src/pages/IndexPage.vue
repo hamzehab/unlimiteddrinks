@@ -13,7 +13,7 @@ const loading = ref(false);
 const roulette = async () => {
   loading.value = true;
   try {
-    const response = await api.get("/roulette");
+    const response = await api.get("/product/random/roulette");
     rouletteProducts.value = response.data;
     setTimeout(() => {
       loading.value = false;
