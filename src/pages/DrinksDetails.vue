@@ -200,313 +200,342 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NavBar />
-  <div class="q-mx-xl">
-    <div
-      class="fade q-ma-xl cursor-pointer row items-center text-deep-purple-14"
-    >
-      <q-icon name="keyboard_arrow_left" size="30px" />
-      <div class="text-h6 underline ys" @click="$router.back()">Back</div>
-    </div>
+  <q-page>
+    <q-layout>
+      <q-page-container>
+        <router-view></router-view>
+      </q-page-container>
 
-    <div v-if="product" class="row justify-evenly" style="width: 100%">
-      <img
-        :src="`/static/products/${product.image}`"
-        style="width: 100%; max-width: 800px; height: 100%"
-        alt=""
-      />
-
-      <div
-        v-if="product"
-        class="fade oswald q-mt-xl"
-        style="width: 100%; max-width: 800px"
-      >
-        <div class="text-caption fade">
-          {{
-            product.category_name[0].toUpperCase() +
-            product.category_name.substring(1)
-          }}
-        </div>
-        <div class="text-h4 ys fade">
-          {{ product.name }}
-          <span class="text-caption">by {{ product.brand }}</span>
-        </div>
+      <NavBar />
+      <div class="q-mx-xl">
         <div
-          class="cursor-pointer row items-center oswald q-py-md"
-          @click="scrollToElement"
+          class="fade q-ma-xl cursor-pointer row items-center text-deep-purple-14"
         >
-          <div class="q-mr-xs">{{ averageRating.toFixed(1) }}</div>
-          <q-rating
-            v-model="averageRating"
-            max="5"
-            size="sm"
-            color="deep-purple-14"
-            icon="star_border"
-            icon-selected="star"
-            icon-half="star_half"
-            readonly
-          />
-          <div class="on-right text-caption">
-            {{ product.reviews.length }} ratings
-          </div>
-        </div>
-        <div
-          v-if="product.reviews.length === 0"
-          class="text-deep-purple-14 cursor-pointer"
-        >
-          Be the first to review!
+          <q-icon name="keyboard_arrow_left" size="30px" />
+          <div class="text-h6 underline ys" @click="$router.back()">Back</div>
         </div>
 
-        <q-separator class="q-my-md" />
-        <div class="text-h3 ys q-mb-xl">$ {{ product.price.toFixed(2) }}</div>
-        <div class="text-body1 q-mb-xl">{{ product.description }}</div>
-
-        <div class="row justify-end items-center q-mr-md q-mb-md no-wrap">
-          <q-icon
-            class="cursor-pointer on-left"
-            name="remove"
-            size="20px"
-            @click="decreaseQuantity()"
-          />
-          <q-input
-            class="rounded-borders"
-            input-class="ys text-bold text-h6 text-center"
-            style="width: 5rem"
-            v-model="quantity"
-            mask="##"
-            dense
-            borderless
-            unmasked-value
-            readonly
-          />
-          <q-icon
-            class="cursor-pointer on-right"
-            name="add"
-            size="20px"
-            @click="increaseQuantity()"
+        <div v-if="product" class="row justify-evenly" style="width: 100%">
+          <img
+            :src="`/static/products/${product.image}`"
+            style="width: 100%; max-width: 800px; height: 100%"
+            alt=""
           />
 
-          <q-btn
-            class="q-ml-xl oswald"
-            style="width: 80%"
-            :color="product.quantity === 0 ? 'negative' : 'deep-purple-14'"
-            rounded
-            push
-            :disable="product.quantity === 0"
-            @click="addToCart()"
+          <div
+            v-if="product"
+            class="fade oswald q-mt-xl"
+            style="width: 100%; max-width: 800px"
           >
-            <div v-if="product.quantity === 0">OUT OF STOCK</div>
-            <div v-else-if="product.quantity !== 0 && !isLoading">
-              ADD TO CART
-              <q-icon
-                v-if="product.quantity !== 0"
-                name="mdi-cart-outline on-right"
-              />
+            <div class="text-caption fade">
+              {{
+                product.category_name[0].toUpperCase() +
+                product.category_name.substring(1)
+              }}
             </div>
-            <div v-else-if="isLoading">
-              <q-spinner color="white" size="1em" :thickness="8" />
+            <div class="text-h4 ys fade">
+              {{ product.name }}
+              <span class="text-caption">by {{ product.brand }}</span>
             </div>
-          </q-btn>
-        </div>
-
-        <div class="row justify-end items-center q-mr-md text-body1">
-          <transition
-            appear
-            enter-active-class="animated zoomIn"
-            leave-active-class="animated zoomOut"
-          >
-            <div v-if="exceedsLimit" class="text-warning animated zoomIn">
-              Cannot add to cart. Only {{ exceedQuantity }} left in stock!
-            </div>
-          </transition>
-          <div v-if="cartStore.items.find((item) => item.product_id === id)">
             <div
-              v-if="
-                cartStore.items.find((item) => item.product_id === id)
-                  .quantity +
-                  quantity <=
-                25
-              "
+              class="cursor-pointer row items-center oswald q-py-md"
+              @click="scrollToElement"
             >
+              <div class="q-mr-xs">{{ averageRating.toFixed(1) }}</div>
+              <q-rating
+                v-model="averageRating"
+                max="5"
+                size="sm"
+                color="deep-purple-14"
+                icon="star_border"
+                icon-selected="star"
+                icon-half="star_half"
+                readonly
+              />
+              <div class="on-right text-caption">
+                {{ product.reviews.length }} ratings
+              </div>
+            </div>
+            <div
+              v-if="product.reviews.length === 0"
+              class="text-deep-purple-14 cursor-pointer"
+            >
+              Be the first to review!
+            </div>
+
+            <q-separator class="q-my-md" />
+            <div class="text-h3 ys q-mb-xl">
+              $ {{ product.price.toFixed(2) }}
+            </div>
+            <div class="text-body1 q-mb-xl">{{ product.description }}</div>
+
+            <div class="row justify-end items-center q-mr-md q-mb-md no-wrap">
+              <q-icon
+                class="cursor-pointer on-left"
+                name="remove"
+                size="20px"
+                @click="decreaseQuantity()"
+              />
+              <q-input
+                class="rounded-borders"
+                input-class="ys text-bold text-h6 text-center"
+                style="width: 5rem"
+                v-model="quantity"
+                mask="##"
+                dense
+                borderless
+                unmasked-value
+                readonly
+              />
+              <q-icon
+                class="cursor-pointer on-right"
+                name="add"
+                size="20px"
+                @click="increaseQuantity()"
+              />
+
+              <q-btn
+                class="q-ml-xl oswald"
+                style="width: 80%"
+                :color="product.quantity === 0 ? 'negative' : 'deep-purple-14'"
+                rounded
+                push
+                :disable="product.quantity === 0"
+                @click="addToCart()"
+              >
+                <div v-if="product.quantity === 0">OUT OF STOCK</div>
+                <div v-else-if="product.quantity !== 0 && !isLoading">
+                  ADD TO CART
+                  <q-icon
+                    v-if="product.quantity !== 0"
+                    name="mdi-cart-outline on-right"
+                  />
+                </div>
+                <div v-else-if="isLoading">
+                  <q-spinner color="white" size="1em" :thickness="8" />
+                </div>
+              </q-btn>
+            </div>
+
+            <div class="row justify-end items-center q-mr-md text-body1">
               <transition
                 appear
                 enter-active-class="animated zoomIn"
                 leave-active-class="animated zoomOut"
               >
-                <div v-if="addedToCart" class="text-positive animated zoomIn">
-                  {{ product.name }} successfully added to cart!
+                <div v-if="exceedsLimit" class="text-warning animated zoomIn">
+                  Cannot add to cart. Only {{ exceedQuantity }} left in stock!
                 </div>
               </transition>
-              <transition
-                appear
-                enter-active-class="animated zoomIn"
-                leave-active-class="animated zoomOut"
+              <div
+                v-if="cartStore.items.find((item) => item.product_id === id)"
               >
                 <div
-                  v-if="addedToCart == false"
-                  class="text-negative animated zoomIn slow"
+                  v-if="
+                    cartStore.items.find((item) => item.product_id === id)
+                      .quantity +
+                      quantity <=
+                    25
+                  "
                 >
-                  Something went wrong adding item to cart!
+                  <transition
+                    appear
+                    enter-active-class="animated zoomIn"
+                    leave-active-class="animated zoomOut"
+                  >
+                    <div
+                      v-if="addedToCart"
+                      class="text-positive animated zoomIn"
+                    >
+                      {{ product.name }} successfully added to cart!
+                    </div>
+                  </transition>
+                  <transition
+                    appear
+                    enter-active-class="animated zoomIn"
+                    leave-active-class="animated zoomOut"
+                  >
+                    <div
+                      v-if="addedToCart == false"
+                      class="text-negative animated zoomIn slow"
+                    >
+                      Something went wrong adding item to cart!
+                    </div>
+                  </transition>
                 </div>
-              </transition>
-            </div>
-            <transition
-              appear
-              enter-active-class="animated zoomIn"
-              leave-active-class="animated zoomOut"
-            >
-              <div
-                v-if="
-                  cartStore.items.find((item) => item.product_id === id)
-                    .quantity +
-                    quantity >
-                    25 && addedToCart === null
-                "
-                class="text-amber-8"
-              >
-                Quantity exceeds limit
+                <transition
+                  appear
+                  enter-active-class="animated zoomIn"
+                  leave-active-class="animated zoomOut"
+                >
+                  <div
+                    v-if="
+                      cartStore.items.find((item) => item.product_id === id)
+                        .quantity +
+                        quantity >
+                        25 && addedToCart === null
+                    "
+                    class="text-amber-8"
+                  >
+                    Quantity exceeds limit
+                  </div>
+                </transition>
               </div>
-            </transition>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-  <q-separator class="q-my-xl" inset />
-  <div class="row justify-around">
-    <div class="q-ma-xl" ref="reviews">
-      <div class="ys text-h5">Customer Reviews</div>
-      <div class="row items-center q-py-md">
-        <q-rating
-          v-model="averageRating"
-          max="5"
-          size="md"
-          color="deep-purple-14"
-          icon="star_border"
-          icon-selected="star"
-          icon-half="star_half"
-          readonly
-        />
-        <div class="on-right text-h6">
-          {{ averageRating.toFixed(1) }} out of 5
-        </div>
-      </div>
-      <div v-if="product" class="q-ml-sm q-mb-md">
-        {{ product.reviews.length }} customer ratings
-      </div>
-
-      <div v-for="n in 5" :key="n" class="q-ml-sm">
-        <div class="row items-center progress-bar" @click="selectedRating = n">
-          <div class="on-left text-body2 cursor-pointer text-bold">
-            {{ n }} star
-          </div>
-          <q-linear-progress
-            size="20px"
-            style="width: 200px"
-            :value="
-              ratings[n - 1]
-                ? parseFloat((ratings[n - 1]['percentage'] / 100).toFixed(2))
-                : 0
-            "
-            color="deep-purple-14"
-            class="q-my-sm cursor-pointer"
-          />
-          <div class="on-right text-body2 cursor-pointer text-bold">
-            {{ ratings[n - 1] ? ratings[n - 1]["percentage"].toFixed(1) : 0 }} %
-          </div>
-        </div>
-      </div>
-      <div
-        class="text-center progress-bar cursor-pointer oswald text-body1"
-        @click="selectedRating = null"
-      >
-        All Reviews
-      </div>
-
-      <q-btn
-        icon-right="chat"
-        class="q-mt-md full-width"
-        label="Leave a review"
-        color="deep-purple-14"
-        push
-        rounded
-        @click="
-          $router.push(`/${route.params.category}/${route.params.id}/review`)
-        "
-      />
-    </div>
-
-    <div
-      v-if="product && filteredReviews.length > 0"
-      style="width: 100%; max-width: 70%"
-    >
-      <q-card class="q-px-md q-py-md">
-        <q-card-section class="ys text-h6">
-          {{
-            selectedRating
-              ? selectedRating.toFixed(1) + " Star Rated Reviews"
-              : "All customer reviews"
-          }}
-        </q-card-section>
-        <q-card
-          v-for="review in filteredReviews.slice(
-            (currentPage - 1) * 5,
-            currentPage * 5
-          )"
-          :key="review"
-          bordered
-        >
-          <q-card-section class="ys text-bold q-pb-none">
-            {{ review.title }}
-          </q-card-section>
-          <q-card-section class="q-pt-none oswald">
+      <q-separator class="q-my-xl" inset />
+      <div class="row justify-around">
+        <div class="q-ma-xl" ref="reviews">
+          <div class="ys text-h5">Customer Reviews</div>
+          <div class="row items-center q-py-md">
             <q-rating
-              v-model="review.rating"
+              v-model="averageRating"
               max="5"
-              size="xs"
+              size="md"
               color="deep-purple-14"
               icon="star_border"
               icon-selected="star"
               icon-half="star_half"
               readonly
             />
-            <span class="text-overline on-right">
-              {{ review.rating.toFixed(1) }}
-            </span>
-          </q-card-section>
-          <q-card-section class="oswald">{{ review.comment }}</q-card-section>
-          <q-card-section class="text-grey oswald">
-            {{ convertDate(review.created_at) }}
-          </q-card-section>
-        </q-card>
-      </q-card>
-      <div class="flex flex-center q-my-xl">
-        <q-pagination
-          v-if="filteredReviews.length > 5"
-          v-model="currentPage"
-          :max="Math.ceil(filteredReviews.length / 5)"
-          :max-pages="5"
-          boundary-numbers
-          color="deep-purple-14"
-          active-design="push"
-          active-color="deep-purple-14"
-          direction-links
+            <div class="on-right text-h6">
+              {{ averageRating.toFixed(1) }} out of 5
+            </div>
+          </div>
+          <div v-if="product" class="q-ml-sm q-mb-md">
+            {{ product.reviews.length }} customer ratings
+          </div>
+
+          <div v-for="n in 5" :key="n" class="q-ml-sm">
+            <div
+              class="row items-center progress-bar"
+              @click="selectedRating = n"
+            >
+              <div class="on-left text-body2 cursor-pointer text-bold">
+                {{ n }} star
+              </div>
+              <q-linear-progress
+                size="20px"
+                style="width: 200px"
+                :value="
+                  ratings[n - 1]
+                    ? parseFloat(
+                        (ratings[n - 1]['percentage'] / 100).toFixed(2)
+                      )
+                    : 0
+                "
+                color="deep-purple-14"
+                class="q-my-sm cursor-pointer"
+              />
+              <div class="on-right text-body2 cursor-pointer text-bold">
+                {{
+                  ratings[n - 1] ? ratings[n - 1]["percentage"].toFixed(1) : 0
+                }}
+                %
+              </div>
+            </div>
+          </div>
+          <div
+            class="text-center progress-bar cursor-pointer oswald text-body1"
+            @click="selectedRating = null"
+          >
+            All Reviews
+          </div>
+
+          <q-btn
+            icon-right="chat"
+            class="q-mt-md full-width"
+            label="Leave a review"
+            color="deep-purple-14"
+            push
+            rounded
+            @click="
+              $router.push(
+                `/${route.params.category}/${route.params.id}/review`
+              )
+            "
+          />
+        </div>
+
+        <div
+          v-if="product && filteredReviews.length > 0"
+          style="width: 100%; max-width: 70%"
+        >
+          <q-card class="q-px-md q-py-md">
+            <q-card-section class="ys text-h6">
+              {{
+                selectedRating
+                  ? selectedRating.toFixed(1) + " Star Rated Reviews"
+                  : "All customer reviews"
+              }}
+            </q-card-section>
+            <q-card
+              v-for="review in filteredReviews.slice(
+                (currentPage - 1) * 5,
+                currentPage * 5
+              )"
+              :key="review"
+              bordered
+            >
+              <q-card-section class="ys text-bold q-pb-none">
+                {{ review.title }}
+              </q-card-section>
+              <q-card-section class="q-pt-none oswald">
+                <q-rating
+                  v-model="review.rating"
+                  max="5"
+                  size="xs"
+                  color="deep-purple-14"
+                  icon="star_border"
+                  icon-selected="star"
+                  icon-half="star_half"
+                  readonly
+                />
+                <span class="text-overline on-right">
+                  {{ review.rating.toFixed(1) }}
+                </span>
+              </q-card-section>
+              <q-card-section class="oswald">{{
+                review.comment
+              }}</q-card-section>
+              <q-card-section class="text-grey oswald">
+                {{ convertDate(review.created_at) }}
+              </q-card-section>
+            </q-card>
+          </q-card>
+          <div class="flex flex-center q-my-xl">
+            <q-pagination
+              v-if="filteredReviews.length > 5"
+              v-model="currentPage"
+              :max="Math.ceil(filteredReviews.length / 5)"
+              :max-pages="5"
+              boundary-numbers
+              color="deep-purple-14"
+              active-design="push"
+              active-color="deep-purple-14"
+              direction-links
+            />
+          </div>
+        </div>
+      </div>
+      <q-separator class="q-my-xl" inset />
+      <div
+        class="ys fade text-center text-bold text-h4 text-weight-light q-ma-xl"
+      >
+        Recommended Beverages
+      </div>
+      <div class="q-mx-xl q-mb-xl row justify-evenly">
+        <ProductCard
+          class="fade"
+          v-for="(product, index) in recProducts"
+          :key="index"
+          :product="product"
         />
       </div>
-    </div>
-  </div>
-  <q-separator class="q-my-xl" inset />
-  <div class="ys fade text-center text-bold text-h4 text-weight-light q-ma-xl">
-    Recommended Beverages
-  </div>
-  <div class="q-mx-xl q-mb-xl row justify-evenly">
-    <ProductCard
-      class="fade"
-      v-for="(product, index) in recProducts"
-      :key="index"
-      :product="product"
-    />
-  </div>
 
-  <FooterComponent />
+      <FooterComponent />
+    </q-layout>
+  </q-page>
 </template>

@@ -49,31 +49,33 @@ const routes = [
         next({ name: "NotFound" });
       }
     },
-  },
-  {
-    path: "/:category/:id",
-    component: () => import("pages/DrinksDetails.vue"),
-    meta: { title: "Unlimited Drinks" },
-    beforeEnter: async (to, from, next) => {
-      const categoryExists = await checkIfCategoryExists(to.params.category);
-      const drinkExists = await checkIfDrinkExists(
-        to.params.id,
-        to.params.category
-      );
-      if (categoryExists && drinkExists) {
-        next();
-      } else {
-        next({ name: "NotFound" });
-      }
-    },
     children: [
       {
-        path: "reviews",
-        component: () => import("pages/ReviewsPage.vue"),
-        meta: { title: "Unlimited Drinks: Reviews" },
+        path: ":id",
+        component: () => import("pages/DrinksDetails.vue"),
+        meta: { title: "Unlimited Drinks" },
+        beforeEnter: async (to, from, next) => {
+          const drinkExists = await checkIfDrinkExists(
+            to.params.id,
+            to.params.category
+          );
+          if (drinkExists) {
+            next();
+          } else {
+            next({ name: "NotFound" });
+          }
+        },
+        children: [
+          {
+            path: "review",
+            component: () => import("pages/CreateReview.vue"),
+            meta: { title: "Unlimited Drinks: Reviews" },
+          },
+        ],
       },
     ],
   },
+
   {
     path: "/account",
     component: () => import("pages/AccountSettings.vue"),
