@@ -3,37 +3,55 @@ import NavBar from "src/components/NavBar.vue";
 import FooterComponent from "src/components/FooterComponent.vue";
 import ProductCard from "src/components/ProductCard.vue";
 
-import { ref, onMounted } from "vue";
-import { onBeforeRouteUpdate } from "vue-router";
+import { ref, onMounted, getCurrentInstance, computed, watch } from "vue";
+import { onBeforeRouteUpdate, useRoute } from "vue-router";
 import { api } from "src/boot/axios";
 import { useCartStore } from "src/stores/cart-store";
 
 const cartStore = useCartStore();
-const recProducts = ref([]);
+const { ctx } = getCurrentInstance();
+const route = useRoute();
 
-const rating = ref(0);
+const recProducts = ref([]);
+const averageRating = ref(0);
 const quantity = ref(1);
+
+const currentPage = ref(1);
 
 const isLoading = ref(false);
 const addedToCart = ref(null);
 const exceedsLimit = ref(null);
 const exceedQuantity = ref(null);
 
-const id = parseInt(window.location.href.split("/").at(-1));
+const id = route.params.id;
 const product = ref(null);
+const ratings = ref([null, null, null, null, null]);
+const reviews = ref(null);
+
 const getProductDetails = async (id) => {
   try {
     const response = await api.get(`/product/${id}`);
 
     product.value = response.data;
-    rating.value = response.data.rating;
+    averageRating.value = response.data.rating;
+    reviews.value = response.data.reviews;
   } catch (err) {
     console.error(err);
   }
 };
 
-const addToCart = async (event) => {
-  if (event && event.stopPropagation) event.stopPropagation();
+const getRatingPercentage = async (id) => {
+  try {
+    const response = await api.get(`/review/rating/${id}`);
+    Object.keys(response.data).forEach((rating) => {
+      ratings.value[rating - 1] = response.data[rating];
+    });
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+const addToCart = async () => {
   isLoading.value = true;
 
   const totalQuantity =
@@ -81,22 +99,86 @@ const increaseQuantity = () => {
 
 const getRecommended = async () => {
   try {
-    const response = await api.get("/roulette");
+    const response = await api.get("/product/random/roulette");
     recProducts.value = response.data;
   } catch (err) {
     console.error(err);
   }
 };
 
+const convertDate = (date) => {
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  })
+    .format(new Date(date))
+    .split(",");
+
+  return `${formattedDate[0]}, ${formattedDate[1]} @ ${formattedDate[2]}`;
+};
+
+const scrollToElement = () => {
+  const reviewsElement = ctx.$refs.reviews;
+
+  if (reviewsElement) {
+    const offset = 100;
+    const scrollPosition = reviewsElement.offsetTop - offset;
+    window.scrollTo({ top: scrollPosition, behavior: "smooth", passive: true });
+  }
+};
+
+const selectedRating = ref(null);
+const filteredReviews = computed(() => {
+  if (selectedRating.value === null) {
+    return product.value.reviews;
+  }
+
+  const filter = product.value.reviews.filter(
+    (review) => review.rating === selectedRating.value
+  );
+
+  if (filter.length === 0) {
+    return product.value.reviews;
+  }
+
+  return filter;
+});
+
+const handleSelectedRating = (newRating) => {
+  if (newRating === null) {
+    selectedRating.value = null;
+  } else {
+    const filter = product.value.reviews.filter(
+      (review) => review.rating === newRating
+    );
+
+    if (filter.length === 0) {
+      selectedRating.value = null;
+    } else {
+      selectedRating.value = newRating;
+    }
+  }
+};
+
+watch(selectedRating, (newRating) => {
+  handleSelectedRating(newRating);
+});
+
 onBeforeRouteUpdate(async (to, from) => {
   if (to.params.id !== from.params.id) {
     getProductDetails(to.params.id);
+    getRatingPercentage(to.params.id);
   }
 });
 
 onMounted(async () => {
   getRecommended();
   getProductDetails(id);
+  getRatingPercentage(id);
 
   const fadeIn = document.querySelectorAll(".fade");
   const observer = new IntersectionObserver(
@@ -119,7 +201,6 @@ onMounted(async () => {
 
 <template>
   <NavBar />
-
   <div class="q-mx-xl">
     <div
       class="fade q-ma-xl cursor-pointer row items-center text-deep-purple-14"
@@ -150,10 +231,13 @@ onMounted(async () => {
           {{ product.name }}
           <span class="text-caption">by {{ product.brand }}</span>
         </div>
-        <div class="cursor-pointer row items-center oswald">
-          <div class="text-overline q-mr-xs">{{ rating.toFixed(1) }}</div>
+        <div
+          class="cursor-pointer row items-center oswald q-py-md"
+          @click="scrollToElement"
+        >
+          <div class="q-mr-xs">{{ averageRating.toFixed(1) }}</div>
           <q-rating
-            v-model="rating"
+            v-model="averageRating"
             max="5"
             size="sm"
             color="deep-purple-14"
@@ -162,7 +246,15 @@ onMounted(async () => {
             icon-half="star_half"
             readonly
           />
-          <div class="on-right">{{ product.reviews.length }} Reviews</div>
+          <div class="on-right text-caption">
+            {{ product.reviews.length }} ratings
+          </div>
+        </div>
+        <div
+          v-if="product.reviews.length === 0"
+          class="text-deep-purple-14 cursor-pointer"
+        >
+          Be the first to review!
         </div>
 
         <q-separator class="q-my-md" />
@@ -195,20 +287,25 @@ onMounted(async () => {
           />
 
           <q-btn
-            class="q-ml-xl"
+            class="q-ml-xl oswald"
             style="width: 80%"
-            :loading="isLoading"
             :color="product.quantity === 0 ? 'negative' : 'deep-purple-14'"
-            :label="product.quantity === 0 ? 'OUT OF STOCK' : 'Add to Cart'"
             rounded
             push
             :disable="product.quantity === 0"
             @click="addToCart()"
           >
-            <q-icon
-              v-if="product.quantity !== 0"
-              name="mdi-cart-outline on-right"
-            />
+            <div v-if="product.quantity === 0">OUT OF STOCK</div>
+            <div v-else-if="product.quantity !== 0 && !isLoading">
+              ADD TO CART
+              <q-icon
+                v-if="product.quantity !== 0"
+                name="mdi-cart-outline on-right"
+              />
+            </div>
+            <div v-else-if="isLoading">
+              <q-spinner color="white" size="1em" :thickness="8" />
+            </div>
           </q-btn>
         </div>
 
@@ -272,6 +369,129 @@ onMounted(async () => {
             </transition>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+  <q-separator class="q-my-xl" inset />
+  <div class="row justify-around">
+    <div class="q-ma-xl" ref="reviews">
+      <div class="ys text-h5">Customer Reviews</div>
+      <div class="row items-center q-py-md">
+        <q-rating
+          v-model="averageRating"
+          max="5"
+          size="md"
+          color="deep-purple-14"
+          icon="star_border"
+          icon-selected="star"
+          icon-half="star_half"
+          readonly
+        />
+        <div class="on-right text-h6">
+          {{ averageRating.toFixed(1) }} out of 5
+        </div>
+      </div>
+      <div v-if="product" class="q-ml-sm q-mb-md">
+        {{ product.reviews.length }} customer ratings
+      </div>
+
+      <div v-for="n in 5" :key="n" class="q-ml-sm">
+        <div class="row items-center progress-bar" @click="selectedRating = n">
+          <div class="on-left text-body2 cursor-pointer text-bold">
+            {{ n }} star
+          </div>
+          <q-linear-progress
+            size="20px"
+            style="width: 200px"
+            :value="
+              ratings[n - 1]
+                ? parseFloat((ratings[n - 1]['percentage'] / 100).toFixed(2))
+                : 0
+            "
+            color="deep-purple-14"
+            class="q-my-sm cursor-pointer"
+          />
+          <div class="on-right text-body2 cursor-pointer text-bold">
+            {{ ratings[n - 1] ? ratings[n - 1]["percentage"].toFixed(1) : 0 }} %
+          </div>
+        </div>
+      </div>
+      <div
+        class="text-center progress-bar cursor-pointer oswald text-body1"
+        @click="selectedRating = null"
+      >
+        All Reviews
+      </div>
+
+      <q-btn
+        icon-right="chat"
+        class="q-mt-md full-width"
+        label="Leave a review"
+        color="deep-purple-14"
+        push
+        rounded
+        @click="
+          $router.push(`/${route.params.category}/${route.params.id}/review`)
+        "
+      />
+    </div>
+
+    <div
+      v-if="product && filteredReviews.length > 0"
+      style="width: 100%; max-width: 70%"
+    >
+      <q-card class="q-px-md q-py-md">
+        <q-card-section class="ys text-h6">
+          {{
+            selectedRating
+              ? selectedRating.toFixed(1) + " Star Rated Reviews"
+              : "All customer reviews"
+          }}
+        </q-card-section>
+        <q-card
+          v-for="review in filteredReviews.slice(
+            (currentPage - 1) * 5,
+            currentPage * 5
+          )"
+          :key="review"
+          bordered
+        >
+          <q-card-section class="ys text-bold q-pb-none">
+            {{ review.title }}
+          </q-card-section>
+          <q-card-section class="q-pt-none oswald">
+            <q-rating
+              v-model="review.rating"
+              max="5"
+              size="xs"
+              color="deep-purple-14"
+              icon="star_border"
+              icon-selected="star"
+              icon-half="star_half"
+              readonly
+            />
+            <span class="text-overline on-right">
+              {{ review.rating.toFixed(1) }}
+            </span>
+          </q-card-section>
+          <q-card-section class="oswald">{{ review.comment }}</q-card-section>
+          <q-card-section class="text-grey oswald">
+            {{ convertDate(review.created_at) }}
+          </q-card-section>
+        </q-card>
+      </q-card>
+      <div class="flex flex-center q-my-xl">
+        <q-pagination
+          v-if="filteredReviews.length > 5"
+          v-model="currentPage"
+          :max="Math.ceil(filteredReviews.length / 5)"
+          :max-pages="5"
+          boundary-numbers
+          color="deep-purple-14"
+          active-design="push"
+          active-color="deep-purple-14"
+          direction-links
+        />
       </div>
     </div>
   </div>

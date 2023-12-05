@@ -10,6 +10,22 @@ const checkIfCategoryExists = async (category) => {
   }
 };
 
+const checkIfDrinkExists = async (product_id, category) => {
+  try {
+    const response = await api.get(`/product/${product_id}`);
+    const category_name = response.data.category_name
+      .toLowerCase()
+      .split(" ")
+      .join("-");
+
+    if (category_name === category) {
+      return true;
+    }
+  } catch (error) {
+    return false;
+  }
+};
+
 const routes = [
   {
     path: "/",
@@ -38,6 +54,25 @@ const routes = [
     path: "/:category/:id",
     component: () => import("pages/DrinksDetails.vue"),
     meta: { title: "Unlimited Drinks" },
+    beforeEnter: async (to, from, next) => {
+      const categoryExists = await checkIfCategoryExists(to.params.category);
+      const drinkExists = await checkIfDrinkExists(
+        to.params.id,
+        to.params.category
+      );
+      if (categoryExists && drinkExists) {
+        next();
+      } else {
+        next({ name: "NotFound" });
+      }
+    },
+    children: [
+      {
+        path: "reviews",
+        component: () => import("pages/ReviewsPage.vue"),
+        meta: { title: "Unlimited Drinks: Reviews" },
+      },
+    ],
   },
   {
     path: "/account",

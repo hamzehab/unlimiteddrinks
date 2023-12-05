@@ -25,6 +25,17 @@ const getOrders = async () => {
   }
 };
 
+const convertStatus = (status) => {
+  switch (parseInt(status)) {
+    case 0:
+      return "Processing";
+    case 1:
+      return "Shipped";
+    case 2:
+      return "Delivered";
+  }
+};
+
 onMounted(async () => {
   await getOrders();
   setTimeout(() => {
@@ -88,6 +99,7 @@ onMounted(async () => {
         </div>
         <div>
           <div>Order # {{ order.id }}</div>
+          <div>Status: {{ convertStatus(order.status) }}</div>
         </div>
       </q-card-section>
 

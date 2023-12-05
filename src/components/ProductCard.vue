@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useCartStore } from "src/stores/cart-store";
+import { api } from "src/boot/axios";
 
 const cartStore = useCartStore();
 const $router = useRouter();
@@ -28,19 +29,20 @@ const viewFullItem = () => {
 
 const addToCart = async (event) => {
   if (event && event.stopPropagation) event.stopPropagation();
+  isLoading.value = true;
   const totalQuantity =
     quantity.value +
-    (cartStore.items.find((item) => item.product_id === product.value.id)
-      ? cartStore.items.find((item) => item.product_id === product.value.id)
+    (cartStore.items.find((item) => item.product_id === props.product.id)
+      ? cartStore.items.find((item) => item.product_id === props.product.id)
           .quantity
       : 0);
 
   try {
     const response = await api.get(
-      `product/cart/${product.value.id}?quantity=${totalQuantity}`
+      `product/cart/${props.product.id}?quantity=${totalQuantity}`
     );
     if (response.data["can_add"] === true) {
-      cartStore.addItem(product.value.id, quantity.value);
+      cartStore.addItem(props.product.id, quantity.value);
       addedToCart.value = true;
       exceedsLimit.value = false;
     } else {
@@ -194,19 +196,25 @@ const increaseQuantity = () => {
       <div class="ys text-h6 cursor-pointer" @click="viewFullItem()">
         $ {{ product.price.toFixed(2) }}
       </div>
+
       <q-btn
-        :loading="isLoading"
         :color="product.quantity === 0 ? 'negative' : 'deep-purple-14'"
         rounded
         push
-        :label="product.quantity === 0 ? 'OUT OF STOCK' : 'Add to Cart'"
         :disable="product.quantity === 0"
         @click="addToCart()"
       >
-        <q-icon
-          v-if="product.quantity !== 0"
-          name="mdi-cart-outline on-right"
-        />
+        <div v-if="product.quantity === 0">OUT OF STOCK</div>
+        <div v-else-if="product.quantity !== 0 && !isLoading">
+          ADD TO CART
+          <q-icon
+            v-if="product.quantity !== 0"
+            name="mdi-cart-outline on-right"
+          />
+        </div>
+        <div v-else-if="isLoading">
+          <q-spinner color="white" size="1em" :thickness="8" />
+        </div>
       </q-btn>
     </q-card-section>
   </q-card>

@@ -1,10 +1,11 @@
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useCartStore } from "src/stores/cart-store";
 import { api } from "src/boot/axios";
 
 const $router = useRouter();
+const route = useRoute();
 const cartStore = useCartStore();
 
 const props = defineProps({
@@ -37,9 +38,7 @@ const increaseQuantity = (event) => {
 };
 
 const viewFullItem = () => {
-  $router.push(
-    `/${props.product.category_name.split(" ").join("-")}/${props.product.id}`
-  );
+  $router.push(`/${route.params.category}/${props.product.id}`);
 };
 
 const addToCart = async (event) => {
@@ -254,18 +253,23 @@ const formatDate = (date) => {
             </div>
           </div>
           <q-btn
-            :loading="isLoading"
             :color="product.quantity === 0 ? 'negative' : 'deep-purple-14'"
             rounded
             push
-            :label="product.quantity === 0 ? 'OUT OF STOCK' : 'Add to Cart'"
             :disable="product.quantity === 0"
             @click="addToCart()"
           >
-            <q-icon
-              v-if="product.quantity !== 0"
-              name="mdi-cart-outline on-right"
-            />
+            <div v-if="product.quantity === 0">OUT OF STOCK</div>
+            <div v-else-if="product.quantity !== 0 && !isLoading">
+              ADD TO CART
+              <q-icon
+                v-if="product.quantity !== 0"
+                name="mdi-cart-outline on-right"
+              />
+            </div>
+            <div v-else-if="isLoading" class="row items-center justify-evenly">
+              <q-spinner color="white" size="1em" :thickness="8" />
+            </div>
           </q-btn>
         </q-card-section>
       </q-card-section>

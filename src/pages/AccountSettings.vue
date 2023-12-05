@@ -17,7 +17,8 @@ const deletetion = ref(false);
 const newAddress = ref(false);
 
 const isError = ref(null);
-const message = ref(null);
+const messageName = ref(null);
+const messageAddress = ref(null);
 
 const email = customerStore.customer.email;
 
@@ -59,27 +60,29 @@ const handleClick = async () => {
       `/customer/editName/${auth0.user.value.sub.split("|")[1]}`,
       customer_name
     );
-    console.log(response.status);
     if (response.status === 204) {
       isError.value = true;
-      message.value = "No changes were made since there were no edits made!";
+      messageName.value =
+        "No changes were made since there were no edits made!";
     } else if (response.status === 200) {
       isError.value = false;
-      message.value = "Name changed successfully";
+      messageName.value = "Name changed successfully";
       first_name.value = response.data.first_name;
       last_name.value = response.data.last_name;
+      customerStore.customer.firstName = response.data.first_name;
+      customerStore.customer.lastName = response.data.last_name;
       setTimeout(() => {
         isError.value = null;
-        message.value = null;
+        messageName.value = null;
       }, 2000);
       editName.value = false;
     } else {
       isError.value = true;
-      message.value = "Something went wrong!";
+      messageName.value = "Something went wrong!";
     }
   } catch (err) {
     isError.value = true;
-    message.value = "Something went wrong!";
+    messageName.value = "Something went wrong!";
     console.error(err);
   }
 };
@@ -128,9 +131,7 @@ const updateSelectedAddress = (value) => {
 };
 
 const closeAddressModal = (address) => {
-  console.log(address);
   addresses.value.push(address);
-  console.log(addresses.value);
   newAddress.value = false;
 };
 
@@ -152,7 +153,7 @@ const saveAddressUpdates = async () => {
 
     if (response.status === 200) {
       isError.value = false;
-      message.value = "Address Updated!";
+      messageAddress.value = "Address Updated!";
 
       customerStore.updateAddress(response.data);
       addresses.value = [
@@ -163,19 +164,19 @@ const saveAddressUpdates = async () => {
       model.value = null;
       setTimeout(() => {
         isError.value = null;
-        message.value = null;
+        messageAddress.value = null;
       }, 2000);
     } else if (response.status === 204) {
       isError.value = true;
-      message.value =
+      messageAddress.value =
         "Address not updated were made since there were no changes!";
     } else {
       isError.value = true;
-      message.value = "Something went wrong!";
+      messageAddress.value = "Something went wrong!";
     }
   } catch (e) {
     isError.value = true;
-    message.value = "Something went wrong!";
+    messageAddress.value = "Something went wrong!";
     console.error(e);
   }
 };
@@ -245,11 +246,11 @@ const usStates = states;
               leave-active-class="animated zoomOut"
             >
               <q-card-section
-                v-if="message"
+                v-if="messageName"
                 class="q-pa-none q-pb-md"
                 :class="isError ? 'text-red' : 'text-green'"
               >
-                {{ message }}
+                {{ messageName }}
               </q-card-section>
             </transition>
             <q-input
@@ -420,17 +421,6 @@ const usStates = states;
             </div>
           </q-card-section>
         </q-card-section>
-        <q-card-section
-          v-if="message"
-          :class="isError ? 'q-pb-none' : 'q-py-none'"
-        >
-          <div
-            class="text-body2 oswald"
-            :class="isError ? 'text-red text-center' : 'text-green'"
-          >
-            {{ message }}
-          </div>
-        </q-card-section>
         <q-card-section v-if="model" class="q-pb-none flex flex-center">
           <q-btn
             label="Remove from account"
@@ -443,7 +433,7 @@ const usStates = states;
           <div
             class="text-center text-body1 cursor-pointer underline"
             style="width: 200px"
-            @click="model = null"
+            @click="(model = null), (messageAddress = null)"
           >
             Cancel
           </div>
@@ -455,6 +445,17 @@ const usStates = states;
             :disable="disableAddressSave"
             @click="saveAddressUpdates()"
           />
+        </q-card-section>
+        <q-card-section
+          v-if="messageAddress"
+          :class="isError ? 'q-pb-none' : 'q-py-none'"
+        >
+          <div
+            class="text-body2 oswald"
+            :class="isError ? 'text-red text-center' : 'text-green'"
+          >
+            {{ messageAddress }}
+          </div>
         </q-card-section>
       </q-card>
 

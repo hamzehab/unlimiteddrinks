@@ -57,7 +57,7 @@ const createAccount = async () => {
         zip_code: zip.value,
       },
     };
-    await api.post("/create/customer", data);
+    await api.post("/customer/create", data);
     $router.push("/");
   } catch (error) {
     console.error(error);
