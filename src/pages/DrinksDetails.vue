@@ -282,6 +282,7 @@ onMounted(async () => {
             <div
               v-if="product.reviews.length === 0"
               class="text-deep-purple-14 cursor-pointer"
+              @click="handleReview()"
             >
               Be the first to review!
             </div>
