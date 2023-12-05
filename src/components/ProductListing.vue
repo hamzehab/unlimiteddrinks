@@ -138,7 +138,11 @@ const formatDate = (date) => {
           />
           <div class="on-right">
             <div v-if="product.reviews.length > 0">
-              {{ product.reviews.length }} reviews
+              {{
+                product.reviews.length === 1
+                  ? product.reviews.length + " review"
+                  : product.reviews.length + " reviews"
+              }}
             </div>
             <div v-else class="on-right">No reviews</div>
           </div>
