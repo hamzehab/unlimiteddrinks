@@ -191,8 +191,10 @@ onUnmounted(() => {
                 </div>
                 <div class="text-caption">
                   {{
-                    item.category_name[0].toUpperCase() +
-                    item.category_name.substring(1)
+                    item.category_name
+                      .split(" ")
+                      .map((word) => word[0].toUpperCase() + word.substring(1))
+                      .join(" ")
                   }}
                 </div>
               </div>
@@ -327,7 +329,7 @@ onUnmounted(() => {
         </q-card>
 
         <q-btn
-          class="rounded-borders q-mb-md full-width"
+          class="q-mt-xl rounded-borders q-mb-md full-width"
           label="Continue Shopping"
           color="dark"
           push
@@ -346,9 +348,8 @@ onUnmounted(() => {
   </div>
   <div
     v-if="cartStore.totalQuantity !== 0"
-    class="text-deep-purple-14 cursor-pointer row items-center q-my-lg"
+    class="text-deep-purple-14 cursor-pointer row items-center q-my-lg q-mx-xl"
     style="width: fit-content"
-    :class="windowWidth > 1350 ? '' : 'q-mx-xl'"
   >
     <q-icon name="arrow_back" size="20px" />
     <div
