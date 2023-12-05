@@ -4,13 +4,16 @@ import FooterComponent from "src/components/FooterComponent.vue";
 import ProductCard from "src/components/ProductCard.vue";
 
 import { ref, onMounted, getCurrentInstance, computed, watch } from "vue";
-import { onBeforeRouteUpdate, useRoute } from "vue-router";
+import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { api } from "src/boot/axios";
 import { useCartStore } from "src/stores/cart-store";
+import { useAuth0 } from "@auth0/auth0-vue";
 
+const auth0 = useAuth0();
+const route = useRoute();
+const $router = useRouter();
 const cartStore = useCartStore();
 const { ctx } = getCurrentInstance();
-const route = useRoute();
 
 const recProducts = ref([]);
 const averageRating = ref(0);
@@ -164,21 +167,39 @@ const handleSelectedRating = (newRating) => {
   }
 };
 
+const reviewLeft = ref(false);
+const handleReview = async () => {
+  try {
+    const response = await api.get(
+      `/review/${route.params.id}/${auth0.user.value.sub.split("|")[1]}`
+    );
+    if (!response.data) {
+      $router.push(`/${route.params.category}/${route.params.id}/review`);
+    } else {
+      reviewLeft.value = true;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 watch(selectedRating, (newRating) => {
   handleSelectedRating(newRating);
 });
 
 onBeforeRouteUpdate(async (to, from) => {
   if (to.params.id !== from.params.id) {
-    getProductDetails(to.params.id);
-    getRatingPercentage(to.params.id);
+    await getProductDetails(to.params.id);
+    await getRatingPercentage(to.params.id);
+    reviewLeft.value = false;
+    ratings.value = [null, null, null, null, null];
   }
 });
 
 onMounted(async () => {
-  getRecommended();
-  getProductDetails(id);
-  getRatingPercentage(id);
+  await getRecommended();
+  await getProductDetails(id);
+  await getRatingPercentage(id);
 
   const fadeIn = document.querySelectorAll(".fade");
   const observer = new IntersectionObserver(
@@ -253,7 +274,9 @@ onMounted(async () => {
                 readonly
               />
               <div class="on-right text-caption">
-                {{ product.reviews.length }} ratings
+                {{ product.reviews.length }} rating{{
+                  product.reviews.length === 1 ? "" : "s"
+                }}
               </div>
             </div>
             <div
@@ -405,7 +428,8 @@ onMounted(async () => {
             </div>
           </div>
           <div v-if="product" class="q-ml-sm q-mb-md">
-            {{ product.reviews.length }} customer ratings
+            {{ product.reviews.length }} customer
+            {{ product.reviews.length === 1 ? " rating" : "ratings" }}
           </div>
 
           <div v-for="n in 5" :key="n" class="q-ml-sm">
@@ -445,18 +469,16 @@ onMounted(async () => {
           </div>
 
           <q-btn
-            icon-right="chat"
             class="q-mt-md full-width"
-            label="Leave a review"
+            :label="!reviewLeft ? 'Leave a review' : 'Already left review'"
             color="deep-purple-14"
             push
             rounded
-            @click="
-              $router.push(
-                `/${route.params.category}/${route.params.id}/review`
-              )
-            "
-          />
+            :disable="reviewLeft"
+            @click="handleReview()"
+          >
+            <q-icon v-if="!reviewLeft" class="on-right" name="chat" />
+          </q-btn>
         </div>
 
         <div
