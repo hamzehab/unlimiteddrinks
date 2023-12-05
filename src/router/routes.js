@@ -49,31 +49,38 @@ const routes = [
         next({ name: "NotFound" });
       }
     },
-    children: [
-      {
-        path: ":id",
-        component: () => import("pages/DrinksDetails.vue"),
-        meta: { title: "Unlimited Drinks" },
-        beforeEnter: async (to, from, next) => {
-          const drinkExists = await checkIfDrinkExists(
-            to.params.id,
-            to.params.category
-          );
-          if (drinkExists) {
-            next();
-          } else {
-            next({ name: "NotFound" });
-          }
-        },
-        children: [
-          {
-            path: "review",
-            component: () => import("pages/CreateReview.vue"),
-            meta: { title: "Unlimited Drinks: Reviews" },
-          },
-        ],
-      },
-    ],
+  },
+  {
+    path: "/:category/:id",
+    component: () => import("pages/DrinksDetails.vue"),
+    meta: { title: "Unlimited Drinks" },
+    beforeEnter: async (to, from, next) => {
+      const drinkExists = await checkIfDrinkExists(
+        to.params.id,
+        to.params.category
+      );
+      if (drinkExists) {
+        next();
+      } else {
+        next({ name: "NotFound" });
+      }
+    },
+  },
+  {
+    path: "/:category/:id/review",
+    component: () => import("pages/CreateReview.vue"),
+    meta: { title: "Unlimited Drinks: Reviews" },
+    beforeEnter: async (to, from, next) => {
+      const drinkExists = await checkIfDrinkExists(
+        to.params.id,
+        to.params.category
+      );
+      if (drinkExists) {
+        next();
+      } else {
+        next({ name: "NotFound" });
+      }
+    },
   },
 
   {
@@ -111,9 +118,6 @@ const routes = [
     meta: { title: "Unlimited Drinks: Orders" },
     beforeEnter: authGuard,
   },
-
-  // Always leave this as last one,
-  // but you can also remove it
   {
     path: "/:catchAll(.*)*",
     name: "NotFound",
