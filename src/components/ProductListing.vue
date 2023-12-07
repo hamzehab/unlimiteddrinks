@@ -38,7 +38,12 @@ const increaseQuantity = (event) => {
 };
 
 const viewFullItem = () => {
-  $router.push(`/${route.params.category}/${props.product.id}`);
+  const category = props.product.category_name
+    .toLowerCase()
+    .split(" ")
+    .join("-");
+
+  $router.push(`/${category}/${props.product.id}`);
 };
 
 const addToCart = async (event) => {

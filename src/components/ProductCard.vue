@@ -22,9 +22,11 @@ const exceedsLimit = ref(null);
 const exceedQuantity = ref(null);
 
 const viewFullItem = () => {
-  $router.push(
-    `/${props.product.category_name.split(" ").join("-")}/${props.product.id}`
-  );
+  const category = props.product.category_name
+    .toLowerCase()
+    .split(" ")
+    .join("-");
+  $router.push(`/${category}/${props.product.id}`);
 };
 
 const addToCart = async (event) => {

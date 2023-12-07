@@ -169,17 +169,21 @@ const handleSelectedRating = (newRating) => {
 
 const reviewLeft = ref(false);
 const handleReview = async () => {
-  try {
-    const response = await api.get(
-      `/review/${route.params.id}/${auth0.user.value.sub.split("|")[1]}`
-    );
-    if (!response.data) {
-      $router.push(`/${route.params.category}/${route.params.id}/review`);
-    } else {
-      reviewLeft.value = true;
+  if (auth0.isAuthenticated.value && !auth0.isLoading.value) {
+    try {
+      const response = await api.get(
+        `/review/${route.params.id}/${auth0.user.value.sub.split("|")[1]}`
+      );
+      if (!response.data) {
+        $router.push(`/${route.params.category}/${route.params.id}/review`);
+      } else {
+        reviewLeft.value = true;
+      }
+    } catch (e) {
+      console.error(e);
     }
-  } catch (e) {
-    console.error(e);
+  } else {
+    await auth0.loginWithRedirect();
   }
 };
 
