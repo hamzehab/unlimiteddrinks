@@ -55,6 +55,13 @@ export const useCustomerStore = defineStore("customerStore", {
       this.customer.addresses.push(addresses);
       sessionStorage.setItem("customer", JSON.stringify(this.customer));
     },
+    deleteAddress(address_id) {
+      const index = this.customer.addresses.findIndex(
+        (item) => item.id === address_id
+      );
+      this.customer.addresses.splice(index, 1);
+      sessionStorage.setItem("customer", JSON.stringify(this.customer));
+    },
     changeSelectedAddress(address) {
       this.selectedAddress = address;
       sessionStorage.setItem(

@@ -87,8 +87,30 @@ const handleClick = async () => {
   }
 };
 
-const deleteAccount = () => {
-  deletetion.value = false;
+const deletedAccount = ref(false);
+const deleteAccount = async () => {
+  try {
+    const response = await api.delete(
+      `customer/delete/${auth0.user.value.sub.split("|")[1]}`
+    );
+    if (response.data) {
+      await auth0.logout({
+        logoutParams: { returnTo: window.location.origin },
+      });
+      sessionStorage.clear();
+    } else {
+      deletedAccount.value = true;
+      setTimeout(() => {
+        deleteAccount.value = false;
+      }, 2000);
+    }
+  } catch (e) {
+    deletedAccount.value = true;
+    setTimeout(() => {
+      deleteAccount.value = false;
+    }, 2000);
+    console.error(e);
+  }
 };
 
 const addresses = ref(
@@ -116,7 +138,8 @@ const addressStrings = computed(() =>
   })
 );
 
-const updateSelectedAddress = (value) => {
+const isMainAddress = ref(false);
+const updateSelectedAddress = async (value) => {
   model.value = value;
 
   address_first_name.value = value.label.first_name;
@@ -128,6 +151,16 @@ const updateSelectedAddress = (value) => {
   city.value = value.value.city;
   state.value = value.value.state;
   zip_code.value = value.value.zip_code;
+
+  try {
+    const response = await api.get(
+      `/address/isMain/${auth0.user.value.sub.split("|")[1]}/${value.id}`
+    );
+    if (response.data) isMainAddress.value = true;
+    else isMainAddress.value = false;
+  } catch (e) {
+    console.error(e);
+  }
 };
 
 const closeAddressModal = (address) => {
@@ -181,7 +214,29 @@ const saveAddressUpdates = async () => {
   }
 };
 
-const deleteAddress = async () => {};
+const deleted = ref(false);
+const deleteAddress = async () => {
+  try {
+    const response = await api.delete(
+      `/address/delete/${auth0.user.value.sub.split("|")[1]}/${model.value.id}`
+    );
+    if (response.data) {
+      customerStore.deleteAddress(model.value);
+      addresses.value = [
+        customerStore.getSelectedAddress,
+        ...customerStore.getAddresses,
+      ];
+      model.value = null;
+    } else {
+      deleted.value = true;
+      setTimeout(() => {
+        deleted.value = false;
+      }, 1000);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+};
 
 const usStates = states;
 </script>
@@ -421,8 +476,12 @@ const usStates = states;
             </div>
           </q-card-section>
         </q-card-section>
-        <q-card-section v-if="model" class="q-pb-none flex flex-center">
+        <q-card-section
+          v-if="model && !isMainAddress"
+          class="q-pb-none flex flex-center"
+        >
           <q-btn
+            :class="deleted ? 'animated shakeX slower' : ''"
             label="Remove from account"
             flat
             color="red"
@@ -511,6 +570,7 @@ const usStates = states;
             v-close-popup
           />
           <q-btn
+            :class="deletedAccount ? 'animated shakeX slower' : ''"
             label="delete"
             style="width: 100%; max-width: 150px"
             flat
