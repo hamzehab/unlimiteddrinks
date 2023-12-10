@@ -47,6 +47,11 @@ const updateQuantity = async (index) => {
         itemMessages.value[index] = null;
         cartStore.update(index, newQuantity);
         updated.value[index] = true;
+        subtotal.value = items.value.reduce((total, item, i) => {
+          const quantity = i === index ? newQuantity : quantities.value[i];
+          return total + item.price * quantity;
+        }, 0);
+
         setTimeout(() => {
           updated.value[index] = false;
         }, 1000);

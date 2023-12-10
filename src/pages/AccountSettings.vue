@@ -67,10 +67,10 @@ const handleClick = async () => {
     } else if (response.status === 200) {
       isError.value = false;
       messageName.value = "Name changed successfully";
-      first_name.value = response.data.first_name;
-      last_name.value = response.data.last_name;
-      customerStore.customer.firstName = response.data.first_name;
-      customerStore.customer.lastName = response.data.last_name;
+      customerStore.updateName(
+        response.data.first_name,
+        response.data.last_name
+      );
       setTimeout(() => {
         isError.value = null;
         messageName.value = null;

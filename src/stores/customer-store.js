@@ -51,6 +51,11 @@ export const useCustomerStore = defineStore("customerStore", {
         JSON.stringify(this.selectedAddress)
       );
     },
+    updateName(firstName, lastName) {
+      this.customer.firstName = firstName;
+      this.customer.lastName = lastName;
+      sessionStorage.setItem("customer", JSON.stringify(this.customer));
+    },
     addAddress(addresses) {
       this.customer.addresses.push(addresses);
       sessionStorage.setItem("customer", JSON.stringify(this.customer));
