@@ -137,20 +137,6 @@ const closeAddressModal = () => {
 onMounted(async () => {
   window.addEventListener("resize", handleResize);
   await getCategories();
-
-  const fadeDown = document.querySelectorAll(".fade-down");
-  const fadeDownObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      entry.target.classList.toggle("animated", entry.isIntersecting);
-      entry.target.classList.toggle("fadeInDown", entry.isIntersecting);
-      entry.target.classList.toggle("slower", entry.isIntersecting);
-      if (entry.isIntersecting) fadeDownObserver.unobserve(entry.target);
-    });
-  });
-
-  fadeDown.forEach((entry) => {
-    fadeDownObserver.observe(entry);
-  });
 });
 
 onUnmounted(() => {
@@ -165,7 +151,7 @@ watchEffect(async () => {
 
 <template>
   <div
-    class="fade-down oswald bg-dark text-white fixed full-width"
+    class="animated fadeInDown slower oswald bg-dark text-white fixed full-width"
     style="z-index: 1"
   >
     <div class="row justify-between items-center q-mx-xl">

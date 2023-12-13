@@ -4,12 +4,11 @@ import FooterComponent from "src/components/FooterComponent.vue";
 import NavBar from "src/components/NavBar.vue";
 
 import { api } from "src/boot/axios";
-import { useAuth0 } from "@auth0/auth0-vue";
 import { useCartStore } from "src/stores/cart-store";
 
-const auth0 = useAuth0();
 const cartStore = useCartStore();
 
+const loading = ref(false);
 const items = ref([]);
 const deleteModal = ref(false);
 const deleteID = ref(null);
@@ -98,9 +97,12 @@ const handleResize = () => {
   windowWidth.value = window.innerWidth;
 };
 
+const pageLoad = ref(false);
 onMounted(async () => {
   window.addEventListener("resize", handleResize);
+  pageLoad.value = true;
   await fetchProductsInCart();
+  pageLoad.value = false;
 });
 
 onUnmounted(() => {
@@ -160,7 +162,10 @@ onUnmounted(() => {
           windowWidth > 1305 ? 'width: 100%; max-width: 70%;' : 'width:100%;'
         "
       >
-        <div v-for="(item, index) in items" :key="(item.id, index)">
+        <div v-if="pageLoad" class="flex flex-center">
+          <q-spinner-tail color="deep-purple-14 q-pb-xl" size="10rem" />
+        </div>
+        <div v-else v-for="(item, index) in items" :key="(item.id, index)">
           <q-card-section
             class="q-mx-auto row justify-between items-center oswald"
             style="width: 95%"
@@ -342,12 +347,18 @@ onUnmounted(() => {
         />
         <q-btn
           class="rounded-borders full-width"
-          label="Proceed to Checkout"
-          icon="lock_outline"
           color="deep-purple-14"
           push
-          @click="$router.push('/checkout')"
-        />
+          @click="$router.push('/checkout'), (loading = true)"
+        >
+          <div v-if="!loading">
+            <q-icon name="lock_outline" class="on-left" />
+            Proceed to Checkout
+          </div>
+          <div v-else class="row items-center justify-evenly">
+            <q-spinner color="white" size="1em" :thickness="8" />
+          </div>
+        </q-btn>
       </div>
     </div>
   </div>

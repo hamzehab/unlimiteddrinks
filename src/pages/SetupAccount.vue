@@ -89,7 +89,7 @@ watchEffect(() => {
     <NavBar />
   </div>
 
-  <div class="main">
+  <div class="main animated fadeInDown slower">
     <div class="q-mx-auto q-my-xl" style="width: 60%">
       <q-card class="q-pa-md">
         <q-card-section :horizontal="!$q.platform.is.mobile">

@@ -15,6 +15,8 @@ const auth0 = useAuth0();
 const customerStore = useCustomerStore();
 const cartStore = useCartStore();
 
+const loading = ref(false);
+
 // Retrieve Cart and Product Information
 const subtotal = ref(0);
 const taxesAndFees = ref(0);
@@ -51,12 +53,11 @@ const checkout = async () => {
       zip_code: zip_code.value,
     };
     try {
-      console.log("test1");
       const response = await api.post(
         `address/add/${auth0.user.value.sub.split("|")[1]}`,
         addressData
       );
-      console.log("test2");
+
       selected.value = {
         id: response.data.id,
         first_name: response.data.first_name,
@@ -83,7 +84,6 @@ const checkout = async () => {
       data
     );
 
-    console.log(response.data);
     window.location.href = response.data.url;
   } catch (e) {
     console.error(e);
@@ -361,12 +361,10 @@ const clearFields = () => {
         </q-card-section>
         <q-separator inset />
         <q-card-section class="q-mx-sm">
-          <div class="row justify-between text-h6">
-            <div>Total:</div>
-            <div>
-              <span class="text-bold">$</span>
-              {{ (subtotal * 1.06625).toFixed(2) }}
-            </div>
+          <div class="row justify-end text-h6">
+            <span class="on-left">Total: </span>${{
+              (subtotal * 1.06625).toFixed(2)
+            }}
           </div>
         </q-card-section>
       </q-card>
@@ -381,12 +379,18 @@ const clearFields = () => {
         />
         <q-btn
           class="full-width rounded-borders"
-          label="Place Order"
-          icon="confirmation_number"
           color="deep-purple-14"
           push
-          @click="checkout()"
-        />
+          @click="checkout(), (loading = true)"
+        >
+          <div v-if="!loading">
+            <q-icon name="confirmation_number" class="on-left" />
+            Place Order
+          </div>
+          <div v-else class="row items-center justify-evenly">
+            <q-spinner color="white" size="1em" :thickness="8" />
+          </div>
+        </q-btn>
       </div>
     </div>
   </div>
