@@ -8,7 +8,7 @@ import axios from "axios";
 // "export default () => {}" function below (which runs individually
 // for each client)
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: process.env.API_URL,
   timeout: 1800,
   withCredentials: false,
 });
