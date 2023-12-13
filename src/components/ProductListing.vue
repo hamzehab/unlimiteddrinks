@@ -1,11 +1,10 @@
 <script setup>
-import { ref } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { useCartStore } from "src/stores/cart-store";
 import { api } from "src/boot/axios";
 
 const $router = useRouter();
-const route = useRoute();
 const cartStore = useCartStore();
 
 const props = defineProps({
@@ -89,10 +88,25 @@ const formatDate = (date) => {
   })}`;
   return formattedDate;
 };
+
+onMounted(() => {
+  const fadeLeft = document.querySelectorAll(".fade-left");
+  const fadeLeftObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      entry.target.classList.toggle("animated", entry.isIntersecting);
+      entry.target.classList.toggle("fadeInLeft", entry.isIntersecting);
+      entry.target.classList.toggle("slow", entry.isIntersecting);
+    });
+  });
+
+  fadeLeft.forEach((entry) => {
+    fadeLeftObserver.observe(entry);
+  });
+});
 </script>
 
 <template>
-  <q-card class="q-mx-auto q-my-md" style="max-width: 70%" bordered>
+  <q-card class="fade-left q-mx-auto q-my-md" style="max-width: 70%" bordered>
     <q-card-section class="q-mx-xl q-my-md" horizontal>
       <img
         class="cursor-pointer"

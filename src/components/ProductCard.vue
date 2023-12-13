@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useCartStore } from "src/stores/cart-store";
 import { api } from "src/boot/axios";
@@ -74,10 +74,26 @@ const increaseQuantity = () => {
     quantity.value = parseInt(quantity.value) + 1;
   }
 };
+
+onMounted(() => {
+  const slide = document.querySelectorAll(".slide");
+  const slideObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      entry.target.classList.toggle("animated", entry.isIntersecting);
+      entry.target.classList.toggle("slideInLeft", entry.isIntersecting);
+      entry.target.classList.toggle("slower", entry.isIntersecting);
+      if (entry.isIntersecting) slideObserver.unobserve(entry.target);
+    });
+  });
+
+  slide.forEach((entry) => {
+    slideObserver.observe(entry);
+  });
+});
 </script>
 
 <template>
-  <q-card class="q-my-lg oswald" style="width: 100%; max-width: 400px">
+  <q-card class="slide q-my-lg oswald" style="width: 100%; max-width: 400px">
     <img
       class="cursor-pointer"
       :src="`/static/products/${product.image}`"

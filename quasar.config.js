@@ -110,6 +110,9 @@ module.exports = configure(function (/* ctx */) {
       "headShake",
       "zoomIn",
       "zoomOut",
+      "slideInLeft",
+      "fadeInLeft",
+      "fadeInDown",
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#property-sourcefiles

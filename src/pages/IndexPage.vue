@@ -41,7 +41,7 @@ onMounted(async () => {
         if (entry.isIntersecting) observer.unobserve(entry.target);
       });
     },
-    { threshold: 0.2 }
+    { threshold: 0.7 }
   );
 
   fadeIn.forEach((entry) => {
@@ -121,7 +121,7 @@ onUnmounted(() => {
       </transition>
     </div>
 
-    <div v-if="!loading" class="q-mx-xl q-mb-xl row justify-evenly">
+    <div v-if="!loading" class="slide q-mx-xl q-mb-xl row justify-evenly">
       <ProductCard
         class="fade"
         v-for="(product, index) in rouletteProducts"
