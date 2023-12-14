@@ -6,7 +6,7 @@ export default ({ app }) => {
       domain: "dev-qp4jx4njpfk4xc45.us.auth0.com",
       clientId: "4BH6oYdvFf4uqZ0s3iEkdDJGZeiCOzFM",
       authorizationParams: {
-        redirect_uri: window.location.origin,
+        redirect_uri: "https://hamzehab.github.io/unlimiteddrinks-frontend",
       },
     })
   );

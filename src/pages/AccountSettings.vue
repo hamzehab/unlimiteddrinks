@@ -95,7 +95,7 @@ const deleteAccount = async () => {
     );
     if (response.data) {
       await auth0.logout({
-        logoutParams: { returnTo: window.location.origin },
+        logoutParams: { returnTo: "https://hamzehab.github.io/unlimiteddrinks-frontend" },
       });
       sessionStorage.clear();
     } else {
