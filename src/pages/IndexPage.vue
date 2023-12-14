@@ -5,7 +5,7 @@ import ProductCard from "src/components/ProductCard.vue";
 import { ref, onMounted, onUnmounted } from "vue";
 import { api } from "src/boot/axios";
 
-if (window.location.href === window.location.origin + "/#/") {
+if (window.location.href === window.location.origin) {
   window.location.href =
     window.location.origin + "/unlimiteddrinks-frontend/#/";
 }
