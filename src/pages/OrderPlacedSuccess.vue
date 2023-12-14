@@ -24,7 +24,7 @@ onMounted(async () => {
     address.value = response.data.shipAddress;
     fullName.value = response.data.full_name;
     items.value = response.data.orderItems;
-    sessionStorage.removeItem("cart");
+    window.sessionStorage.removeItem("cart");
   }
 });
 </script>
