@@ -115,7 +115,7 @@ onMounted(async () => {
         >
           <div class="flex items-center">
             <q-img
-              :src="`/static/products/${item.image}`"
+              :src="`static/products/${item.image}`"
               :ratio="1"
               style="width: 100px; border-radius: 0.5rem"
             />

@@ -96,7 +96,7 @@ onMounted(() => {
   <q-card class="slide q-my-lg oswald" style="width: 100%; max-width: 400px">
     <img
       class="cursor-pointer"
-      :src="`/static/products/${product.image}`"
+      :src="`static/products/${product.image}`"
       @click="viewFullItem()"
     />
     <q-separator

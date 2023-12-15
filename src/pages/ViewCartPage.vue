@@ -173,7 +173,7 @@ onUnmounted(() => {
             <div class="flex items-center">
               <img
                 class="rounded-borders q-mr-lg"
-                :src="`/static/products/${item.image}`"
+                :src="`static/products/${item.image}`"
                 :alt="item.name + 'Image'"
                 style="width: 150px; height: 150px"
               />

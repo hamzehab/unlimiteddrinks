@@ -25,7 +25,7 @@ import FooterComponent from "src/components/FooterComponent.vue";
       </div>
       <img
         class="q-mt-lg on-right"
-        src="/static/ghost.png"
+        src="static/ghost.png"
         alt="Error Not Found 404"
       />
     </div>

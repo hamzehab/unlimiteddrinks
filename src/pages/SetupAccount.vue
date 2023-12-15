@@ -98,7 +98,7 @@ watchEffect(() => {
             style="width: 50%"
           >
             <img
-              src="/static/logo.png"
+              src="static/logo.png"
               alt="Unlimited Drinks Logo"
               style="width: 100%; max-width: 400px"
             />

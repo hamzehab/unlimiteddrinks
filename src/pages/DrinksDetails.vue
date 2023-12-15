@@ -228,7 +228,7 @@ onMounted(async () => {
 
       <div v-if="product" class="row justify-evenly" style="width: 100%">
         <img
-          :src="`/static/products/${product.image}`"
+          :src="`static/products/${product.image}`"
           style="width: 100%; max-width: 800px; height: 100%"
           alt=""
         />

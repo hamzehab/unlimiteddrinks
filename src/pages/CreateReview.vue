@@ -89,7 +89,7 @@ onMounted(async () => {
         <div class="flex items-center">
           <q-img
             class="rounded-borders q-mr-lg"
-            :src="`/static/products/${product.image}`"
+            :src="`static/products/${product.image}`"
             :alt="product.name + 'Image'"
             style="width: 150px; height: 150px"
             :ratio="1"

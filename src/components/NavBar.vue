@@ -159,7 +159,7 @@ watchEffect(async () => {
         <q-btn flat class="q-pa-none">
           <img
             class="cursor-pointer row"
-            src="/static/logo.png"
+            src="static/logo.png"
             alt="Logo"
             width="80"
             height="80"
