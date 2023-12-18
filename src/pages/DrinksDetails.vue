@@ -72,6 +72,7 @@ const addToCart = async () => {
       cartStore.addItem(product.value.id, quantity.value);
       addedToCart.value = true;
       exceedsLimit.value = false;
+      quantity.value = 1;
     } else {
       exceedsLimit.value = true;
       exceedQuantity.value = response.data.quantity;
@@ -312,10 +313,26 @@ onMounted(async () => {
               :color="product.quantity === 0 ? 'negative' : 'deep-purple-14'"
               rounded
               push
-              :disable="product.quantity === 0"
+              :disable="
+                product.quantity === 0 ||
+                cartStore.items.some(
+                  (item) =>
+                    item.product_id === product.id && item.quantity === 25
+                )
+              "
               @click="addToCart()"
             >
               <div v-if="product.quantity === 0">OUT OF STOCK</div>
+              <div
+                v-else-if="
+                  cartStore.items.some(
+                    (item) =>
+                      item.product_id === product.id && item.quantity === 25
+                  )
+                "
+              >
+                MAX LIMIT REACHED
+              </div>
               <div v-else-if="product.quantity !== 0 && !isLoading">
                 ADD TO CART
                 <q-icon
@@ -328,8 +345,8 @@ onMounted(async () => {
               </div>
             </q-btn>
           </div>
-
-          <div class="row justify-end items-center q-mr-md text-body1">
+          {{ addedToCart }}
+          <div class="oswald row justify-end items-center q-px-none q-pb-none">
             <transition
               appear
               enter-active-class="animated zoomIn"
@@ -339,54 +356,64 @@ onMounted(async () => {
                 Cannot add to cart. Only {{ exceedQuantity }} left in stock!
               </div>
             </transition>
-            <div v-if="cartStore.items.find((item) => item.product_id === id)">
-              <div
-                v-if="
-                  cartStore.items.find((item) => item.product_id === id)
-                    .quantity +
-                    quantity <=
-                  25
-                "
-              >
-                <transition
-                  appear
-                  enter-active-class="animated zoomIn"
-                  leave-active-class="animated zoomOut"
+            <div
+              class="q-py-none on-left"
+              v-if="
+                cartStore.items.find((item) => item.product_id === product.id)
+              "
+            >
+              <div class="row justify-end">
+                <div
+                  v-if="
+                    cartStore.items.find(
+                      (item) => item.product_id === product.id
+                    ).quantity +
+                      quantity <=
+                    25
+                  "
                 >
-                  <div v-if="addedToCart" class="text-positive animated zoomIn">
-                    {{ product.name }} successfully added to cart!
-                  </div>
-                </transition>
+                  <transition
+                    appear
+                    enter-active-class="animated zoomIn"
+                    leave-active-class="animated zoomOut"
+                  >
+                    <div
+                      v-if="addedToCart"
+                      class="text-positive animated zoomIn"
+                    >
+                      {{ product.name }} successfully added to cart!
+                    </div>
+                  </transition>
+                  <transition
+                    appear
+                    enter-active-class="animated zoomIn"
+                    leave-active-class="animated zoomOut"
+                  >
+                    <div
+                      v-if="addedToCart == false"
+                      class="text-negative animated zoomIn slow"
+                    >
+                      Something went wrong adding item to cart!
+                    </div>
+                  </transition>
+                </div>
                 <transition
                   appear
                   enter-active-class="animated zoomIn"
                   leave-active-class="animated zoomOut"
                 >
                   <div
-                    v-if="addedToCart == false"
-                    class="text-negative animated zoomIn slow"
+                    v-if="
+                      cartStore.items.find(
+                        (item) => item.product_id === product.id
+                      ).quantity === 25
+                    "
+                    class="text-amber-8"
                   >
-                    Something went wrong adding item to cart!
+                    Quantity exceeds limit
                   </div>
                 </transition>
               </div>
-              <transition
-                appear
-                enter-active-class="animated zoomIn"
-                leave-active-class="animated zoomOut"
-              >
-                <div
-                  v-if="
-                    cartStore.items.find((item) => item.product_id === id)
-                      .quantity +
-                      quantity >
-                      25 && addedToCart === null
-                  "
-                  class="text-amber-8"
-                >
-                  Quantity exceeds limit
-                </div>
-              </transition>
             </div>
           </div>
         </div>

@@ -47,6 +47,7 @@ const addToCart = async (event) => {
       cartStore.addItem(props.product.id, quantity.value);
       addedToCart.value = true;
       exceedsLimit.value = false;
+      quantity.value = 1;
     } else {
       exceedsLimit.value = true;
       exceedQuantity.value = response.data.quantity;
@@ -199,9 +200,7 @@ onMounted(() => {
           <div
             v-if="
               cartStore.items.find((item) => item.product_id === product.id)
-                .quantity +
-                quantity >
-              25
+                .quantity === 25
             "
             class="text-amber-8"
           >
@@ -219,10 +218,24 @@ onMounted(() => {
         :color="product.quantity === 0 ? 'negative' : 'deep-purple-14'"
         rounded
         push
-        :disable="product.quantity === 0"
+        :disable="
+          product.quantity === 0 ||
+          cartStore.items.some(
+            (item) => item.product_id === product.id && item.quantity === 25
+          )
+        "
         @click="addToCart()"
       >
         <div v-if="product.quantity === 0">OUT OF STOCK</div>
+        <div
+          v-else-if="
+            cartStore.items.some(
+              (item) => item.product_id === product.id && item.quantity === 25
+            )
+          "
+        >
+          MAX LIMIT REACHED
+        </div>
         <div v-else-if="product.quantity !== 0 && !isLoading">
           ADD TO CART
           <q-icon
