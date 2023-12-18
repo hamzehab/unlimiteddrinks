@@ -345,7 +345,6 @@ onMounted(async () => {
               </div>
             </q-btn>
           </div>
-          {{ addedToCart }}
           <div class="oswald row justify-end items-center q-px-none q-pb-none">
             <transition
               appear
