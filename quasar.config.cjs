@@ -60,7 +60,7 @@ module.exports = configure(function (/* ctx */) {
 
       // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
 
-      // publicPath: "/unlimiteddrinks-frontend",
+      publicPath: "/unlimiteddrinks-frontend",
       // analyze: true,
       // env: {},
       // rawDefine: {}
