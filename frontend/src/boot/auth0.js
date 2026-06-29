@@ -9,6 +9,7 @@ export default ({ app, router }) => {
         redirect_uri: window.location.origin + "/unlimiteddrinks",
       },
       onRedirectCallback: (appState) => {
+        window.history.replaceState(null, "", "/unlimiteddrinks/");
         router.replace(appState?.target ?? "/");
       },
     })
