@@ -61,11 +61,8 @@ module.exports = configure(function (/* ctx */) {
       // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
 
       publicPath: "/unlimiteddrinks",
-      vueRouterBase: "/unlimiteddrinks/",
       // analyze: true,
-      env: {
-        VUE_ROUTER_BASE: "/unlimiteddrinks/",
-      },
+      // env: {},
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
