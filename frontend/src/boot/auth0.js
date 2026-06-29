@@ -6,7 +6,7 @@ export default ({ app }) => {
       domain: "dev-5imm05laojlznmbn.us.auth0.com",
       clientId: "P4lEc6GpH7OohooJ96YqYTcoLWRcNUvc",
       authorizationParams: {
-        redirect_uri: window.location.origin,
+        redirect_uri: window.location.origin + "/unlimiteddrinks",
       },
     })
   );
