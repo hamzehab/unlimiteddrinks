@@ -3,8 +3,8 @@ import { createAuth0 } from "@auth0/auth0-vue";
 export default ({ app }) => {
   app.use(
     createAuth0({
-      domain: "dev-f7hoszot0iiwwsko.us.auth0.com",
-      clientId: "f3xx5JCIUbCKrsQLXZtOfgmKW4RoFlVR",
+      domain: "dev-5imm05laojlznmbn.us.auth0.com",
+      clientId: "P4lEc6GpH7OohooJ96YqYTcoLWRcNUvc",
       authorizationParams: {
         redirect_uri: window.location.origin,
       },
