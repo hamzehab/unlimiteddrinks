@@ -28,7 +28,10 @@ register_tortoise(
     app,
     config={
         "connections": {
-            "default": expand_db_url(str(settings.POSTGRES_URL), "asyncpg")
+            "default": {
+                **expand_db_url(str(settings.POSTGRES_URL), "asyncpg"),
+                "credentials": {"statement_cache_size": 0},
+            }
         },
         "apps": {
             "models": {
