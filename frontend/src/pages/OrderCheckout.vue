@@ -165,7 +165,7 @@ const clearFields = () => {
       :style="windowWidth > 1000 ? 'width: 100%; max-width: 60%;' : ''"
     >
       <q-card-section class="text-center">
-        <img src="static/logo.png" alt="" style="width: 100px" />
+        <img src="/unlimiteddrinks/static/logo.png" alt="" style="width: 100px" />
         <div class="row justify-center items-center ys">
           <div>
             <span class="cursor-pointer" @click="$router.push('/cart')">
