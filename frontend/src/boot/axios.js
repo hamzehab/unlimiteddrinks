@@ -10,7 +10,7 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "https://unlimiteddrinks.onrender.com",
-  timeout: 1800,
+  timeout: 30000,
   withCredentials: false,
 });
 
