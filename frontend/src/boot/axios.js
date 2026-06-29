@@ -9,7 +9,7 @@ import axios from "axios";
 // for each client)
 
 const api = axios.create({
-  baseURL: "https://unlimiteddrinks-backend-production.up.railway.app",
+  baseURL: "https://unlimiteddrinks.onrender.com",
   timeout: 1800,
   withCredentials: false,
 });
