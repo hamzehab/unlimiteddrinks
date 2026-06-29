@@ -63,7 +63,9 @@ module.exports = configure(function (/* ctx */) {
       publicPath: "/unlimiteddrinks",
       vueRouterBase: "/unlimiteddrinks/",
       // analyze: true,
-      // env: {},
+      env: {
+        VUE_ROUTER_BASE: "/unlimiteddrinks/",
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
