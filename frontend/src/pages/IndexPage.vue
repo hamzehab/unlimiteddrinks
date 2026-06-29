@@ -71,16 +71,16 @@ onUnmounted(() => {
       infinite
       autoplay
     >
-      <q-carousel-slide :name="1" img-src="static/landing_page/warehouse.jpg" />
-      <q-carousel-slide :name="2" img-src="static/landing_page/vending.jpg" />
+      <q-carousel-slide :name="1" img-src="/unlimiteddrinks/static/landing_page/warehouse.jpg" />
+      <q-carousel-slide :name="2" img-src="/unlimiteddrinks/static/landing_page/vending.jpg" />
       <q-carousel-slide
         :name="3"
-        img-src="static/landing_page/shelfDrinks.jpg"
+        img-src="/unlimiteddrinks/static/landing_page/shelfDrinks.jpg"
       />
-      <q-carousel-slide :name="4" img-src="static/landing_page/pepsi.jpg" />
+      <q-carousel-slide :name="4" img-src="/unlimiteddrinks/static/landing_page/pepsi.jpg" />
       <q-carousel-slide
         :name="5"
-        img-src="static/landing_page/shelfDrinks2.jpg"
+        img-src="/unlimiteddrinks/static/landing_page/shelfDrinks2.jpg"
       />
     </q-carousel>
     <div
@@ -89,20 +89,20 @@ onUnmounted(() => {
       Available Products
     </div>
     <div class="q-ma-xl row justify-evenly">
-      <img class="fade" src="static/logos/coca-cola.png" alt="Coca Cola Logo" />
-      <img class="fade" src="static/logos/sprite.png" alt="Sprite Logo" />
+      <img class="fade" src="/unlimiteddrinks/static/logos/coca-cola.png" alt="Coca Cola Logo" />
+      <img class="fade" src="/unlimiteddrinks/static/logos/sprite.png" alt="Sprite Logo" />
       <img
         class="fade"
-        src="static/logos/vitamin-water.png"
+        src="/unlimiteddrinks/static/logos/vitamin-water.png"
         alt="Vitamin Water Logo"
       />
-      <img class="fade" src="static/logos/redbull.png" alt="Red Bull Logo" />
-      <img class="fade" src="static/logos/lacroix.png" alt="Lacroix Logo" />
-      <img class="fade" src="static/logos/celcius.png" alt="Celcius Logo" />
-      <img class="fade" src="static/logos/snapple.png" alt="Snapple Logo" />
+      <img class="fade" src="/unlimiteddrinks/static/logos/redbull.png" alt="Red Bull Logo" />
+      <img class="fade" src="/unlimiteddrinks/static/logos/lacroix.png" alt="Lacroix Logo" />
+      <img class="fade" src="/unlimiteddrinks/static/logos/celcius.png" alt="Celcius Logo" />
+      <img class="fade" src="/unlimiteddrinks/static/logos/snapple.png" alt="Snapple Logo" />
       <img
         class="fade"
-        src="static/logos/pellegrino.png"
+        src="/unlimiteddrinks/static/logos/pellegrino.png"
         alt="Pellegrino Logo"
       />
     </div>
