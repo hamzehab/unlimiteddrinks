@@ -68,7 +68,7 @@ const login = async () => {
 };
 
 const logout = async () => {
-  await auth0.logout({ logoutParams: { returnTo: "https://hamzehab.github.io/unlimiteddrinks-frontend" } });
+  await auth0.logout({ logoutParams: { returnTo: "https://hamzehab.github.io/unlimiteddrinks" } });
   sessionStorage.removeItem("customer");
 };
 
